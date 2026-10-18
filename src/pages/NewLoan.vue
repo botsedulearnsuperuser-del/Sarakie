@@ -14,12 +14,10 @@
         <div :class="$style.topBarRight">
           <img :class="$style.iconBtn" alt="" src="/Notifications-2-new.svg" />
           <img :class="$style.iconBtn" alt="" src="/Help.svg" />
-          <div :class="$style.userA">
-            <div :class="$style.userAvatar">
-              <b :class="$style.userInitials">ML</b>
-            </div>
+          <router-link to="/admin-profile" :class="$style.userA" style="text-decoration: none;">
+            <img :class="$style.userAvatarImg" src="/7 2.png" alt="Marion Lucas" />
             <div :class="$style.userName">Marion Lucas</div>
-          </div>
+          </router-link>
         </div>
       </header>
 
@@ -801,6 +799,16 @@ function resetForm() {
   align-items: center;
   padding: 4px 14px 4px 5px;
   gap: 9px;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.userAvatarImg {
+  width: 36px;
+  height: 36px;
+  min-width: 36px;
+  border-radius: 50%;
+  object-fit: cover;
 }
 
 .userAvatar {

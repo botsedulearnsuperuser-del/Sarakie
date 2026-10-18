@@ -30,14 +30,12 @@
             src="/Notifications-2-new.svg"
           />
           <img :class="$style.notifications2New" alt="" src="/Help.svg" />
-          <div :class="$style.userA">
-            <div :class="$style.span2">
-              <b :class="$style.mlText">ML</b>
-            </div>
+          <router-link to="/admin-profile" :class="$style.userA" style="text-decoration: none;">
+            <img :class="$style.userAvatarImg" src="/7 2.png" alt="Marion Lucas" />
             <div :class="$style.span3">
               <div :class="$style.marionLucas">Marion Lucas</div>
             </div>
-          </div>
+          </router-link>
         </div>
       </header>
 
@@ -911,6 +909,16 @@ function mockPreviewDoc(docName: string) {
   padding: var(--padding-5) var(--padding-14) var(--padding-5) var(--padding-5);
   gap: 9px;
   min-height: var(--min-h-46);
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.userAvatarImg {
+  width: 36px;
+  height: 36px;
+  min-width: 36px;
+  border-radius: 50%;
+  object-fit: cover;
 }
 
 .span2 {
