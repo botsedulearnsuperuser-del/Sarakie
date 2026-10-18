@@ -1,0 +1,192 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap");
+
+html,
+body,
+#app {
+  margin: 0;
+  min-height: 100%;
+}
+body {
+  line-height: normal;
+}
+:root {
+  /* Common Style Variables */
+
+  /* Color */
+  --color-antiquewhite-100: #ece5d3;
+  --color-antiquewhite-200: #e3dccb;
+  --color-blanchedalmond: #fdf1cf;
+  --color-blueviolet: #334fff;
+  --color-chocolate: #c2410c;
+  --color-darkslategray-100: #4a6359;
+  --color-darkslategray-200: #3e5a50;
+  --color-darkslategray-300: #24443a;
+  --color-darkslategray-400: #0b4433;
+  --color-darkslategray-500: #013626;
+  --color-darkslategray-600: #013525;
+  --color-darkslategray-700: #0e2a21;
+  --color-floralwhite: #f9f6ef;
+  --color-gainsboro: #cfe0d8;
+  --color-goldenrod-100: #fcd049;
+  --color-goldenrod-200: #eec24b;
+  --color-goldenrod-300: #edbf4d;
+  --color-gray-100: #6b7f77;
+  --color-gray-200: rgba(255, 255, 255, 0);
+  --color-gray-300: rgba(255, 255, 255, 0.18);
+  --color-gray-400: rgba(255, 255, 255, 0.5);
+  --color-gray-500: rgba(0, 0, 0, 0.25);
+  --color-lightgray-100: #d9d2c0;
+  --color-lightgray-200: #c9d2cd;
+  --color-limegreen: #48e948;
+  --color-linen: #f0eadb;
+  --color-saddlebrown: #7a5300;
+  --color-seagreen: #2e7d5b;
+  --color-seashell: #faf5ee;
+  --color-silver-100: #b9c3be;
+  --color-silver-200: #a9c2b8;
+  --color-snow: #fefcf7;
+  --color-wheat: #f3e4bc;
+  --color-white: #fff;
+
+  /* Gap */
+  --gap-0: 0px;
+  --gap-2: 2px;
+  --gap-3: 3px;
+  --gap-4: 4px;
+  --gap-5: 5px;
+  --gap-6: 6px;
+  --gap-8: 8px;
+  --gap-10: 10px;
+  --gap-11: 11px;
+  --gap-12: 12px;
+  --gap-14: 14px;
+  --gap-15: 15px;
+  --gap-16: 16px;
+  --gap-18: 18px;
+  --gap-20: 20px;
+  --gap-21: 21px;
+  --gap-30: 30px;
+  --gap-31: 31px;
+  --gap-36: 36px;
+
+  /* Padding */
+  --padding-0: 0px;
+  --padding-1: 1px;
+  --padding-2: 2px;
+  --padding-4: 4px;
+  --padding-5: 5px;
+  --padding-6: 6px;
+  --padding-8: 8px;
+  --padding-10: 10px;
+  --padding-11: 11px;
+  --padding-12: 12px;
+  --padding-13: 13px;
+  --padding-14: 14px;
+  --padding-15: 15px;
+  --padding-16: 16px;
+  --padding-18: 18px;
+  --padding-20: 20px;
+  --padding-24: 24px;
+  --padding-26: 26px;
+  --padding-28: 28px;
+  --padding-30: 30px;
+  --padding-31: 31px;
+  --padding-32: 32px;
+  --padding-36: 36px;
+  --padding-38: 38px;
+  --padding-48: 48px;
+  --padding-60: 60px;
+  --padding-11_5: 11.5px;
+
+  /* BorderRadius */
+  --br-0: 0px;
+  --br-3: 3px;
+  --br-10: 10px;
+  --br-12: 12px;
+  --br-14: 14px;
+  --br-16: 16px;
+  --br-18: 18px;
+  --br-22: 22px;
+  --br-26: 26px;
+  --br-44: 44px;
+  --br-999: 999px;
+
+  /* Font */
+  --font-inter: Inter, Arial, sans-serif;
+
+  /* FontSize */
+  --fs-12: 12px;
+  --fs-13: 13px;
+  --fs-14: 14px;
+  --fs-15: 15px;
+  --fs-16: 16px;
+  --fs-17: 17px;
+  --fs-18: 18px;
+  --fs-19: 19px;
+  --fs-21: 21px;
+  --fs-22: 22px;
+  --fs-24: 24px;
+  --fs-26: 26px;
+  --fs-28: 28px;
+  --fs-37: 37px;
+
+  /* Borders */
+  --border-1: 3px solid var(--color-goldenrod-300);
+  --border-2: 1px solid var(--color-antiquewhite-100);
+  --border-11: 1px solid var(--color-linen);
+
+  /* WidthHeights */
+  --height-3: 3px;
+  --height-5: 5px;
+  --height-8: 8px;
+  --height-9: 9px;
+  --height-10: 10px;
+  --height-15: 15px;
+  --height-16: 16px;
+  --height-17: 17px;
+  --height-18: 18px;
+  --height-20: 20px;
+  --height-24: 24px;
+  --height-26: 26px;
+  --height-28: 28px;
+  --height-30: 30px;
+  --height-44: 44px;
+  --height-47: 47px;
+  --height-48: 48px;
+  --height-52: 52px;
+  --height-84: 84px;
+  --height-85: 85px;
+  --max-w-48: 48px;
+  --max-w-64: 64px;
+  --max-w-153: 153px;
+  --max-w-139_8: 139.8px;
+  --min-h-18: 18px;
+  --min-h-44: 44px;
+  --min-h-46: 46px;
+  --min-w-40: 40px;
+  --min-w-64: 64px;
+  --min-w-100: 100px;
+  --min-w-286: 286px;
+  --min-w-310: 310px;
+  --width-9: 9px;
+  --width-10: 10px;
+  --width-15: 15px;
+  --width-16: 16px;
+  --width-18: 18px;
+  --width-20: 20px;
+  --width-24: 24px;
+  --width-28: 28px;
+  --width-40: 40px;
+  --width-64: 64px;
+  --width-72: 72px;
+  --width-85: 85px;
+  --width-169: 169px;
+  --width-209_4: 209.4px;
+
+  /* LineHeights */
+  --lh-28: 28px;
+  --lh-64: 64px;
+
+  --left-8: 8px;
+  --top-0: 0px;
+}
