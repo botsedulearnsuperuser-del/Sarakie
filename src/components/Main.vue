@@ -1,5 +1,5 @@
 <template>
-  <section :class="[$style.main, mobileOpen ? $style.open : '']">
+  <div :class="$style.wrapper">
     <button
       :class="$style.hamburger"
       type="button"
@@ -11,6 +11,7 @@
       <span></span>
     </button>
     <div v-if="mobileOpen" :class="$style.backdrop" @click="mobileOpen = false" />
+    <section :class="[$style.main, mobileOpen ? $style.open : '']">
     <img
       :class="$style.b8dbc1777d73b88cd8d55f299be4pIcon"
       alt=""
@@ -166,6 +167,7 @@
       </div>
     </div>
   </section>
+  </div>
 </template>
 <script setup lang="ts">
   import { ref } from "vue";
@@ -206,6 +208,9 @@
   }
 </script>
 <style module>
+  .wrapper {
+    display: contents;
+  }
   .main {
     width: 232px;
     height: calc(100vh - 40px);
