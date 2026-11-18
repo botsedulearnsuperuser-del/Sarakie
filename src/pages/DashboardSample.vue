@@ -324,12 +324,14 @@
         </section>
       </section>
     </main>
+    <ChatWithAgent />
   </div>
 </template>
 <script setup lang="ts">
   import { ref } from "vue"
   import { useRouter } from "vue-router"
   import Main from "../components/Main.vue"
+  import ChatWithAgent from "../components/ChatWithAgent.vue"
   import ActiveLoan from "../components/ActiveLoan.vue"
   import AccountSummary from "../components/AccountSummary.vue"
   import Section from "../components/Section.vue"
