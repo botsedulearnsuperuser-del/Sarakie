@@ -1593,9 +1593,14 @@
   }
   @media screen and (max-width: 1050px) {
     .mainContent {
-      padding-top: var(--padding-20);
-      padding-bottom: var(--padding-20);
+      padding-top: 64px;
+      padding-left: 16px;
+      padding-right: 16px;
+      padding-bottom: 20px;
       box-sizing: border-box;
+    }
+    .dumelaMarion {
+      font-size: 24px;
     }
 
     .p95044 {

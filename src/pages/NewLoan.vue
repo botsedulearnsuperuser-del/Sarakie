@@ -1641,4 +1641,10 @@ function resetForm() {
   color: #6b7280;
   line-height: 1.4;
 }
+
+@media screen and (max-width: 1050px) {
+  .mainContent {
+    padding-top: 64px;
+  }
+}
 </style>

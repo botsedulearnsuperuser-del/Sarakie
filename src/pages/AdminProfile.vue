@@ -1734,4 +1734,10 @@ function getActionClass(type: string) {
   font-size: 15px;
   color: #064e3b;
 }
+
+@media screen and (max-width: 1050px) {
+  .mainContent {
+    padding-top: 64px;
+  }
+}
 </style>

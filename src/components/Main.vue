@@ -1,5 +1,16 @@
 <template>
-  <section :class="$style.main">
+  <section :class="[$style.main, mobileOpen ? $style.open : '']">
+    <button
+      :class="$style.hamburger"
+      type="button"
+      aria-label="Toggle navigation menu"
+      @click="mobileOpen = !mobileOpen"
+    >
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+    <div v-if="mobileOpen" :class="$style.backdrop" @click="mobileOpen = false" />
     <img
       :class="$style.b8dbc1777d73b88cd8d55f299be4pIcon"
       alt=""
@@ -157,6 +168,7 @@
   </section>
 </template>
 <script setup lang="ts">
+  import { ref } from "vue";
   import { useRouter } from "vue-router";
 
   interface Props {
@@ -168,8 +180,10 @@
   });
 
   const router = useRouter();
+  const mobileOpen = ref(false);
 
   function goTo(page: "dashboard" | "loans-sheet" | "customers" | "admin-profile") {
+    mobileOpen.value = false;
     if (page === "dashboard") {
       router.push({ name: "DashboardSample" });
     } else if (page === "loans-sheet") {
@@ -182,10 +196,12 @@
   }
 
   function signOut() {
+    mobileOpen.value = false;
     router.push({ name: "AdminLogin" });
   }
 
   function openAiAgent() {
+    mobileOpen.value = false;
     window.dispatchEvent(new CustomEvent("open-tavus-agent"));
   }
 </script>
@@ -394,14 +410,64 @@
     font-weight: 500;
   }
 
+  .hamburger {
+    display: none;
+    position: fixed;
+    top: 14px;
+    left: 14px;
+    z-index: 1100;
+    width: 42px;
+    height: 42px;
+    border: none;
+    border-radius: 12px;
+    background-color: var(--color-darkslategray-500);
+    cursor: pointer;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    padding: 0;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+  }
+  .hamburger span {
+    display: block;
+    width: 20px;
+    height: 2px;
+    background-color: var(--color-white);
+    border-radius: 2px;
+  }
+  .backdrop {
+    display: none;
+  }
+
   @media screen and (max-width: 1050px) {
+    .hamburger {
+      display: flex;
+    }
+    .backdrop {
+      display: block;
+      position: fixed;
+      inset: 0;
+      background-color: rgba(0, 0, 0, 0.45);
+      z-index: 999;
+    }
+    .main {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 100vh;
+      max-height: 100vh;
+      margin: 0;
+      transform: translateX(-100%);
+      transition: transform 0.28s ease;
+      z-index: 1000;
+      border-radius: 0 20px 20px 0;
+    }
+    .open {
+      transform: translateX(0);
+    }
     .main {
       width: 200px;
-      height: auto;
-      min-height: calc(100vh - 40px);
-      margin-top: 20px;
-      margin-bottom: 20px;
-      position: relative;
     }
   }
 </style>

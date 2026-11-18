@@ -1272,4 +1272,10 @@ function mockPreviewDoc(docName: string) {
     padding: 20px 16px 32px;
   }
 }
+
+@media screen and (max-width: 1050px) {
+  .mainContent {
+    padding-top: 64px;
+  }
+}
 </style>

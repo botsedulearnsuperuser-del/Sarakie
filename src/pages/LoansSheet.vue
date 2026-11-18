@@ -842,4 +842,10 @@ const getStatusClass = (status: string) => {
   color: #718096;
   font-size: 14px;
 }
+
+@media screen and (max-width: 1050px) {
+  .mainContent {
+    padding-top: 64px;
+  }
+}
 </style>
