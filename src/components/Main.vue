@@ -201,8 +201,9 @@
     flex-direction: column;
     justify-content: space-between;
     align-items: stretch;
-    padding: 28px 16px 24px;
+    padding: 40px 16px 24px;
     box-sizing: border-box;
+    border-radius: 0 20px 20px 0;
     isolation: isolate;
     gap: 28px;
     flex-shrink: 0;
