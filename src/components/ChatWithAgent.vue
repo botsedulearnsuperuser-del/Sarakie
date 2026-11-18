@@ -8,8 +8,9 @@
       aria-label="Chat with agent"
       @click="openModal"
     >
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+      <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M0 0h24v24H0z" fill="none" stroke="none" />
+        <path d="M21 11.002v1.496c0 2.829 0 4.243-.879 5.121c-.878.88-2.293.88-5.121.88h-4l-3.794 3.32a.727.727 0 0 1-1.207-.548v-2.773c-.929 0-1.394 0-1.775-.102a3 3 0 0 1-2.122-2.122C2 15.893 2 15.428 2 14.5V9.002c0-2.828 0-4.243.879-5.121c.878-.879 2.293-.879 5.121-.879h5m6 .125v1.875m0 0v1.875m0-1.875h-1.5m1.5 0h1.5m1.5 0l-1.301-.434a2 2 0 0 1-1.265-1.265L19 2.002l-.434 1.301a2 2 0 0 1-1.265 1.265L16 5.002l1.301.434A2 2 0 0 1 18.566 6.7L19 8.002l.434-1.301a2 2 0 0 1 1.265-1.265z" />
       </svg>
       <span>Chat with agent</span>
     </button>
@@ -117,7 +118,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onBeforeUnmount } from "vue";
+import { ref, computed, onMounted, onBeforeUnmount } from "vue";
 
 const TOTAL_SECONDS = 5 * 60;
 
@@ -254,7 +255,12 @@ const formattedTime = computed(() => {
 
 const timerPercent = computed(() => (remaining.value / TOTAL_SECONDS) * 100);
 
+onMounted(() => {
+  window.addEventListener("open-tavus-agent", openModal);
+});
+
 onBeforeUnmount(() => {
+  window.removeEventListener("open-tavus-agent", openModal);
   stopTimer();
 });
 </script>
