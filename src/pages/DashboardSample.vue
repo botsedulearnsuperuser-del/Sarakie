@@ -21,7 +21,7 @@
           />
           <img :class="$style.notifications2New" alt="" src="/Help.svg" />
           <router-link to="/admin-profile" :class="$style.a" style="text-decoration: none;">
-            <img :class="$style.userAvatarImg" src="/7 2.png" alt="Kago Molefe" />
+            <img :class="$style.userAvatarImg" src="/innovator-man.webp" alt="Kago Molefe" />
             <div :class="$style.span3">
               <div :class="$style.marionLucas">Kago Molefe</div>
             </div>
@@ -36,9 +36,9 @@
               <img
                 :class="$style.topUpPattern"
                 alt=""
-                src="/Untitled-design-3-21@2x.png"
+                src="/untitled-3-21.webp"
               />
-              <img :class="$style.topUpPhoto" alt="" src="/hero-woman.png" />
+              <img :class="$style.topUpPhoto" alt="" src="/hero-woman.webp" />
             </div>
             <div :class="$style.div4">
               <div :class="$style.div5">
@@ -163,7 +163,7 @@
             <img
               :class="$style.b8dbc1777d73b88cd8d55f299be4pIcon"
               alt=""
-              src="/8917b8dbc1777d73b88cd8d55f299be4-png1@2x.png"
+              src="/pattern-1.webp"
             />
             <div :class="$style.div21">
               <div :class="$style.ml">Monthly repayment</div>
@@ -177,7 +177,7 @@
             <img
               :class="$style.divmarginIcon"
               alt=""
-              src="/div-margin1@2x.png"
+              src="/div-margin1.webp"
             />
             <div :class="$style.repaymentBreakdownGroup">
               <div :class="$style.div26">

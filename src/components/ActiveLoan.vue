@@ -3,7 +3,7 @@
     <img
       :class="$style.b8dbc1777d73b88cd8d55f299be4pIcon"
       alt=""
-      src="/8917b8dbc1777d73b88cd8d55f299be4-png@2x.png"
+      src="/pattern-3.webp"
     />
     <div :class="$style.div">
       <div :class="$style.div2">
@@ -36,7 +36,7 @@
         :class="$style.divmarginIcon"
         loading="lazy"
         alt=""
-        src="/div-margin@2x.png"
+        src="/div-margin.webp"
       />
       <div :class="$style.div7">
         <div :class="$style.span3">

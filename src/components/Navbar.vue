@@ -4,7 +4,7 @@
       <router-link to="/" :class="$style.logoLink">
         <img
           :class="$style.logo"
-          src="/ceda-logo.png"
+          src="/ceda-logo.webp"
           alt="CEDA — Finance, Develop, Sustain"
         />
       </router-link>

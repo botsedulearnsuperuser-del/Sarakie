@@ -5,7 +5,7 @@
         :class="$style.logo"
         loading="lazy"
         alt="Sarakie Cash Loan"
-        src="/Untitled-design-2-3@2x.png"
+        src="/untitled-2-3.webp"
       />
       <div :class="$style.cols">
         <div :class="$style.col">

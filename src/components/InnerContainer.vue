@@ -23,7 +23,7 @@
         <img
           :class="$style.cardPattern"
           alt=""
-          src="/Untitled-design-3-21@2x.png"
+          src="/untitled-3-21.webp"
         />
       </article>
     </div>

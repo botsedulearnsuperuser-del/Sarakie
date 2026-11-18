@@ -15,7 +15,7 @@
           <img :class="$style.iconBtn" alt="" src="/Notifications-2-new.svg" />
           <img :class="$style.iconBtn" alt="" src="/Help.svg" />
           <router-link to="/admin-profile" :class="$style.userA" style="text-decoration: none;">
-            <img :class="$style.userAvatarImg" src="/7 2.png" alt="Marion Lucas" />
+            <img :class="$style.userAvatarImg" src="/innovator-man.webp" alt="Marion Lucas" />
             <div :class="$style.userName">Marion Lucas</div>
           </router-link>
         </div>
@@ -557,7 +557,7 @@
           <!-- Loan Summary Card with Ethnic Pattern Watermark -->
           <div :class="$style.summaryCard">
             <img
-              src="/8917b8dbc1777d73b88cd8d55f299be4-png2@2x.png"
+              src="/pattern-2.webp"
               :class="$style.patternWatermark"
               alt=""
             />

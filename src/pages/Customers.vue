@@ -25,7 +25,7 @@
           />
           <img :class="$style.notifications2New" alt="" src="/Help.svg" />
           <router-link to="/admin-profile" :class="$style.userA" style="text-decoration: none;">
-            <img :class="$style.userAvatarImg" src="/7 2.png" alt="Marion Lucas" />
+            <img :class="$style.userAvatarImg" src="/innovator-man.webp" alt="Marion Lucas" />
             <div :class="$style.span3">
               <div :class="$style.marionLucas">Marion Lucas</div>
             </div>
@@ -57,7 +57,7 @@
           <!-- Botswana vertical chevron pattern along the right edge -->
           <img
             :class="$style.bannerPattern"
-            src="/8917b8dbc1777d73b88cd8d55f299be4-png2@2x.png"
+            src="/pattern-2.webp"
             alt=""
           />
 

@@ -3,9 +3,9 @@
     <img
       :class="$style.b8dbc1777d73b88cd8d55f299be4pIcon"
       alt=""
-      src="/8917b8dbc1777d73b88cd8d55f299be4-png2@2x.png"
+      src="/pattern-2.webp"
     />
-    <img :class="$style.aIcon" alt="" src="/a@2x.png" />
+    <img :class="$style.aIcon" alt="" src="/a.webp" />
     <div :class="$style.divsideItems">
       <div
         :class="activePage === 'dashboard' ? $style.asideLink : $style.asideLink2"

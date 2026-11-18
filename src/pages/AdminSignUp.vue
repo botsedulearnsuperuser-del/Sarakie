@@ -57,7 +57,7 @@
     <!-- Right Column: Sign In Form -->
     <main :class="$style.formMain">
       <div :class="$style.formCard">
-        <img :class="$style.cedaLogo" src="/ceda-logo.png" alt="CEDA" />
+        <img :class="$style.cedaLogo" src="/ceda-logo.webp" alt="CEDA" />
 
         <h2 :class="$style.formTitle">Create Account</h2>
         <div :class="$style.formTitleUnderline" />
@@ -171,8 +171,8 @@ import { useRouter } from "vue-router";
 
 const router = useRouter();
 
-const manImageSrc = encodeURI("/7 2.png");
-const womanImageSrc = encodeURI("/hero-client.png");
+const manImageSrc = encodeURI("/innovator-man.webp");
+const womanImageSrc = encodeURI("/hero-client.webp");
 
 const fullName = ref("");
 const identifier = ref("");
@@ -217,8 +217,8 @@ const handleSignUp = () => {
   width: 100px;
   height: 100%;
   background-color: #d18a4e;
-  -webkit-mask-image: url("/8917b8dbc1777d73b88cd8d55f299be4-png@2x.png");
-  mask-image: url("/8917b8dbc1777d73b88cd8d55f299be4-png@2x.png");
+  -webkit-mask-image: url("/pattern-3.webp");
+  mask-image: url("/pattern-3.webp");
   -webkit-mask-size: 100px auto;
   mask-size: 100px auto;
   -webkit-mask-repeat: repeat-y;

@@ -20,7 +20,7 @@
     <img
       :class="$style.untitledDesign32"
       alt=""
-      src="/Untitled-design-3-21@2x.png"
+      src="/untitled-3-21.webp"
     />
   </section>
 </template>

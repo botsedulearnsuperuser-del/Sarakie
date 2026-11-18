@@ -2,7 +2,7 @@
   <section :class="$style.hero">
     <img
       :class="$style.circles"
-      src="/hero-circles.png"
+      src="/hero-circles.webp"
       alt=""
       aria-hidden="true"
     />
@@ -10,7 +10,7 @@
     <div :class="$style.visual">
       <img
         :class="$style.lady"
-        src="/hero-client.png"
+        src="/hero-client.webp"
         alt="CEDA client using the innovation portal on her phone"
       />
     </div>

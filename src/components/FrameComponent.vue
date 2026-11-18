@@ -14,7 +14,7 @@
         :class="$style.mockup"
         loading="lazy"
         alt="Desktop and mobile application preview"
-        src="/Group-3@2x.png"
+        src="/group-3.webp"
       />
     </div>
   </section>

@@ -15,7 +15,7 @@
           <img :class="$style.iconBtn" alt="" src="/Notifications-2-new.svg" />
           <img :class="$style.iconBtn" alt="" src="/Help.svg" />
           <div :class="$style.userA">
-            <img :class="$style.userAvatarImg" src="/7 2.png" alt="Marion Lucas" />
+            <img :class="$style.userAvatarImg" src="/innovator-man.webp" alt="Marion Lucas" />
             <div :class="$style.userName">Marion Lucas</div>
           </div>
         </div>
@@ -25,11 +25,11 @@
       <section :class="$style.profileBanner">
         <img
           :class="$style.bannerPattern"
-          src="/8917b8dbc1777d73b88cd8d55f299be4-png2@2x.png"
+          src="/pattern-2.webp"
           alt=""
         />
         <div :class="$style.bannerLeft">
-          <img :class="$style.avatarImg" src="/7 2.png" alt="Marion Lucas" />
+          <img :class="$style.avatarImg" src="/innovator-man.webp" alt="Marion Lucas" />
           <div :class="$style.bannerInfo">
             <h2 :class="$style.profileName">Marion Lucas</h2>
             <p :class="$style.profileSub">Branch Administrator · Gaborone Main Branch</p>

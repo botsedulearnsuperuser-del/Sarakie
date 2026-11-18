@@ -1,6 +1,6 @@
 <template>
   <section :class="$style.cta">
-    <img :class="$style.pattern" alt="" src="/Untitled-design-3-21@2x.png" />
+    <img :class="$style.pattern" alt="" src="/untitled-3-21.webp" />
     <div :class="$style.inner">
       <div :class="$style.textBlock">
         <h2 :class="$style.title">
