@@ -30,40 +30,10 @@
           </button>
         </header>
 
-        <!-- Setup state -->
-        <div v-if="setupNeeded" :class="$style.setupBox">
-          <h4 :class="$style.setupTitle">Tavus is not configured yet</h4>
-          <p :class="$style.setupText">
-            To enable the AI agent, set these environment variables (or paste them below for this session):
-          </p>
-          <ul :class="$style.setupList">
-            <li><code>VITE_TAVUS_API_KEY</code> — your Tavus API key</li>
-            <li><code>VITE_TAVUS_PAL_ID</code> — your Tavus PAL ID</li>
-          </ul>
-          <div :class="$style.setupFields">
-            <input
-              v-model="apiKeyInput"
-              type="password"
-              placeholder="Tavus API key"
-              :class="$style.setupInput"
-            />
-            <input
-              v-model="palIdInput"
-              type="text"
-              placeholder="Tavus PAL ID"
-              :class="$style.setupInput"
-            />
-            <button :class="$style.setupSave" type="button" @click="saveSetup">
-              Save for this session
-            </button>
-          </div>
-          <p :class="$style.setupHint">
-            Keys are kept in this browser only (localStorage) and are never committed. For production, proxy the Tavus call through a server so the key stays secret.
-          </p>
-        </div>
+        <!-- Setup state (handled server-side via /api/tavus-conversation) -->
 
         <!-- Loading -->
-        <div v-else-if="loading" :class="$style.centerBox">
+        <div v-if="loading" :class="$style.centerBox">
           <div :class="$style.spinner"></div>
           <p>Starting your conversation…</p>
         </div>
@@ -130,25 +100,8 @@ const sessionEnded = ref(false);
 const remaining = ref(TOTAL_SECONDS);
 let timer: number | null = null;
 
-const apiKeyInput = ref("");
-const palIdInput = ref("");
 const chatInput = ref("");
 const chatReply = ref("");
-
-const apiKey = ref(import.meta.env.VITE_TAVUS_API_KEY || "");
-const palId = ref(import.meta.env.VITE_TAVUS_PAL_ID || "");
-
-// load from localStorage if present
-try {
-  const k = localStorage.getItem("tavus_api_key");
-  const p = localStorage.getItem("tavus_pal_id");
-  if (k) apiKey.value = k;
-  if (p) palId.value = p;
-} catch (e) {
-  /* ignore */
-}
-
-const setupNeeded = computed(() => !apiKey.value || !palId.value);
 
 function openModal() {
   open.value = true;
@@ -156,9 +109,7 @@ function openModal() {
   conversationUrl.value = "";
   sessionEnded.value = false;
   remaining.value = TOTAL_SECONDS;
-  if (!setupNeeded.value) {
-    startConversation();
-  }
+  startConversation();
 }
 
 function closeModal() {
@@ -168,41 +119,20 @@ function closeModal() {
   loading.value = false;
 }
 
-function saveSetup() {
-  if (apiKeyInput.value) {
-    apiKey.value = apiKeyInput.value;
-    try { localStorage.setItem("tavus_api_key", apiKeyInput.value); } catch (e) { /* ignore */ }
-  }
-  if (palIdInput.value) {
-    palId.value = palIdInput.value;
-    try { localStorage.setItem("tavus_pal_id", palIdInput.value); } catch (e) { /* ignore */ }
-  }
-  if (!setupNeeded.value) {
-    startConversation();
-  }
-}
 
 async function startConversation() {
   loading.value = true;
   error.value = "";
   try {
-    const res = await fetch("https://tavusapi.com/v2/conversations", {
+    const res = await fetch("/api/tavus-conversation", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "x-api-key": apiKey.value,
-      },
-      body: JSON.stringify({
-        pal_id: palId.value,
-        conversation_name: "Refine idea session",
-      }),
     });
     if (!res.ok) {
-      const text = await res.text();
-      throw new Error(`Tavus API error ${res.status}: ${text}`);
+      const data = await res.json().catch(() => ({}));
+      throw new Error(data?.error || `Server error ${res.status}`);
     }
     const data = await res.json();
-    conversationUrl.value = data.conversation_url || data.conversationUrl || "";
+    conversationUrl.value = data.conversation_url || "";
     if (!conversationUrl.value) {
       throw new Error("No conversation URL returned by Tavus.");
     }
