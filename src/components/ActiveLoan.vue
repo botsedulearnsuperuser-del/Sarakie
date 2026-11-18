@@ -355,22 +355,19 @@ function viewProposal() {
   @media screen and (max-width: 750px) {
     .activeLoan {
       flex: 1;
+      padding: 18px 16px;
+      border-radius: 20px;
+      min-height: 0;
     }
 
     .div {
-      padding-right: var(--padding-48);
+      padding-right: 76px;
       box-sizing: border-box;
     }
   }
   @media screen and (max-width: 450px) {
-    .activeLoan {
-      padding-top: var(--padding-20);
-      padding-bottom: var(--padding-20);
-      box-sizing: border-box;
-    }
-
     .div {
-      padding-right: var(--padding-20);
+      padding-right: 60px;
       box-sizing: border-box;
     }
 

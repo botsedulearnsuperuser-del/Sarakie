@@ -1593,9 +1593,9 @@
   }
   @media screen and (max-width: 1050px) {
     .mainContent {
-      padding-top: 64px;
-      padding-left: 16px;
-      padding-right: 16px;
+      padding-top: 62px;
+      padding-left: 14px;
+      padding-right: 14px;
       padding-bottom: 20px;
       box-sizing: border-box;
     }
@@ -1613,19 +1613,92 @@
       gap: 0;
     }
 
+    /* header: icons row on top, greeting and date underneath at full width */
+    .mainContent {
+      padding-left: 12px;
+      padding-right: 12px;
+      padding-bottom: 96px;
+      gap: 14px;
+    }
+    .div {
+      flex-direction: column-reverse;
+      align-items: stretch;
+      row-gap: 12px;
+      padding: 0;
+    }
+    .div2 {
+      gap: 5px;
+    }
+    .dumelaMarion {
+      font-size: 28px;
+      letter-spacing: -0.3px;
+    }
+    .sunday4October {
+      padding-right: 0;
+      font-size: var(--fs-14);
+      line-height: 1.45;
+    }
+    .div3 {
+      height: auto;
+      justify-content: flex-end;
+      gap: 8px;
+    }
+    .notifications2New {
+      height: 40px;
+      width: 40px;
+      border-radius: 50%;
+    }
+    .a {
+      height: 40px;
+      min-height: 40px;
+      padding: 4px 12px 4px 4px;
+    }
+    .userAvatarImg {
+      width: 30px;
+      height: 30px;
+      min-width: 30px;
+    }
+    .span3 {
+      height: auto;
+    }
+    .marionLucas {
+      font-size: var(--fs-13);
+    }
+
+    /* cards: wider on small screens */
+    .section,
+    .section2,
+    .section3 {
+      padding: 18px 16px;
+      border-radius: 20px;
+    }
     .topUpOffer {
       max-width: 100%;
     }
+    .photoArea {
+      flex: 0 0 auto;
+      height: 190px;
+      min-height: 190px;
+    }
+    .topUpPhoto {
+      width: 100%;
+      height: 230px;
+    }
     .div4 {
-      flex-wrap: wrap;
+      flex-direction: column;
+      align-items: stretch;
+      padding: 16px;
+      gap: 12px;
+      border-radius: 0 0 20px 20px;
+    }
+    .div5 {
+      min-width: 0;
+    }
+    .agold {
+      justify-content: center;
     }
   }
   @media screen and (max-width: 450px) {
-    .frame {
-      padding-top: 196px;
-      box-sizing: border-box;
-    }
-
     .recentApplications {
       font-size: var(--fs-16);
     }

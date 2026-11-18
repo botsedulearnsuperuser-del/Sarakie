@@ -166,4 +166,41 @@
   .viewButton:active {
     transform: translateY(1px);
   }
+
+  @media screen and (max-width: 600px) {
+    .li {
+      gap: 10px;
+      padding: 10px 12px;
+      border-radius: 14px;
+    }
+    .span {
+      width: 34px;
+      border-radius: 10px;
+      padding: 8px 0;
+    }
+    .p {
+      width: 18px;
+      height: 18px;
+    }
+    .div {
+      font-size: var(--fs-14);
+    }
+    .thatoLekgoba,
+    .september {
+      white-space: nowrap;
+    }
+    .september {
+      font-size: var(--fs-12);
+    }
+    .p90000 {
+      min-width: 0 !important;
+      font-size: var(--fs-13);
+      white-space: nowrap;
+    }
+    .viewButton {
+      height: 32px;
+      padding: 0 10px;
+      border-radius: 9px;
+    }
+  }
 </style>

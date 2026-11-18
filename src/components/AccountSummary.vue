@@ -195,17 +195,31 @@
       flex-wrap: wrap;
     }
   }
+  @media screen and (max-width: 750px) {
+    .accountSummary {
+      flex-direction: column;
+      flex-wrap: nowrap;
+      row-gap: 0;
+      border-radius: 20px;
+    }
+
+    .div,
+    .div5,
+    .div9 {
+      width: 100%;
+      min-width: 0;
+      padding: 14px 16px;
+    }
+
+    .div5,
+    .div9 {
+      border-left: none;
+      border-top: var(--border-2);
+    }
+  }
   @media screen and (max-width: 450px) {
     .p1789192 {
       font-size: var(--fs-21);
-    }
-
-    .div5 {
-      width: calc(100% - 40px);
-    }
-
-    .div9 {
-      width: calc(100% - 40px);
     }
 
     .h2 {

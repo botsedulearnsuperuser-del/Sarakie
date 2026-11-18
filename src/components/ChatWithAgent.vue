@@ -486,4 +486,27 @@ onBeforeUnmount(() => {
   border-radius: 12px;
   background-color: #000;
 }
+
+@media screen and (max-width: 750px) {
+  .fab {
+    right: 14px;
+    bottom: 14px;
+    padding: 10px 14px;
+    gap: 6px;
+    font-size: 13px;
+  }
+
+  .overlay {
+    padding: 12px;
+  }
+
+  .modal {
+    max-height: 94vh;
+    border-radius: 16px;
+  }
+
+  .iframe {
+    min-height: 320px;
+  }
+}
 </style>
