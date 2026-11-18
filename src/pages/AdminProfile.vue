@@ -113,7 +113,7 @@
             <div :class="$style.fieldRow">
               <div :class="$style.field">
                 <span :class="$style.fieldLabel">Work email</span>
-                <span :class="$style.fieldValue">m.lucas@sarakie.co.bw</span>
+                <span :class="$style.fieldValue">m.lucas@ceda.co.bw</span>
               </div>
               <div :class="$style.field">
                 <span :class="$style.fieldLabel">Work phone</span>

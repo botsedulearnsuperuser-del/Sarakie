@@ -493,7 +493,7 @@
                 <label :class="$style.checkboxRow">
                   <input v-model="debitMandateSigned" type="checkbox" :class="$style.checkboxInput" />
                   <span :class="$style.checkboxLabel">
-                    <b>Signed debit order mandate received:</b> Customer has authorized SARAKIE Cash Loan to debit the specified account monthly for {{ months }} months.
+                    <b>Signed debit order mandate received:</b> Customer has authorized CEDA to debit the specified account monthly for {{ months }} months.
                   </span>
                 </label>
 

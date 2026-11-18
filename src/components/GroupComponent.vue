@@ -4,8 +4,8 @@
       <img
         :class="$style.logo"
         loading="lazy"
-        alt="Sarakie Cash Loan"
-        src="/untitled-2-3.webp"
+        alt="CEDA"
+        src="/ceda-logo-white.webp"
       />
       <div :class="$style.cols">
         <div :class="$style.col">
@@ -19,7 +19,7 @@
         <div :class="$style.col">
           <h3 :class="$style.heading">CONTACT US</h3>
           <p :class="$style.body">
-            Kmatakata@sarakie.com<br />
+            Kmatakata@ceda.co.bw<br />
             +267 77663331
           </p>
         </div>

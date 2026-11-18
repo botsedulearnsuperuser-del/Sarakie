@@ -13,7 +13,7 @@
           </div>
           <div :class="$style.p">
             <div :class="$style.sunday4October">
-              Repayments, statements and settlement for every loan you’ve had with Sarakie.
+              Repayments, statements and settlement for every loan you’ve had with CEDA.
             </div>
           </div>
         </div>
