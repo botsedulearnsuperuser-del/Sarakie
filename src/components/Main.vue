@@ -213,10 +213,10 @@
   }
   .main {
     width: 232px;
-    height: calc(100vh - 40px);
-    max-height: calc(100vh - 40px);
+    height: calc(100vh - 20px);
+    max-height: calc(100vh - 20px);
     margin-top: 20px;
-    margin-bottom: 20px;
+    margin-bottom: 0;
     align-self: start;
     position: relative;
     background-color: var(--color-darkslategray-500);
@@ -227,7 +227,7 @@
     align-items: stretch;
     padding: 40px 16px 24px;
     box-sizing: border-box;
-    border-radius: 0 20px 20px 0;
+    border-radius: 0 20px 0 0;
     isolation: isolate;
     gap: 28px;
     flex-shrink: 0;
@@ -466,7 +466,7 @@
       transform: translateX(-100%);
       transition: transform 0.28s ease;
       z-index: 1000;
-      border-radius: 0 20px 20px 0;
+      border-radius: 0 20px 0 0;
     }
     .open {
       transform: translateX(0);
