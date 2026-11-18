@@ -328,6 +328,7 @@
 </template>
 <script setup lang="ts">
   import { ref } from "vue"
+  import { useRouter } from "vue-router"
   import Main from "../components/Main.vue"
   import ActiveLoan from "../components/ActiveLoan.vue"
   import AccountSummary from "../components/AccountSummary.vue"
@@ -369,8 +370,10 @@
     },
   ])
 
+  const router = useRouter()
+
   const handleViewIdea = (name: string) => {
-    window.alert(`Viewing idea: ${name}`)
+    router.push({ name: "IdeaView", query: { name } })
   }
 </script>
 <style module>
