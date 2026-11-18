@@ -192,8 +192,10 @@
 <style module>
   .main {
     width: 232px;
-    height: 100vh;
-    max-height: 100vh;
+    height: calc(100vh - 32px);
+    max-height: calc(100vh - 32px);
+    margin-top: 32px;
+    align-self: start;
     position: relative;
     background-color: var(--color-darkslategray-500);
     overflow: hidden;
@@ -395,7 +397,8 @@
     .main {
       width: 200px;
       height: auto;
-      min-height: 100vh;
+      min-height: calc(100vh - 32px);
+      margin-top: 32px;
       position: relative;
     }
   }
