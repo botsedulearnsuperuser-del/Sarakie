@@ -1,64 +1,67 @@
 <template>
   <div :class="$style.page">
-    <!-- Left Column: Hero branding & People -->
+    <!-- Left Column: Brand statement & people -->
     <aside :class="$style.heroAside">
-      <!-- Decorative Botswana pattern on the left edge -->
-      <img
-        :class="$style.leftPattern"
-        alt=""
-        src="/8917b8dbc1777d73b88cd8d55f299be4-png@2x.png"
-      />
+      <div :class="$style.leftPattern" aria-hidden="true" />
 
       <div :class="$style.asideContent">
-        <router-link to="/" :class="$style.logoLink">
-          <img
-            :class="$style.logo"
-            src="/LOGO@2x.png"
-            alt="Sarakie Cash Loan"
-          />
+        <router-link to="/" :class="$style.backButton">
+          <svg
+            :class="$style.backArrow"
+            viewBox="0 0 24 24"
+            fill="none"
+            aria-hidden="true"
+          >
+            <path
+              d="M20 12H4.5M11 5.5 4.5 12l6.5 6.5"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+          <span>Back to Home</span>
         </router-link>
 
-        <div :class="$style.badgeGroup">
-          <div :class="$style.badgeLine" />
-          <span :class="$style.badgeText">ROOTED IN BOTSWANA</span>
-        </div>
+        <p :class="$style.eyebrow">ROOTED IN BOTSWANA</p>
+        <div :class="$style.eyebrowBar" />
 
         <h1 :class="$style.headline">
-          <span :class="$style.goldText">Loans<br />Management</span><br />
-          <span :class="$style.whiteText">&amp; Administration</span>
+          Your Next Step<br />
+          <span :class="$style.whiteText">Is</span>
+          <span :class="$style.goldText"> Here.</span>
         </h1>
 
         <p :class="$style.subcopy">
-          For Sarakie Cash Loans Administrators<br />
-          and Branch Personnel
+          Apply For a Loan , Keep Track of your application,<br
+            :class="$style.subcopyBreak"
+          />
+          and manage active loans
         </p>
       </div>
 
-      <!-- People images at the bottom of the column -->
       <div :class="$style.peopleContainer">
         <img
           :class="$style.manPhoto"
           :src="manImageSrc"
-          alt="Sarakie Personnel"
+          alt="CEDA client"
         />
         <img
           :class="$style.womanPhoto"
           :src="womanImageSrc"
-          alt="Sarakie Client"
+          alt="CEDA client"
         />
       </div>
     </aside>
 
-    <!-- Right Column: Admin Log In Form -->
+    <!-- Right Column: Sign In Form -->
     <main :class="$style.formMain">
       <div :class="$style.formCard">
-        <div :class="$style.headerGroup">
-          <h2 :class="$style.formTitle">Admin Log In</h2>
-          <div :class="$style.formTitleUnderline" />
-          <p :class="$style.formSubtitle">
-            Sign in to your Sarakie Personnel Account
-          </p>
-        </div>
+        <img :class="$style.cedaLogo" src="/ceda-logo.png" alt="CEDA" />
+
+        <h2 :class="$style.formTitle">Welcome Back</h2>
+        <div :class="$style.formTitleUnderline" />
+        <p :class="$style.formSubtitle">Sign in to your CEDA Account</p>
 
         <form :class="$style.loginForm" @submit.prevent="handleLogin">
           <div :class="$style.inputGroup">
@@ -77,9 +80,7 @@
           </div>
 
           <div :class="$style.inputGroup">
-            <label :class="$style.inputLabel" for="password">
-              Password
-            </label>
+            <label :class="$style.inputLabel" for="password">Password</label>
             <input
               id="password"
               v-model="password"
@@ -91,31 +92,48 @@
             />
           </div>
 
-          <a :class="$style.forgotLink" href="#forgot" @click.prevent>
+          <router-link :class="$style.forgotLink" to="/forgot-password">
             Forgot Password?
-          </a>
+          </router-link>
 
           <button :class="$style.submitButton" type="submit">
             <span>Sign In</span>
-            <img
+            <svg
               :class="$style.btnArrow"
-              src="/bitcoin-icons-arrow-right-filled.svg"
-              alt=""
-            />
+              viewBox="0 0 24 24"
+              fill="none"
+              aria-hidden="true"
+            >
+              <path
+                d="M4 12h15M13 5.5 19.5 12 13 18.5"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </svg>
           </button>
 
           <p :class="$style.signupPrompt">
             Dont have an Account ?
-            <a :class="$style.signupLink" href="#signup" @click.prevent>
+            <router-link :class="$style.signupLink" to="/sign-up">
               Sign Up?
+            </router-link>
+          </p>
+
+          <p :class="$style.supportPrompt">
+            Need Help ?
+            <a :class="$style.supportLink" href="#support" @click.prevent>
+              Talk to an Agent
             </a>
           </p>
 
-          <p :class="$style.developerHelp">
-            Need Help Logging in ?
-            <a :class="$style.devLink" href="#dev-support" @click.prevent>
-              Talk to System Developers
-            </a>
+          <p :class="$style.legalNote">
+            By continuing to access this system, you confirm that you agree to
+            our
+            <a :class="$style.legalLink" href="#privacy-policy">Privacy Policy</a>
+            and
+            <a :class="$style.legalLink" href="#terms-and-conditions">Terms &amp; Conditions</a>.
           </p>
         </form>
       </div>
@@ -130,7 +148,7 @@ import { useRouter } from "vue-router";
 const router = useRouter();
 
 const manImageSrc = encodeURI("/7 2.png");
-const womanImageSrc = encodeURI("/4 2 (1).png");
+const womanImageSrc = encodeURI("/hero-client.png");
 
 const identifier = ref("");
 const password = ref("");
@@ -142,27 +160,27 @@ const handleLogin = () => {
 </script>
 
 <style module>
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap");
+
 .page {
-  width: 100vw;
-  min-height: 100vh;
+  width: 100%;
+  height: 100vh;
   display: grid;
   grid-template-columns: 44% 56%;
-  background-color: #faf7f2;
-  font-family: var(--font-inter);
-  overflow-x: hidden;
+  background-color: #fff;
+  font-family: Poppins, var(--font-inter);
+  overflow: hidden;
   box-sizing: border-box;
 }
 
-/* Left Hero Column */
+/* ---------- Left hero column ---------- */
 .heroAside {
   position: relative;
-  background-color: var(--color-darkslategray-600);
+  background-color: #941d11;
   height: 100vh;
-  min-height: 680px;
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
   box-sizing: border-box;
 }
 
@@ -170,12 +188,16 @@ const handleLogin = () => {
   position: absolute;
   top: 0;
   left: 0;
-  width: 104px;
+  width: 100px;
   height: 100%;
-  object-fit: cover;
-  object-position: center top;
-  opacity: 0.9;
-  mix-blend-mode: screen;
+  background-color: #d18a4e;
+  -webkit-mask-image: url("/8917b8dbc1777d73b88cd8d55f299be4-png@2x.png");
+  mask-image: url("/8917b8dbc1777d73b88cd8d55f299be4-png@2x.png");
+  -webkit-mask-size: 100px auto;
+  mask-size: 100px auto;
+  -webkit-mask-repeat: repeat-y;
+  mask-repeat: repeat-y;
+  opacity: 0.85;
   pointer-events: none;
   z-index: 0;
 }
@@ -183,84 +205,113 @@ const handleLogin = () => {
 .asideContent {
   position: relative;
   z-index: 2;
-  padding: 40px 32px 0 126px;
+  flex: 0 0 auto;
+  padding: clamp(22px, 5.2vh, 64px) 24px 0 clamp(126px, 10.2vw, 172px);
   display: flex;
   flex-direction: column;
   align-items: flex-start;
 }
 
-.logoLink {
-  display: inline-block;
-  margin-bottom: 24px;
+.backButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6em;
+  padding: 0.5em 1.2em 0.5em 1em;
+  border: 2px solid #941d11;
+  border-radius: 999px;
+  background-color: #e6bd74;
+  color: #941d11;
+  font-size: min(22px, max(14px, 1.08vw));
+  font-weight: 600;
   text-decoration: none;
+  margin-bottom: clamp(20px, 3.6vh, 38px);
+  transition: transform 0.15s, background-color 0.2s;
 }
 
-.logo {
-  height: 36px;
-  width: auto;
-  object-fit: contain;
+.backButton:hover {
+  background-color: #f0c982;
+  transform: translateX(-2px);
 }
 
-.badgeGroup {
-  display: flex;
-  flex-direction: column;
-  gap: 9px;
-  margin-bottom: 20px;
+.backArrow {
+  width: 1.15em;
+  height: 1.15em;
 }
 
-.badgeLine {
-  width: 48px;
-  height: 5px;
-  border-radius: 3px;
-  background-color: var(--color-goldenrod-300);
+.eyebrow {
+  margin: 0;
+  color: #e9c07a;
+  font-size: clamp(13px, 1.05vw, 18px);
+  font-weight: 600;
+  letter-spacing: 0.14em;
 }
 
-.badgeText {
-  color: var(--color-goldenrod-200);
-  font-size: 17px;
-  font-weight: 800;
-  letter-spacing: 1.2px;
+.eyebrowBar {
+  width: clamp(64px, 9vw, 150px);
+  height: 4px;
+  background-color: #e9c07a;
+  margin: 7px 0 12px;
 }
 
 .headline {
-  margin: 0 0 16px;
-  font-size: clamp(30px, 3.2vw, 42px);
-  font-weight: 900;
-  line-height: 1.15;
-  letter-spacing: -0.5px;
+  margin: 0 0 12px;
+  color: #fff;
+  font-size: clamp(30px, 3.05vw, 52px);
+  font-weight: 700;
+  line-height: 1.24;
+  letter-spacing: -0.01em;
 }
 
 .goldText {
-  color: var(--color-goldenrod-200);
+  color: #e9c07a;
 }
 
 .whiteText {
-  color: var(--color-white);
+  color: #fff;
 }
 
 .subcopy {
   margin: 0;
-  color: #c9d6d1;
-  font-size: 16px;
-  line-height: 1.48;
-  max-width: 340px;
+  color: #fff;
+  font-size: clamp(14px, 1.15vw, 20px);
+  font-weight: 400;
+  line-height: 1.45;
+  max-width: 560px;
 }
 
-/* People at the bottom of the left column with generous clearance above */
+.subcopyBreak {
+  display: inline;
+}
+
+/* Photos always fill whatever height is left under the copy, so they stay as
+   large as the viewport allows and can never overlap the text above them. */
 .peopleContainer {
   position: relative;
+  flex: 1 1 auto;
+  min-height: 120px;
   width: 100%;
-  height: 330px;
+  margin-top: clamp(4px, 1.2vh, 14px);
   z-index: 1;
   pointer-events: none;
-  margin-top: auto;
 }
 
 .manPhoto {
   position: absolute;
-  bottom: 0;
-  left: -10px;
-  height: 310px;
+  bottom: -12%;
+  left: -2%;
+  height: 112%;
+  width: auto;
+  max-width: none;
+  object-fit: contain;
+  object-position: left bottom;
+  z-index: 1;
+}
+
+.womanPhoto {
+  position: absolute;
+  bottom: -12%;
+  left: 38%;
+  height: 112%;
   width: auto;
   max-width: none;
   object-fit: contain;
@@ -268,66 +319,55 @@ const handleLogin = () => {
   z-index: 2;
 }
 
-.womanPhoto {
-  position: absolute;
-  bottom: 0;
-  left: 155px;
-  height: 295px;
-  width: auto;
-  max-width: none;
-  object-fit: contain;
-  object-position: left bottom;
-  z-index: 1;
-}
-
-/* Right Form Column */
+/* ---------- Right form column ---------- */
 .formMain {
   height: 100vh;
   display: flex;
-  align-items: center;
   justify-content: center;
-  padding: 40px 32px;
+  align-items: flex-start;
+  padding: clamp(20px, 5vh, 68px) 32px clamp(12px, 2.4vh, 40px);
   box-sizing: border-box;
-  background-color: #faf7f2;
-  overflow-y: auto;
+  background-color: #fff;
+  overflow: hidden;
 }
 
 .formCard {
   width: 100%;
-  max-width: 440px;
+  max-width: clamp(442px, 26vw, 620px);
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
 }
 
-.headerGroup {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin-bottom: 28px;
-  width: 100%;
+.cedaLogo {
+  width: min(360px, 15.5vw, 24vh);
+  height: auto;
+  object-fit: contain;
+  /* the artwork sits on a white sheet - multiply drops the white into the cream */
+  mix-blend-mode: multiply;
+  margin-bottom: clamp(10px, 2.4vh, 32px);
 }
 
 .formTitle {
   margin: 0;
-  color: var(--color-darkslategray-600);
-  font-size: clamp(34px, 4vw, 46px);
-  font-weight: 900;
-  letter-spacing: -0.5px;
+  color: #941d11;
+  font-size: min(56px, max(26px, 2.35vw), 4.7vh);
+  font-weight: 700;
+  letter-spacing: 0.01em;
 }
 
 .formTitleUnderline {
-  width: 280px;
-  height: 2.5px;
-  background-color: var(--color-goldenrod-300);
-  margin: 10px 0 14px;
+  width: min(400px, 82%);
+  height: 3px;
+  background-color: #e6bd74;
+  margin: 10px 0 clamp(16px, 2.8vh, 34px);
 }
 
 .formSubtitle {
-  margin: 0;
-  color: var(--color-darkslategray-200);
-  font-size: var(--fs-16);
+  margin: 0 0 clamp(26px, 4.3vh, 54px);
+  color: #941d11;
+  font-size: min(28px, max(14px, 1.25vw), 2.4vh);
   font-weight: 500;
 }
 
@@ -343,53 +383,51 @@ const handleLogin = () => {
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-bottom: 18px;
+  margin-bottom: clamp(16px, 2.9vh, 28px);
 }
 
 .inputLabel {
-  font-size: var(--fs-15);
-  font-weight: 700;
-  color: var(--color-darkslategray-600);
-  margin-bottom: 8px;
-  text-align: center;
+  font-size: min(24px, max(13.5px, 1.1vw), 2.2vh);
+  font-weight: 600;
+  color: #941d11;
+  margin-bottom: 10px;
 }
 
 .textInput {
   width: 100%;
-  height: 48px;
+  height: clamp(44px, 5.2vh, 58px);
   border-radius: 8px;
-  border: 1.5px solid var(--color-darkslategray-400);
-  background-color: #faf7f2;
+  border: 2px solid #941d11;
+  background-color: transparent;
   padding: 0 16px;
   box-sizing: border-box;
-  font-size: var(--fs-15);
-  font-family: var(--font-inter);
-  color: var(--color-darkslategray-600);
+  font-size: 16px;
+  font-family: inherit;
+  color: #941d11;
   text-align: center;
   outline: none;
   transition: border-color 0.2s, box-shadow 0.2s;
 }
 
 .textInput::placeholder {
-  color: #a4b0ab;
+  color: #b3a99a;
   font-style: normal;
 }
 
 .textInput:focus {
-  border-color: var(--color-goldenrod-300);
-  box-shadow: 0 0 0 3px rgba(237, 191, 77, 0.25);
+  border-color: #c47a44;
+  box-shadow: 0 0 0 3px rgba(196, 122, 68, 0.2);
 }
 
 .forgotLink {
-  color: var(--color-darkslategray-600);
-  font-size: var(--fs-15);
-  font-weight: 700;
+  color: #941d11;
+  font-size: min(24px, max(13.5px, 1.1vw), 2.2vh);
+  font-weight: 600;
   text-decoration: none;
-  border-bottom: 2px solid var(--color-goldenrod-300);
-  padding-bottom: 2px;
-  margin: 6px auto 24px;
+  border-bottom: 3px solid #e6bd74;
+  padding-bottom: 3px;
+  margin: 6px auto clamp(18px, 3.2vh, 38px);
   display: inline-block;
-  transition: opacity 0.2s;
 }
 
 .forgotLink:hover {
@@ -398,85 +436,168 @@ const handleLogin = () => {
 
 .submitButton {
   width: 100%;
-  height: 48px;
-  border-radius: var(--br-12);
-  background-color: var(--color-goldenrod-200);
+  height: clamp(46px, 5.4vh, 60px);
+  border-radius: 8px;
+  background-color: #941d11;
   border: none;
-  color: var(--color-darkslategray-600);
-  font-size: var(--fs-17);
-  font-weight: 700;
-  font-family: var(--font-inter);
+  color: #fff;
+  font-size: min(26px, max(14.5px, 1.15vw), 2.2vh);
+  font-weight: 600;
+  font-family: inherit;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 10px;
+  gap: 12px;
   cursor: pointer;
-  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
-  transition: transform 0.15s, background-color 0.2s;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.12);
+  transition: background-color 0.2s, transform 0.15s;
 }
 
 .submitButton:hover {
-  background-color: var(--color-goldenrod-100);
-  transform: translateY(-1px);
+  background-color: #ad2617;
 }
 
 .submitButton:active {
-  transform: translateY(0);
+  transform: translateY(1px);
 }
 
 .btnArrow {
-  width: 18px;
-  height: 18px;
-  filter: brightness(0.2);
+  width: 1.1em;
+  height: 1.1em;
+  color: #fff;
 }
 
 .signupPrompt {
-  margin: 26px 0 32px;
-  color: var(--color-darkslategray-600);
-  font-size: var(--fs-15);
-  font-weight: 600;
+  margin: clamp(24px, 3.8vh, 46px) 0 clamp(28px, 4.6vh, 52px);
+  color: #941d11;
+  font-size: min(24px, max(13.5px, 1.1vw), 2.2vh);
+  font-weight: 500;
 }
 
 .signupLink {
-  color: var(--color-darkslategray-600);
+  color: #941d11;
+  font-weight: 600;
   text-decoration: none;
-  border-bottom: 2px solid var(--color-goldenrod-300);
+  border-bottom: 3px solid #e6bd74;
   padding-bottom: 2px;
   margin-left: 4px;
 }
 
-.developerHelp {
-  margin: 0;
-  color: var(--color-darkslategray-600);
-  font-size: var(--fs-14);
+.supportPrompt {
+  margin: 0 0 clamp(20px, 3.4vh, 40px);
+  color: #941d11;
+  font-size: min(22px, max(13px, 1.05vw), 2.1vh);
+  font-weight: 500;
 }
 
-.devLink {
-  color: var(--color-darkslategray-600);
-  font-weight: 800;
+.supportLink {
+  color: #941d11;
+  font-weight: 600;
   text-decoration: none;
   margin-left: 4px;
 }
 
-.devLink:hover {
+.supportLink:hover {
   text-decoration: underline;
+}
+
+.legalNote {
+  margin: clamp(18px, 3vh, 40px) 0 0;
+  max-width: 92%;
+  color: #7d6f66;
+  font-size: min(17px, max(11.5px, 0.92vw), 1.85vh);
+  font-weight: 400;
+  line-height: 1.55;
+}
+
+.legalLink {
+  color: #941d11;
+  font-weight: 600;
+  white-space: nowrap;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  text-decoration-color: #e6bd74;
+  text-decoration-thickness: 2px;
+}
+
+.legalLink:hover {
+  text-decoration-color: #941d11;
+}
+
+/* Narrow desktops: let the hero copy wrap naturally instead of hard-breaking */
+@media (max-width: 1200px) {
+  .subcopyBreak {
+    display: none;
+  }
+  .subcopy {
+    max-width: 100%;
+  }
+}
+
+/* Shorter laptop screens: trim the logo and the outer margins, never the gaps */
+@media (max-height: 940px) {
+  .cedaLogo {
+    width: min(340px, 15.5vw, 20vh);
+  }
+}
+
+@media (max-height: 720px) {
+  .formTitleUnderline {
+    margin: 6px 0 12px;
+  }
+  .formSubtitle {
+    margin-bottom: 14px;
+  }
+  .inputGroup {
+    margin-bottom: 11px;
+  }
+  .forgotLink {
+    margin: 3px auto 12px;
+  }
+  .signupPrompt {
+    margin: 13px 0 18px;
+  }
+  .legalNote {
+    margin-top: 18px;
+  }
+  .cedaLogo {
+    width: min(320px, 15.5vw, 19vh);
+    margin-bottom: 8px;
+  }
 }
 
 @media (max-width: 960px) {
   .page {
     grid-template-columns: 1fr;
     height: auto;
+    overflow: visible;
   }
   .heroAside {
     height: auto;
     min-height: 520px;
   }
   .asideContent {
-    padding: 36px 24px 0 96px;
+    padding: 32px 24px 0 124px;
+  }
+  .subcopyBreak {
+    display: none;
+  }
+  .subcopy {
+    max-width: 100%;
+  }
+  .peopleContainer {
+    flex: 0 0 330px;
+    height: 330px;
+  }
+  .manPhoto {
+    max-height: 330px;
+  }
+  .womanPhoto {
+    height: 240px;
   }
   .formMain {
     height: auto;
-    padding: 48px 24px;
+    padding: 44px 24px 56px;
   }
 }
 </style>

@@ -2,18 +2,18 @@
   <section :class="$style.accountSummary">
     <div :class="$style.div">
       <div :class="$style.div2">
-        <div :class="$style.repaidSoFar">Repaid so far</div>
+        <div :class="$style.repaidSoFar">Submitted so far</div>
       </div>
       <div :class="$style.div3">
         <h2 :class="$style.p1789192">P 17,891.92</h2>
       </div>
       <div :class="$style.div4">
-        <div :class="$style.repaidSoFar">18 debit orders collected</div>
+        <div :class="$style.repaidSoFar">18 proposals submitted so far</div>
       </div>
     </div>
     <div :class="$style.div5">
       <div :class="$style.div2">
-        <div :class="$style.totalRepaymentsDue">Total repayments Due</div>
+        <div :class="$style.totalRepaymentsDue">Applications in review</div>
       </div>
       <div :class="$style.div7">
         <h2 :class="$style.p1789192">18 of 18</h2>
@@ -41,13 +41,13 @@
     </div>
     <div :class="$style.div9">
       <div :class="$style.div2">
-        <div :class="$style.repaidSoFar">Applications in review</div>
+        <div :class="$style.repaidSoFar">Approved to date</div>
       </div>
       <div :class="$style.div11">
         <h2 :class="$style.h2">10</h2>
       </div>
       <div :class="$style.div4">
-        <div :class="$style.repaidSoFar">Short term, submitted 2 October</div>
+        <div :class="$style.repaidSoFar">Awarded, submitted 2 October</div>
       </div>
     </div>
   </section>

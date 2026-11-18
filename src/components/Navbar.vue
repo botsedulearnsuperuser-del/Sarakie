@@ -1,108 +1,194 @@
 <template>
   <header :class="$style.navbar">
     <div :class="$style.inner">
-      <img
-        :class="$style.logoIcon"
-        loading="lazy"
-        alt="Sarakie Cash Loan"
-        src="/LOGO@2x.png"
-      />
-      <nav :class="$style.navigationLinks">
-        <a :class="$style.link" href="#loans">Our Loans</a>
-        <a :class="$style.link" href="#how-it-works">How it Works</a>
-        <router-link :class="$style.link" to="/admin-login">Login to My Account</router-link>
+      <router-link to="/" :class="$style.logoLink">
+        <img
+          :class="$style.logo"
+          src="/ceda-logo.png"
+          alt="CEDA — Finance, Develop, Sustain"
+        />
+      </router-link>
+
+      <nav :class="$style.links">
+        <router-link :class="[$style.link, $style.activeLink]" to="/">
+          Home
+        </router-link>
+        <a :class="$style.link" href="#about">About</a>
+        <a :class="$style.link" href="#innovation">Innovation Hub</a>
+        <a :class="$style.link" href="#how-it-works">How It Works</a>
+        <a :class="$style.link" href="#support">Support</a>
       </nav>
-      <button :class="$style.actionButton" type="button" @click="goToDashboard">
-        <span>New Application</span>
-        <img alt="" src="/bitcoin-icons-arrow-right-filled.svg" />
-      </button>
+
+      <div :class="$style.actions">
+        <button :class="$style.search" type="button" aria-label="Search">
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <circle
+              cx="11"
+              cy="11"
+              r="7"
+              stroke="currentColor"
+              stroke-width="1.8"
+            />
+            <path
+              d="M16.5 16.5 21 21"
+              stroke="currentColor"
+              stroke-width="1.8"
+              stroke-linecap="round"
+            />
+          </svg>
+        </button>
+
+        <span :class="$style.divider" aria-hidden="true" />
+
+        <router-link :class="$style.login" to="/admin-login">Login</router-link>
+      </div>
     </div>
   </header>
 </template>
-<script setup lang="ts">
-import { useRouter } from "vue-router";
 
-const router = useRouter();
-const goToDashboard = () => router.push({ name: "DashboardSample" });
-</script>
+<script setup lang="ts"></script>
+
 <style module>
 .navbar {
   width: 100%;
-  background-color: var(--color-darkslategray-600);
-  padding: 22px clamp(40px, 5vw, 72px) 22px clamp(120px, 14vw, 200px);
+  background-color: #fff;
+  padding: 18px clamp(24px, 4vw, 56px);
   box-sizing: border-box;
+  font-family: Poppins, var(--font-inter);
 }
+
 .inner {
   width: 100%;
-  margin: 0;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 24px;
-  flex-wrap: wrap;
+  gap: clamp(16px, 2vw, 32px);
 }
-.logoIcon {
-  width: 220px;
-  max-width: 100%;
-  height: auto;
-  object-fit: contain;
-}
-.navigationLinks {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 28px;
-  flex: 1;
-  min-width: 200px;
-}
-.link {
-  color: var(--color-white);
-  font-size: var(--fs-18);
-  font-family: var(--font-inter);
-  text-decoration: none;
-  white-space: nowrap;
-}
-.link:hover {
-  opacity: 0.85;
-}
-.actionButton {
-  height: 47px;
-  border: none;
-  border-radius: var(--br-12);
-  background-color: var(--color-goldenrod-300);
+
+.logoLink {
   display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  padding: 10px 14px;
-  color: var(--color-darkslategray-600);
-  font-size: var(--fs-18);
-  font-weight: 600;
-  font-family: var(--font-inter);
-  cursor: pointer;
   flex-shrink: 0;
 }
-.actionButton img {
-  width: 24px;
-  height: 24px;
+
+.logo {
+  width: clamp(112px, 9vw, 148px);
+  height: auto;
+  object-fit: contain;
+  display: block;
 }
-@media screen and (max-width: 900px) {
-  .navbar {
-    padding: 16px 20px 16px 100px;
+
+.links {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(18px, 2.4vw, 42px);
+  flex: 1;
+  min-width: 0;
+}
+
+.link {
+  color: #1d1d1d;
+  font-size: clamp(14px, 1.05vw, 17px);
+  font-weight: 500;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: opacity 0.2s;
+}
+
+.link:hover {
+  opacity: 0.65;
+}
+
+.activeLink {
+  background-color: #941d11;
+  color: #fff;
+  border-radius: 999px;
+  padding: 11px clamp(20px, 1.8vw, 30px);
+  box-shadow: 0 8px 16px rgba(148, 29, 17, 0.3);
+}
+
+.activeLink:hover {
+  opacity: 1;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: clamp(12px, 1.4vw, 22px);
+  flex-shrink: 0;
+}
+
+.search {
+  width: 40px;
+  height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  padding: 0;
+  color: #1d1d1d;
+  cursor: pointer;
+}
+
+.search svg {
+  width: 22px;
+  height: 22px;
+}
+
+.divider {
+  width: 1px;
+  height: 30px;
+  background-color: #d5d5d5;
+}
+
+.login {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: clamp(42px, 3.2vw, 50px);
+  padding: 0 clamp(24px, 2vw, 34px);
+  border-radius: 999px;
+  background-color: #1d1d1d;
+  color: #fff;
+  font-size: clamp(14px, 1.05vw, 17px);
+  font-weight: 500;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background-color 0.2s;
+}
+
+.login:hover {
+  background-color: #000;
+}
+
+@media screen and (max-width: 1080px) {
+  .links {
+    gap: 18px;
   }
-  .navigationLinks {
+}
+
+@media screen and (max-width: 900px) {
+  .inner {
+    flex-wrap: wrap;
+    row-gap: 14px;
+  }
+  .links {
     order: 3;
     width: 100%;
+    flex: 0 0 100%;
     justify-content: flex-start;
-    gap: 16px;
     flex-wrap: wrap;
+    gap: 14px;
   }
 }
-@media screen and (max-width: 450px) {
-  .link:last-child {
+
+@media screen and (max-width: 520px) {
+  .link:nth-child(4),
+  .link:nth-child(5) {
     display: none;
   }
-  .logoIcon {
-    width: 160px;
+  .divider {
+    display: none;
   }
 }
 </style>

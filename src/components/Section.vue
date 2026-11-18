@@ -1,11 +1,11 @@
 <template>
   <div :class="$style.section">
     <div :class="$style.h2balH">
-      <h3 :class="$style.totalLoansEach">Total Loans each month</h3>
+      <h3 :class="$style.totalLoansEach">Total submissions each month</h3>
     </div>
     <div :class="$style.p">
       <div :class="$style.longTermLoan">
-        Long term loan balance after each repayment, 2026
+        Innovation submission counts after each review, 2026
       </div>
     </div>
     <div :class="$style.div">

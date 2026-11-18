@@ -56,7 +56,7 @@
             stroke-linejoin="round"
           />
         </svg>
-        <div :class="$style.dashboard">Loans Sheet</div>
+        <div :class="$style.dashboard">My Applications</div>
       </div>
       <div
         :class="activePage === 'customers' ? $style.asideLink : $style.asideLink2"
@@ -85,7 +85,7 @@
             stroke-linejoin="round"
           />
         </svg>
-        <div :class="$style.dashboard">Customers</div>
+        <div :class="$style.dashboard">Feedback Center</div>
       </div>
       <div
         :class="activePage === 'admin-profile' ? $style.asideLink : $style.asideLink2"
@@ -114,7 +114,7 @@
             stroke-linejoin="round"
           />
         </svg>
-        <div :class="$style.dashboard">Admin Profile</div>
+        <div :class="$style.dashboard">My Profile</div>
       </div>
     </div>
     <div :class="$style.divsideHelpmargin">

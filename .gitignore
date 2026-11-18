@@ -34,3 +34,12 @@ Thumbs.db
 # Cache
 .cache/
 scratch/
+/freebuff-sites-build/
+
+# Screenshots/artifacts
+/artifacts/
+# Stray design mockups
+/6 3.png
+/Group 21.png
+/Image (CEDA — Finance, Develop, Sustain).png
+/logo_2 (1).png

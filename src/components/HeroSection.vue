@@ -1,250 +1,244 @@
 <template>
   <section :class="$style.hero">
     <img
-      :class="$style.patternLeft"
+      :class="$style.circles"
+      src="/hero-circles.png"
       alt=""
-      src="/8917b8dbc1777d73b88cd8d55f299be4-png@2x.png"
+      aria-hidden="true"
     />
+
+    <div :class="$style.visual">
+      <img
+        :class="$style.lady"
+        src="/hero-client.png"
+        alt="CEDA client using the innovation portal on her phone"
+      />
+    </div>
+
     <div :class="$style.content">
-      <div :class="$style.labelGroup">
-        <h3 :class="$style.rooted">ROOTED IN BOTSWANA</h3>
-        <div :class="$style.underline" />
-      </div>
-      <h1 :class="$style.headline">
-        <span :class="$style.headlineLine">Great Financing</span>
-        <span :class="$style.headlineLine">
-          For your&nbsp;<span :class="$style.future">future.</span>
-        </span>
+      <h1 :class="$style.title">
+        CEDA Innovation<br />Management Portal
       </h1>
-      <p :class="$style.subcopy">
-        Explore affordable loan options<br />
-        for life’s everyday needs.
+      <p :class="$style.subtitle">
+        Turning Bold Ideas into<br />Impactful Solutions for Botswana
       </p>
-      <div :class="$style.ctaRow">
-        <button :class="$style.primaryBtn" type="button" @click="goToDashboard">
-          <span>Get a loan</span>
-          <img alt="" src="/bitcoin-icons-arrow-right-filled.svg" />
-        </button>
-        <a :class="$style.agentLink" href="#contact">Talk to an Agent</a>
+      <div :class="$style.rule" />
+      <div :class="$style.actions">
+        <a :class="$style.primary" href="#submit">
+          <span>Submit Your Idea</span>
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path
+              d="M4 12h15M13 5.5 19.5 12 13 18.5"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+        </a>
+        <a :class="$style.ghost" href="#learn-more">
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path
+              d="M8 5.5v13l11-6.5-11-6.5Z"
+              stroke="currentColor"
+              stroke-width="1.8"
+              stroke-linejoin="round"
+            />
+          </svg>
+          <span>Learn More</span>
+        </a>
       </div>
     </div>
-    <div :class="$style.heroMedia">
-      <img :class="$style.heroImage" alt="" :src="heroImageSrc" />
-    </div>
-    <img
-      :class="$style.contentContainer"
-      alt=""
-      src="/Content-Container@2x.png"
-    />
   </section>
 </template>
-<script setup lang="ts">
-import { useRouter } from "vue-router";
 
-const router = useRouter();
-const heroImageSrc = encodeURI("/6 2.png");
+<script setup lang="ts"></script>
 
-const goToDashboard = () => {
-  router.push({ name: "DashboardSample" });
-};
-</script>
 <style module>
 .hero {
-  width: 100%;
   position: relative;
+  width: 100%;
   display: grid;
-  grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+  grid-template-columns: 56% 44%;
   align-items: stretch;
-  min-height: 640px;
-  background-color: var(--color-darkslategray-600);
+  min-height: clamp(520px, calc(100vh - 118px), 980px);
+  background-color: #b9bdbb;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='0.3'/%3E%3C/svg%3E");
   overflow: hidden;
   isolation: isolate;
+  font-family: Poppins, var(--font-inter);
 }
-.patternLeft {
+
+.visual {
+  position: relative;
+  z-index: 2;
+  min-height: 100%;
+}
+
+/* grainy film speckle across the whole hero - background, rings and photo */
+.hero::after {
+  content: "";
   position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  width: clamp(90px, 11vw, 160px);
-  height: 100%;
-  pointer-events: none;
+  inset: 0;
   z-index: 1;
-  object-fit: cover;
-  object-position: center top;
-  opacity: 0.85;
+  pointer-events: none;
+  background-image: url("/noise.png");
+  background-size: 200px 200px;
+  background-repeat: repeat;
+  opacity: 0.22;
 }
+
+.circles {
+  position: absolute;
+  left: -4%;
+  top: 8%;
+  width: 68%;
+  height: auto;
+  max-width: none;
+  pointer-events: none;
+  user-select: none;
+  z-index: 0;
+}
+
+.lady {
+  position: absolute;
+  bottom: 0;
+  left: 2%;
+  height: 94%;
+  width: auto;
+  max-width: none;
+  object-fit: contain;
+  object-position: bottom center;
+  user-select: none;
+}
+
 .content {
   position: relative;
   z-index: 3;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  justify-content: center;
-  padding: 56px 40px 110px clamp(120px, 14vw, 200px);
-  box-sizing: border-box;
-  max-width: 720px;
-  gap: 16px;
+  align-self: center;
+  padding: 48px clamp(28px, 3.4vw, 56px) 48px 0;
+  max-width: 760px;
 }
-.labelGroup {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 6px;
+
+.title {
+  margin: 0 0 clamp(10px, 1.2vw, 18px);
+  color: #1b1b1b;
+  font-size: clamp(30px, 3.9vw, 62px);
+  font-weight: 800;
+  line-height: 1.16;
+  letter-spacing: -0.015em;
 }
-.rooted {
+
+.subtitle {
   margin: 0;
-  color: var(--color-goldenrod-300);
-  font-size: var(--fs-18);
-  font-weight: 600;
-  letter-spacing: 0.06em;
-  font-family: var(--font-inter);
-}
-.underline {
-  width: 70px;
-  height: 4px;
-  background-color: var(--color-goldenrod-300);
-}
-.headline {
-  margin: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  color: var(--color-white);
-  font-size: clamp(48px, 6.8vw, 91px);
-  line-height: 0.95;
-  letter-spacing: -0.02em;
-  font-weight: 900;
-  font-family: var(--font-inter);
-}
-.headlineLine {
-  display: block;
-  white-space: nowrap;
-}
-.future {
-  color: var(--color-goldenrod-300);
-}
-.subcopy {
-  margin: 6px 0 0;
-  color: var(--color-goldenrod-300);
-  font-size: var(--fs-18);
+  color: #232323;
+  font-size: clamp(16px, 1.8vw, 29px);
   font-weight: 500;
-  font-family: var(--font-inter);
-  line-height: 1.45;
-  max-width: 340px;
+  line-height: 1.3;
 }
-.ctaRow {
-  margin-top: 28px;
+
+.rule {
+  width: clamp(42px, 3.6vw, 58px);
+  height: 5px;
+  border-radius: 3px;
+  background-color: #f2551b;
+  margin: clamp(16px, 2.2vw, 32px) 0 clamp(20px, 2.8vw, 40px);
+}
+
+.actions {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: 28px;
-}
-.primaryBtn {
-  height: 47px;
-  border: none;
-  border-radius: var(--br-12);
-  background-color: var(--color-goldenrod-300);
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  padding: 10px 16px;
-  color: var(--color-darkslategray-600);
-  font-size: var(--fs-18);
-  font-weight: 600;
-  font-family: var(--font-inter);
-  cursor: pointer;
-}
-.primaryBtn img {
-  width: 24px;
-  height: 24px;
-}
-.agentLink {
-  color: var(--color-white);
-  font-size: var(--fs-18);
-  font-family: var(--font-inter);
-  text-decoration: underline;
-  text-underline-offset: 6px;
-  text-decoration-thickness: 2px;
-  text-decoration-color: var(--color-goldenrod-300);
-}
-.heroMedia {
-  position: relative;
-  z-index: 4;
-  min-height: 560px;
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  overflow: visible;
-}
-.heroImage {
-  position: relative;
-  z-index: 4;
-  width: 100%;
-  max-width: 640px;
-  height: auto;
-  max-height: 620px;
-  object-fit: contain;
-  object-position: center bottom;
-  display: block;
-  margin-bottom: -36px;
-  mix-blend-mode: lighten;
-}
-.contentContainer {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  width: 100%;
-  height: clamp(72px, 10vw, 110px);
-  object-fit: fill;
-  pointer-events: none;
-  z-index: 2;
+  gap: clamp(12px, 1.4vw, 24px);
 }
 
-@media screen and (max-width: 1050px) {
+.primary,
+.ghost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(10px, 0.9vw, 16px);
+  height: clamp(48px, 3.8vw, 60px);
+  padding: 0 clamp(20px, 1.8vw, 30px);
+  border-radius: 999px;
+  font-size: clamp(14px, 1.15vw, 19px);
+  font-weight: 500;
+  text-decoration: none;
+  white-space: nowrap;
+  box-sizing: border-box;
+}
+
+.primary {
+  background-color: #941d11;
+  color: #fff;
+  box-shadow: 0 10px 20px rgba(148, 29, 17, 0.28);
+  transition: background-color 0.2s, transform 0.15s;
+}
+
+.primary:hover {
+  background-color: #ad2617;
+}
+
+.primary:active {
+  transform: translateY(1px);
+}
+
+.ghost {
+  border: 1.6px solid #1b1b1b;
+  color: #1b1b1b;
+  transition: background-color 0.2s;
+}
+
+.ghost:hover {
+  background-color: rgba(27, 27, 27, 0.06);
+}
+
+.primary svg,
+.ghost svg {
+  width: 1.15em;
+  height: 1.15em;
+}
+
+@media screen and (max-width: 980px) {
   .hero {
     grid-template-columns: 1fr;
     min-height: unset;
+    --visual-h: 460px;
   }
-  .patternLeft {
-    width: 72px;
+  .visual {
+    order: 1;
+    min-height: var(--visual-h);
+    overflow: hidden;
+  }
+  .circles {
+    left: 50%;
+    top: 0;
+    width: auto;
+    height: var(--visual-h);
+    transform: translateX(-50%);
+  }
+  .lady {
+    left: 50%;
+    transform: translateX(-50%);
+    height: 100%;
   }
   .content {
-    padding: 48px 28px 40px 100px;
+    order: 2;
+    padding: 36px 24px 52px;
     max-width: 100%;
   }
-  .heroMedia {
-    min-height: 420px;
-  }
-  .heroImage {
-    margin-bottom: -24px;
-  }
 }
-@media screen and (max-width: 450px) {
-  .patternLeft {
-    width: 48px;
+
+@media screen and (max-width: 480px) {
+  .hero {
+    --visual-h: 380px;
   }
-  .content {
-    padding: 36px 20px 32px 68px;
+  .title {
+    font-size: 30px;
   }
-  .headlineLine {
-    white-space: normal;
-  }
-  .subcopy {
-    font-size: var(--fs-16);
-  }
-  .ctaRow {
-    gap: 18px;
-  }
-  .heroMedia {
-    min-height: 340px;
-  }
-  .heroImage {
-    max-height: 380px;
-    margin-bottom: -16px;
-  }
-  .contentContainer {
-    height: 64px;
+  .ghost,
+  .primary {
+    width: 100%;
   }
 }
 </style>

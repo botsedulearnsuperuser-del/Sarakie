@@ -8,16 +8,16 @@
     <div :class="$style.div">
       <div :class="$style.div2">
         <div :class="$style.span">
-          <div :class="$style.longTermLoans">Long Term Loans</div>
+          <div :class="$style.longTermLoans">Active Proposals</div>
         </div>
         <div :class="$style.span2">
-          <div :class="$style.longTermLoans">Short Term Loans</div>
+          <div :class="$style.longTermLoans">Draft Proposals</div>
         </div>
       </div>
       <div :class="$style.divmargin">
         <div :class="$style.div3">
           <div :class="$style.valueOfCurrent">
-            Value of current active loans
+            Value of current active proposals
           </div>
         </div>
       </div>
@@ -29,7 +29,7 @@
       </div>
       <div :class="$style.div6">
         <div :class="$style.valueOfCurrent">
-          of P 25,000.00 borrowed at 25% p.a. over 36 months
+          of P 25,000.00 requested, 25% co-fund over 36 months
         </div>
       </div>
       <img
@@ -40,33 +40,32 @@
       />
       <div :class="$style.div7">
         <div :class="$style.span3">
-          <div :class="$style.repaymentsDueSoon">36 repayments due soon</div>
+          <div :class="$style.repaymentsDueSoon">36 milestones due soon</div>
         </div>
         <div :class="$style.span3">
           <div :class="$style.repaymentsDueSoon">
-            Final repayment March 2028
+            Final milestone March 2028
           </div>
         </div>
       </div>
     </div>
     <div :class="$style.div8">
-      <img :class="$style.spanIcon" loading="lazy" alt="" src="/span.svg" />
       <div :class="$style.div9">
         <div :class="$style.div3">
           <b :class="$style.valueOfCurrent">P 994.00 on 25 October</b>
         </div>
         <div :class="$style.div11">
           <div :class="$style.debitOrderFrom">
-            Debit order from FNB Botswana ••••4417
+            Next review from CEDA portal ••••4417
           </div>
         </div>
       </div>
       <div :class="$style.div12">
         <div :class="$style.agold">
-          <b :class="$style.payEarly">Pay early</b>
+          <b :class="$style.payEarly">Review now</b>
         </div>
         <div :class="$style.a">
-          <div :class="$style.longTermLoans">View loan</div>
+          <div :class="$style.longTermLoans">View proposal</div>
         </div>
       </div>
     </div>

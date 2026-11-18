@@ -5,11 +5,11 @@
       <header :class="$style.div">
         <div :class="$style.div2">
           <div :class="$style.h2actH">
-            <h2 :class="$style.dumelaMarion">Dumela, Marion</h2>
+            <h2 :class="$style.dumelaMarion">Dumela, Innovator</h2>
           </div>
           <div :class="$style.p">
             <div :class="$style.sunday4October">
-              Sunday 4 October 2026. Here’s where your business overview.
+              Sunday 4 October 2026. Here's your innovation overview.
             </div>
           </div>
         </div>
@@ -21,9 +21,9 @@
           />
           <img :class="$style.notifications2New" alt="" src="/Help.svg" />
           <router-link to="/admin-profile" :class="$style.a" style="text-decoration: none;">
-            <img :class="$style.userAvatarImg" src="/7 2.png" alt="Marion Lucas" />
+            <img :class="$style.userAvatarImg" src="/7 2.png" alt="Kago Molefe" />
             <div :class="$style.span3">
-              <div :class="$style.marionLucas">Marion Lucas</div>
+              <div :class="$style.marionLucas">Kago Molefe</div>
             </div>
           </router-link>
         </div>
@@ -44,17 +44,17 @@
               <div :class="$style.div5">
                 <div :class="$style.h2actH">
                   <div :class="$style.youQualifyFor">
-                    Register a new loan
+                    Start a new submission
                   </div>
                 </div>
                 <div :class="$style.div7">
                   <div :class="$style.borrowUpTo">
-                    Record a new customer loan application from P 500 to P 50,000.
+                    Record a new innovation proposal from idea to funding.
                   </div>
                 </div>
               </div>
               <router-link to="/new-loan" :class="$style.agold" style="text-decoration:none;">
-                <b :class="$style.ml">Start application</b>
+                <b :class="$style.ml">Start submission</b>
                 <img :class="$style.frameIcon3" alt="" src="/Frame7.svg" />
               </router-link>
             </div>
@@ -66,7 +66,7 @@
         <Section />
         <div :class="$style.section">
           <div :class="$style.h2actH">
-            <h3 :class="$style.recentApplications">Recent Applications</h3>
+            <h3 :class="$style.recentApplications">Ideas submitted by the innovator</h3>
           </div>
           <div :class="$style.h2actH">
             <Li
@@ -78,6 +78,7 @@
               :p90000="item.p90000"
               :p90000MinWidth="item.p90000MinWidth"
               :p90000Display="item.p90000Display"
+            @view="handleViewIdea"
             />
           </div>
         </div>
@@ -87,11 +88,11 @@
           <div :class="$style.div8">
             <div :class="$style.div9">
               <div :class="$style.h2actH">
-                <div :class="$style.loanCalculator">Loan calculator</div>
+                <div :class="$style.loanCalculator">Funding calculator</div>
               </div>
               <div :class="$style.p2">
                 <div :class="$style.seeWhatA">
-                  Calculate repayments and interest before recording a customer loan application.
+                  Estimate funding and costs before submitting your innovation proposal.
                 </div>
               </div>
             </div>
@@ -229,17 +230,17 @@
             <div :class="$style.div35">
               <div :class="$style.h2trackH">
                 <h3 :class="$style.applicationsTracker">
-                  Applications tracker
+                  Application pipeline
                 </h3>
               </div>
               <div :class="$style.p4">
                 <div :class="$style.ml">
-                  SRK-ST-2026-0481. P 3,000 over 6 months
+                  SRK-IN-2026-0481. Idea stage, under review
                 </div>
               </div>
             </div>
             <div :class="$style.span12">
-              <b :class="$style.ml">In review</b>
+              <b :class="$style.ml">Under Review</b>
             </div>
           </div>
           <div :class="$style.ol">
@@ -253,7 +254,7 @@
               </div>
               <div :class="$style.div37">
                 <div :class="$style.div38">
-                  <b :class="$style.ml">In Review</b>
+                  <b :class="$style.ml">Under Review</b>
                 </div>
                 <div :class="$style.div39">
                   <div :class="$style.ml">90</div>
@@ -285,7 +286,7 @@
               </div>
               <div :class="$style.div41">
                 <div :class="$style.div47">
-                  <b :class="$style.ml">Rejected</b>
+                  <b :class="$style.ml">Feedback Required</b>
                 </div>
                 <div :class="$style.div48">
                   <div :class="$style.ml">3</div>
@@ -301,12 +302,23 @@
               </div>
               <div :class="$style.div41">
                 <div :class="$style.div52">
-                  <b :class="$style.ml">Sent Back</b>
+                  <b :class="$style.ml">Awarded</b>
                 </div>
                 <div :class="$style.div53">
                   <div :class="$style.ml">1</div>
                 </div>
               </div>
+            </div>
+            <div :class="$style.feedbackCallout">
+              <div :class="$style.feedbackCalloutTitle">
+                Demo feedback on “Feedback Required”
+              </div>
+              <div :class="$style.feedbackCalloutText">
+                “Clarify revenue model &amp; add CIPA reg. number”
+              </div>
+              <button :class="$style.actionButton" type="button">
+                Respond to feedback
+              </button>
             </div>
           </div>
         </section>
@@ -324,38 +336,42 @@
 
   const liItems = ref([
     {
-      p: "P",
-      thatoLekgoba: "Thato Lekgoba",
+      p: "I",
+      thatoLekgoba: "Irrigation Kit",
       september: "25 September",
       p90000: " P 900.00",
       p90000MinWidth: "67px",
       p90000Display: "inline-block",
     },
     {
-      p: "P",
-      thatoLekgoba: "Kamogelo Senku",
+      p: "S",
+      thatoLekgoba: "Solar Dryer",
       september: "25 September",
       p90000: " P 1000.00",
       p90000MinWidth: "74px",
       p90000Display: "inline-block",
     },
     {
-      p: "A",
-      thatoLekgoba: "Joseph Molodi",
+      p: "E",
+      thatoLekgoba: "Edu App",
       september: "2 October",
       p90000: "P 3,000.00",
       p90000MinWidth: "unset",
       p90000Display: "unset",
     },
     {
-      p: "D",
-      thatoLekgoba: "Naledi Kangnyna",
+      p: "A",
+      thatoLekgoba: "Agri Drone",
       september: "2 October",
-      p90000: "P6,000.00",
+      p90000: "P 6,000.00",
       p90000MinWidth: "unset",
       p90000Display: "unset",
     },
   ])
+
+  const handleViewIdea = (name: string) => {
+    window.alert(`Viewing idea: ${name}`)
+  }
 </script>
 <style module>
   .dashboardSample {
@@ -1389,7 +1405,8 @@
     font-size: var(--fs-15);
   }
   .div38 {
-    width: 71px;
+    width: auto;
+    min-width: 71px;
     height: var(--height-18);
     display: flex;
     flex-direction: column;
@@ -1458,7 +1475,8 @@
     padding: var(--padding-5) var(--padding-0);
   }
   .div47 {
-    width: 65px;
+    width: auto;
+    min-width: 65px;
     height: var(--height-18);
     display: flex;
     flex-direction: column;
@@ -1471,6 +1489,49 @@
     align-items: flex-start;
     font-size: var(--fs-13);
     color: var(--color-darkslategray-100);
+  }
+  .feedbackCallout {
+    align-self: stretch;
+    margin-top: 12px;
+    padding: 12px 14px;
+    border-radius: 12px;
+    background-color: var(--color-blanchedalmond);
+    border: 1px solid var(--color-goldenrod-200);
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+  .feedbackCalloutTitle {
+    font-size: var(--fs-13);
+    font-weight: 700;
+    color: var(--color-saddlebrown);
+  }
+  .feedbackCalloutText {
+    font-size: var(--fs-13);
+    color: var(--color-darkslategray-500);
+    font-style: italic;
+    line-height: 1.4;
+  }
+  .actionButton {
+    margin-top: 4px;
+    height: 36px;
+    border-radius: 10px;
+    background-color: var(--color-darkslategray-500);
+    color: var(--color-white);
+    border: none;
+    padding: 0 14px;
+    font-size: var(--fs-13);
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    transition: background-color 0.2s, transform 0.15s;
+  }
+  .actionButton:hover {
+    background-color: var(--color-darkslategray-600);
+  }
+  .actionButton:active {
+    transform: translateY(1px);
   }
   .span19 {
     width: var(--width-28);
@@ -1489,7 +1550,8 @@
     min-height: var(--min-h-18);
   }
   .div52 {
-    width: 74px;
+    width: auto;
+    min-width: 74px;
     height: var(--height-18);
     display: flex;
     flex-direction: column;

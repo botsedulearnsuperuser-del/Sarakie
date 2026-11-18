@@ -5,6 +5,8 @@ import App from "./App.vue";
 import LandingPage from "./pages/LandingPage.vue";
 import DashboardSample from "./pages/DashboardSample.vue";
 import AdminLogin from "./pages/AdminLogin.vue";
+import AdminSignUp from "./pages/AdminSignUp.vue";
+import ForgotPassword from "./pages/ForgotPassword.vue";
 import LoansSheet from "./pages/LoansSheet.vue";
 import Customers from "./pages/Customers.vue";
 import AdminProfile from "./pages/AdminProfile.vue";
@@ -73,6 +75,16 @@ const routes: Route[] = [
     path: "/login",
     name: "Login",
     component: AdminLogin,
+  },
+  {
+    path: "/sign-up",
+    name: "SignUp",
+    component: AdminSignUp,
+  },
+  {
+    path: "/forgot-password",
+    name: "ForgotPassword",
+    component: ForgotPassword,
   },
 ];
 
