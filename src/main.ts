@@ -97,7 +97,7 @@ router.beforeEach((toRoute, _, next) => {
   const metaTitle = toRoute?.meta?.title as string;
   const metaDesc = toRoute?.meta?.description as string;
 
-  window.document.title = metaTitle || "Sarakie";
+  window.document.title = metaTitle || "CEDA Innovation Portal";
   if (metaDesc) {
     addMetaTag(metaDesc);
   }
