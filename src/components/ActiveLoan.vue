@@ -61,16 +61,29 @@
         </div>
       </div>
       <div :class="$style.div12">
-        <div :class="$style.agold">
+        <div :class="$style.agold" role="button" tabindex="0" @click="reviewNow" @keyup.enter="reviewNow">
           <b :class="$style.payEarly">Review now</b>
         </div>
-        <div :class="$style.a">
+        <div :class="$style.a" role="button" tabindex="0" @click="viewProposal" @keyup.enter="viewProposal">
           <div :class="$style.longTermLoans">View proposal</div>
         </div>
       </div>
     </div>
   </div>
 </template>
+<script setup lang="ts">
+import { useRouter } from "vue-router";
+
+const router = useRouter();
+
+function reviewNow() {
+  router.push({ name: "IdeaView", query: { name: "Irrigation Kit" } });
+}
+
+function viewProposal() {
+  router.push({ name: "IdeaView", query: { name: "Irrigation Kit" } });
+}
+</script>
 <style module>
   .activeLoan {
     flex: 1;
