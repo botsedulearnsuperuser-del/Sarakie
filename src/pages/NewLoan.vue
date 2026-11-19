@@ -1092,6 +1092,7 @@ function resetForm() {
   padding: 24px;
   margin-bottom: 24px;
   position: relative;
+  overflow: hidden;
 }
 
 .summaryCardInner {
@@ -1236,4 +1237,85 @@ function resetForm() {
   color: #d97706;
   text-align: center;
 }
+
+.patternWatermark {
+  display: block;
+  width: calc(100% + 48px);
+  height: 96px;
+  object-fit: cover;
+  object-position: center;
+  margin: -24px -24px 20px;
+}
+
+/* ── Form Actions ── */
+.formActions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 8px;
+}
+
+.actionsLeft {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.prevBtn {
+  padding: 10px 22px;
+  border-radius: 9999px;
+  border: 1px solid #d1d5db;
+  background-color: #ffffff;
+  color: #374151;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: var(--font-inter);
+  transition: all 0.15s ease;
+}
+
+.prevBtn:hover {
+  background-color: #f9fafb;
+  border-color: #9ca3af;
+}
+
+.cancelLink {
+  font-size: 14.5px;
+  font-weight: 700;
+  color: #1f2937;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+.submitBtn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 13px 32px;
+  border-radius: 9999px;
+  border: none;
+  background-color: #0f2e24;
+  color: #ffffff;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: var(--font-inter);
+  transition: background-color 0.2s ease;
+}
+
+.submitBtn:hover:not(:disabled) {
+  background-color: #081d16;
+}
+
+.submitBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.recordBtn {
+  background-color: #0f2e24;
+  box-shadow: 0 4px 14px rgba(15, 46, 36, 0.25);
+}
+
 </style>
