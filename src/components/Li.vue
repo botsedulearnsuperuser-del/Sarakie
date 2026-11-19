@@ -76,7 +76,7 @@
     border: var(--border-2);
     border-radius: var(--br-16);
     background-color: var(--color-white);
-    overflow-x: hidden;
+    overflow: hidden;
     display: flex;
     align-items: center;
     padding: var(--padding-12) var(--padding-16);
@@ -86,7 +86,10 @@
     font-size: var(--fs-14);
     color: var(--color-darkslategray-500);
     font-family: var(--font-inter);
+    position: relative;
+    overflow: hidden;
   }
+  
   .span {
     width: var(--width-40);
     border-radius: var(--br-12);
