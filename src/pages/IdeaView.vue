@@ -84,7 +84,7 @@
 
             <div :class="$style.balanceAmount">
               <span :class="$style.currencyPrefix">P</span>
-              <span>{{ currentIdea.fundingAmountClean }}</span>
+              <span>{{ currentIdea.fundingAmount }}</span>
             </div>
 
             <div :class="$style.borrowedInfo">
@@ -112,6 +112,67 @@
                 <span :class="$style.metricVal"><b>{{ currentIdea.corrections.length }}</b> required</span>
               </div>
             </div>
+          </div>
+        </div>
+
+        <!-- Editable draft panel -->
+        <div v-if="isDraft" :class="$style.editSection">
+          <div :class="$style.editHead">
+            <div>
+              <h2 :class="$style.tableHeading">Edit draft proposal</h2>
+              <p :class="$style.tableSub">
+                This proposal has not been submitted yet. Edit the fields below, then save it as a draft or submit it for review.
+              </p>
+            </div>
+            <div :class="$style.editActions">
+              <button :class="$style.actionOutlineBtn" type="button" @click="saveDraft">
+                Save draft
+              </button>
+              <button :class="$style.actionSolidBtn" type="button" @click="submitDraft">
+                Submit proposal
+              </button>
+            </div>
+          </div>
+
+          <p v-if="savedNotice" :class="$style.savedNotice">{{ savedNotice }}</p>
+
+          <div ref="editPanel" :class="$style.editGrid">
+            <label :class="$style.editField">
+              <span :class="$style.editLabel">Idea title</span>
+              <input v-model="currentIdea.title" :class="$style.editInput" type="text" />
+            </label>
+            <label :class="$style.editField">
+              <span :class="$style.editLabel">Funding requested (P)</span>
+              <input v-model="currentIdea.fundingAmount" :class="$style.editInput" type="text" />
+            </label>
+            <label :class="$style.editField">
+              <span :class="$style.editLabel">Category</span>
+              <input v-model="currentIdea.category" :class="$style.editInput" type="text" />
+            </label>
+            <label :class="$style.editField">
+              <span :class="$style.editLabel">Stage</span>
+              <input v-model="currentIdea.stage" :class="$style.editInput" type="text" />
+            </label>
+            <label :class="$style.editFieldFull">
+              <span :class="$style.editLabel">Idea description</span>
+              <textarea v-model="currentIdea.description" :class="$style.editTextarea" rows="2" @input="autoGrow"></textarea>
+            </label>
+            <label :class="$style.editFieldFull">
+              <span :class="$style.editLabel">Problem statement</span>
+              <textarea v-model="currentIdea.problem" :class="$style.editTextarea" rows="2" @input="autoGrow"></textarea>
+            </label>
+            <label :class="$style.editFieldFull">
+              <span :class="$style.editLabel">Proposed solution</span>
+              <textarea v-model="currentIdea.solution" :class="$style.editTextarea" rows="2" @input="autoGrow"></textarea>
+            </label>
+            <label :class="$style.editFieldFull">
+              <span :class="$style.editLabel">Target beneficiaries</span>
+              <textarea v-model="currentIdea.beneficiaries" :class="$style.editTextarea" rows="2" @input="autoGrow"></textarea>
+            </label>
+            <label :class="$style.editFieldFull">
+              <span :class="$style.editLabel">Expected impact</span>
+              <textarea v-model="currentIdea.impact" :class="$style.editTextarea" rows="2" @input="autoGrow"></textarea>
+            </label>
           </div>
         </div>
 
@@ -326,7 +387,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from "vue";
+import { ref, computed, watch, nextTick, onMounted } from "vue";
 import { useRoute } from "vue-router";
 import { useCssModule } from "vue";
 import Main from "../components/Main.vue";
@@ -360,7 +421,7 @@ interface IdeaDetail {
   fundingAmountClean: string;
   category: string;
   stage: string;
-  status: "Under Review" | "Approved" | "Feedback Required" | "Awarded";
+  status: "Draft" | "Under Review" | "Approved" | "Feedback Required" | "Awarded";
   officer: string;
   description: string;
   problem: string;
@@ -479,26 +540,122 @@ const mockIdeas: Record<string, IdeaDetail> = {
     ],
     corrections: [],
   },
+  "irrigation-kit-draft": {
+    ideaId: "CEDA-IN-2026-0485",
+    title: "Irrigation Kit Draft",
+    innovator: "Thato Lekgoba",
+    email: "t.lekgoba@gmail.com",
+    phone: "+267 71 442 901",
+    location: "Maun, North-West District",
+    submittedDate: "Not submitted yet",
+    fundingAmount: "14,793.40",
+    fundingAmountClean: "14,793.40",
+    category: "Agri-Tech",
+    stage: "Idea",
+    status: "Draft",
+    officer: "Unassigned",
+    description: "Working draft of a low-cost drip irrigation kit for smallholder farmers in semi-arid Botswana. Details are still being refined before submission.",
+    problem: "Smallholder farmers in semi-arid regions still lose a large share of their crops to inefficient water use.",
+    solution: "A modular drip irrigation kit built from locally sourced materials that cuts water usage for small plots.",
+    beneficiaries: "Smallholder farmers in Maun and surrounding villages.",
+    impact: "Higher crop yields with less water, using equipment that can be repaired locally.",
+    documents: [
+      { name: "Draft Budget Breakdown.xlsx", type: "XLSX", size: "210 KB", uploaded: "18 Nov 2026" },
+    ],
+    corrections: [
+      { field: "Budget Breakdown", issue: "Provide a detailed budget breakdown for the drip kit components and installation costs before submission.", severity: "High" },
+      { field: "CIPA Registration", issue: "Add CIPA company registration number to the application.", severity: "Medium" },
+    ],
+  },
 };
+
+// Edits to a draft are kept for this session so reopening it keeps the changes.
+const draftStore: Record<string, IdeaDetail> = {};
 
 const slugify = (name: string) =>
   name.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "");
 
-const currentIdea = computed<IdeaDetail>(() => {
+const snapshot = (idea: IdeaDetail): IdeaDetail => ({
+  ...idea,
+  documents: [...idea.documents],
+  corrections: [...idea.corrections],
+});
+
+function resolveKey(): string {
   const queryName = (route.query.name as string || "").toLowerCase().replace(/\s+/g, "-");
   const paramId = (route.params.id as string || "").toLowerCase();
 
-  if (queryName && mockIdeas[queryName]) return mockIdeas[queryName];
-  if (paramId && mockIdeas[paramId]) return mockIdeas[paramId];
+  if (queryName && (draftStore[queryName] || mockIdeas[queryName])) return queryName;
+  if (paramId && (draftStore[paramId] || mockIdeas[paramId])) return paramId;
 
   // fuzzy match by slugified title
   const needle = queryName || paramId;
   for (const key of Object.keys(mockIdeas)) {
-    if (slugify(mockIdeas[key].title) === needle) return mockIdeas[key];
+    const title = (draftStore[key] || mockIdeas[key]).title;
+    if (slugify(title) === needle) return key;
   }
 
-  return mockIdeas["irrigation-kit"];
-});
+  return "irrigation-kit";
+}
+
+function loadIdea(key: string): IdeaDetail {
+  const source = draftStore[key] || mockIdeas[key] || mockIdeas["irrigation-kit"];
+  return snapshot(source);
+}
+
+const ideaKey = ref(resolveKey());
+const currentIdea = ref<IdeaDetail>(loadIdea(ideaKey.value));
+const savedNotice = ref("");
+
+const isDraft = computed(() => currentIdea.value.status === "Draft");
+
+// Grow each draft textarea to fit its content so long text is never cut off.
+const editPanel = ref<HTMLElement | null>(null);
+
+function autoGrow(event: Event) {
+  const el = event.target as HTMLTextAreaElement | null;
+  if (!el) return;
+  el.style.height = "auto";
+  el.style.height = `${el.scrollHeight}px`;
+}
+
+function resizeDraftTextareas() {
+  editPanel.value
+    ?.querySelectorAll<HTMLTextAreaElement>("textarea")
+    .forEach((el) => {
+      el.style.height = "auto";
+      el.style.height = `${el.scrollHeight}px`;
+    });
+}
+
+onMounted(() => nextTick(resizeDraftTextareas));
+watch(currentIdea, () => nextTick(resizeDraftTextareas));
+
+watch(
+  () => [route.query.name, route.params.id],
+  () => {
+    ideaKey.value = resolveKey();
+    currentIdea.value = loadIdea(ideaKey.value);
+    savedNotice.value = "";
+    activeTab.value = "application";
+  }
+);
+
+function saveDraft() {
+  draftStore[ideaKey.value] = snapshot(currentIdea.value);
+  savedNotice.value = `Draft saved — ${currentIdea.value.title}`;
+}
+
+function submitDraft() {
+  draftStore[ideaKey.value] = snapshot(currentIdea.value);
+  currentIdea.value.status = "Under Review";
+  currentIdea.value.submittedDate = new Date().toLocaleDateString("en-GB", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
+  savedNotice.value = "Proposal submitted for review.";
+}
 
 function getStatusClass(status: string) {
   switch (status) {
@@ -509,6 +666,8 @@ function getStatusClass(status: string) {
       return style.statusReview;
     case "Feedback Required":
       return style.statusReturn;
+    case "Draft":
+      return style.statusDraft;
     default:
       return style.statusActive;
   }
@@ -1241,6 +1400,113 @@ function mockPreviewDoc(docName: string) {
   padding: 4px 14px;
   border-radius: 6px;
   text-transform: uppercase;
+}
+
+.statusDraft {
+  display: inline-block;
+  background-color: transparent;
+  border: 1px dashed #c9a04a;
+  color: #8a6410;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  padding: 3px 13px;
+  border-radius: 6px;
+  text-transform: uppercase;
+}
+
+.editSection {
+  padding: 20px 28px 0;
+}
+
+.editHead {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.editActions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.savedNotice {
+  margin: 14px 0 0;
+  padding: 9px 14px;
+  border-radius: 10px;
+  background-color: #e8f5ee;
+  border: 1px solid #b7e2c9;
+  color: #14532d;
+  font-size: 12.5px;
+  font-weight: 600;
+}
+
+.editGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px 16px;
+  margin-top: 16px;
+}
+
+.editField,
+.editFieldFull {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.editFieldFull {
+  grid-column: 1 / -1;
+}
+
+.editLabel {
+  font-size: 11.5px;
+  font-weight: 800;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+  color: #718096;
+}
+
+.editInput,
+.editTextarea {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid #d9d3c7;
+  background-color: #fdfbf7;
+  color: #1a202c;
+  font-family: var(--font-inter);
+  font-size: 13.5px;
+  line-height: 1.5;
+}
+
+.editTextarea {
+  resize: none;
+  overflow-y: hidden;
+  min-height: 62px;
+}
+
+.editInput:focus,
+.editTextarea:focus {
+  outline: none;
+  border-color: #d99b26;
+  background-color: #ffffff;
+  box-shadow: 0 0 0 3px rgba(217, 155, 38, 0.18);
+}
+
+@media screen and (max-width: 750px) {
+  .editSection {
+    padding: 16px 18px 0;
+  }
+
+  .editGrid {
+    grid-template-columns: 1fr;
+  }
 }
 
 .statusRejected {

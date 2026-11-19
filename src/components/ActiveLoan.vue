@@ -10,9 +10,13 @@
         <div :class="$style.span">
           <div :class="$style.longTermLoans">Active Proposals</div>
         </div>
-        <div :class="$style.span2">
-          <div :class="$style.longTermLoans">Draft Proposals</div>
-        </div>
+        <button
+          :class="$style.span2"
+          type="button"
+          @click="viewDrafts"
+        >
+          <span :class="$style.longTermLoans">Draft Proposals</span>
+        </button>
       </div>
       <div :class="$style.divmargin">
         <div :class="$style.div3">
@@ -82,6 +86,10 @@ function reviewNow() {
 
 function viewProposal() {
   router.push({ name: "IdeaView", query: { name: "Irrigation Kit" } });
+}
+
+function viewDrafts() {
+  router.push({ name: "IdeaView", query: { name: "Irrigation Kit Draft" } });
 }
 </script>
 <style module>
@@ -163,7 +171,22 @@ function viewProposal() {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
+    justify-content: center;
     padding: var(--padding-4) var(--padding-12);
+    background-color: transparent;
+    color: inherit;
+    font: inherit;
+    cursor: pointer;
+    transition: background-color 0.2s ease, color 0.2s ease;
+  }
+  .span2:hover,
+  .span2:focus-visible {
+    background-color: var(--color-goldenrod-200);
+    color: var(--color-darkslategray-500);
+    outline: none;
+  }
+  .span2:focus-visible {
+    box-shadow: 0 0 0 3px rgba(238, 194, 75, 0.45);
   }
   .divmargin {
     align-self: stretch;

@@ -485,13 +485,15 @@
           </form>
         </div>
       </div>
-    </main>
-  </div>
-</template>
+          </main>
+    <ChatWithAgent />
+   </div>
+ </template>
 
 <script setup lang="ts">
 import { ref, computed, useCssModule } from "vue";
 import Main from "../components/Main.vue";
+import ChatWithAgent from "../components/ChatWithAgent.vue";
 
 const auditFilter = ref("all");
 const lastChangedDate = ref("22 September 2026");

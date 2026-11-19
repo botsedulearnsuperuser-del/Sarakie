@@ -9,11 +9,11 @@
       <header :class="$style.div">
         <div :class="$style.div2">
           <div :class="$style.h2actH">
-            <h2 :class="$style.dumelaMarion">Customers</h2>
+            <h2 :class="$style.dumelaMarion">Feedback Centre</h2>
           </div>
           <div :class="$style.pWrap">
             <div :class="$style.sunday4October">
-              Repayments, statements and settlement for every loan you've had with CEDA.
+              View and respond to every evaluator comment across all your ideas
             </div>
           </div>
         </div>
@@ -33,6 +33,180 @@
         </div>
       </header>
 
+            <!-- Popup Overlay -->
+      <Teleport to="body">
+        <Transition name="popupFade">
+          <div v-if="showPopup" :class="$style.popupOverlay" @click.self="closePopup">
+            <div :class="$style.popupCard">
+              <div :class="$style.popupSidebar">
+                <Main :active-page="'customers'" />
+              </div>
+
+              <div :class="$style.popupContent">
+                <div :class="$style.popupHeader">
+                  <h2 :class="$style.popupTitle">{{ popupComment.ideaName }}</h2>
+                  <button :class="$style.popupClose" type="button" @click="closePopup">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                      <line x1="18" y1="6" x2="6" y2="18"></line>
+                      <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                  </button>
+                </div>
+
+                <div :class="$style.popupBanner">
+                  <img
+                    :class="$style.popupBannerPattern"
+                    src="/pattern-2.webp"
+                    alt=""
+                  />
+                  <div :class="$style.popupBannerContent">
+                    <div :class="$style.popupTermGroup">
+                      <span :class="$style.popupTermBadge">Total Evaluator Comments</span>
+                    </div>
+                    <div :class="$style.popupBalanceAmount">{{ popupComment.totalCount }}</div>
+                    <div :class="$style.popupBorrowedInfo">
+                      {{ popupComment.bannerText }}
+                    </div>
+                  </div>
+                </div>
+
+                <div :class="$style.popupDetailBox">
+                  <div :class="$style.popupRow">
+                    <span :class="$style.popupLabel">Evaluator</span>
+                    <span :class="$style.popupValue">{{ popupComment.evaluator }}</span>
+                  </div>
+                  <div :class="$style.popupRow">
+                    <span :class="$style.popupLabel">Status</span>
+                    <span :class="[
+                      $style.popupStatusBadge,
+                      popupComment.status === 'unread' ? $style.popupStatusUnread : $style.popupStatusAnswered,
+                    ]">
+                      {{ popupComment.status === 'unread' ? 'Unread' : 'Answered' }}
+                    </span>
+                  </div>
+                  <div :class="$style.popupRow">
+                    <span :class="$style.popupLabel">Submitted</span>
+                    <span :class="$style.popupValue">{{ popupComment.submittedDate }}</span>
+                  </div>
+                </div>
+
+                <div :class="$style.popupCommentBox">
+                  <div :class="$style.popupCommentLabel">Comment</div>
+                  <p :class="$style.popupCommentText">{{ popupComment.comment }}</p>
+                </div>
+
+                <div :class="$style.popupActions">
+                  <button
+                    :class="$style.popupResubmitBtn"
+                    type="button"
+                    @click="resubmitFromPopup()"
+                  >
+                    Resubmit
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                      <polyline points="9 18 15 12 9 6"></polyline>
+                    </svg>
+                  </button>
+                  <button
+                    :class="$style.popupReplyBtn"
+                    type="button"
+                    @click="toggleReply(popupComment)"
+                  >
+                    {{ popupComment.status === 'unread' ? 'Reply' : 'Add reply' }}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </Transition>
+      </Teleport>
+
+      <!-- Popup Overlay -->
+      <Teleport to="body">
+        <Transition name="popupFade">
+          <div v-if="showPopup" :class="$style.popupOverlay" @click.self="closePopup">
+            <div :class="$style.popupCard">
+              <div :class="$style.popupSidebar">
+                <Main :active-page="'customers'" />
+              </div>
+
+              <div :class="$style.popupContent">
+                <div :class="$style.popupHeader">
+                  <h2 :class="$style.popupTitle">{{ popupComment.ideaName }}</h2>
+                  <button :class="$style.popupClose" type="button" @click="closePopup">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                      <line x1="18" y1="6" x2="6" y2="18"></line>
+                      <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                  </button>
+                </div>
+
+                <div :class="$style.popupBanner">
+                  <img
+                    :class="$style.popupBannerPattern"
+                    src="/pattern-2.webp"
+                    alt=""
+                  />
+                  <div :class="$style.popupBannerContent">
+                    <div :class="$style.popupTermGroup">
+                      <span :class="$style.popupTermBadge">Total Evaluator Comments</span>
+                    </div>
+                    <div :class="$style.popupBalanceAmount">{{ popupComment.totalCount }}</div>
+                    <div :class="$style.popupBorrowedInfo">
+                      {{ popupComment.bannerText }}
+                    </div>
+                  </div>
+                </div>
+
+                <div :class="$style.popupDetailBox">
+                  <div :class="$style.popupRow">
+                    <span :class="$style.popupLabel">Evaluator</span>
+                    <span :class="$style.popupValue">{{ popupComment.evaluator }}</span>
+                  </div>
+                  <div :class="$style.popupRow">
+                    <span :class="$style.popupLabel">Status</span>
+                    <span :class="[
+                      $style.popupStatusBadge,
+                      popupComment.status === 'unread' ? $style.popupStatusUnread : $style.popupStatusAnswered,
+                    ]">
+                      {{ popupComment.status === 'unread' ? 'Unread' : 'Answered' }}
+                    </span>
+                  </div>
+                  <div :class="$style.popupRow">
+                    <span :class="$style.popupLabel">Submitted</span>
+                    <span :class="$style.popupValue">{{ popupComment.submittedDate }}</span>
+                  </div>
+                </div>
+
+                <div :class="$style.popupCommentBox">
+                  <div :class="$style.popupCommentLabel">Comment</div>
+                  <p :class="$style.popupCommentText">{{ popupComment.comment }}</p>
+                </div>
+
+                <div :class="$style.popupActions">
+                  <button
+                    :class="$style.popupResubmitBtn"
+                    type="button"
+                    @click="resubmitFromPopup()"
+                  >
+                    Resubmit
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                      <polyline points="9 18 15 12 9 6"></polyline>
+                    </svg>
+                  </button>
+                  <button
+                    :class="$style.popupReplyBtn"
+                    type="button"
+                    @click="toggleReply(popupComment)"
+                  >
+                    {{ popupComment.status === 'unread' ? 'Reply' : 'Add reply' }}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </Transition>
+      </Teleport>
+
       <!-- Filter Pills Row -->
       <div :class="$style.filtersRow">
         <button
@@ -43,7 +217,7 @@
             activeFilter === filter.key ? $style.filterPillActive : ''
           ]"
           type="button"
-          @click="activeFilter = filter.key"
+          @click="activeFilter = filter.key as any"
         >
           <span>{{ filter.label }}</span>
           <span :class="$style.filterCount">{{ filter.count }}</span>
@@ -54,7 +228,6 @@
       <section :class="$style.cardContainer">
         <!-- Top Dark Green Banner -->
         <div :class="$style.balanceBanner">
-          <!-- Botswana vertical chevron pattern along the right edge -->
           <img
             :class="$style.bannerPattern"
             src="/pattern-2.webp"
@@ -62,15 +235,13 @@
           />
 
           <div :class="$style.bannerContent">
-            <!-- Badge -->
             <div :class="$style.termToggleGroup">
-              <span :class="$style.termBadge">Total Customers Registered</span>
+              <span :class="$style.termBadge">Total Evaluator Comments</span>
             </div>
 
-            <!-- Total Amount -->
-            <div :class="$style.balanceAmount">P 1000.00</div>
+            <div :class="$style.balanceAmount">5</div>
             <div :class="$style.borrowedInfo">
-              as of October 30 2025
+              across 4 ideas &middot; last comment 18 November 2026
             </div>
           </div>
         </div>
@@ -81,7 +252,7 @@
             v-model="searchQuery"
             :class="$style.searchInput"
             type="text"
-            placeholder="Search Profiles by Customer Name"
+            placeholder="Search comments by idea or evaluator"
           />
           <svg
             :class="$style.searchIcon"
@@ -97,55 +268,90 @@
           </svg>
         </div>
 
-        <!-- Customers Table -->
+        <!-- Feedback Table -->
         <div :class="$style.tableSection">
-          <h2 :class="$style.tableHeading">Customers</h2>
+          <h2 :class="$style.tableHeading">Evaluator Comments</h2>
 
           <div :class="$style.tableResponsive">
             <table :class="$style.loansTable">
               <thead>
                 <tr>
-                  <th :class="$style.thLeft">Customer Name</th>
-                  <th :class="$style.thCenter">Loan Amount</th>
-                  <th :class="$style.thCenter">Loan Term</th>
+                  <th :class="$style.thLeft">Idea</th>
+                  <th :class="$style.thCenter">Evaluator</th>
+                  <th :class="$style.thCenter">Comment</th>
                   <th :class="$style.thCenter">Status</th>
+                  <th :class="$style.thLeft">Submitted</th>
                   <th :class="$style.thRight">Action</th>
                 </tr>
               </thead>
               <tbody>
                 <tr
-                  v-for="(customer, index) in filteredCustomers"
+                  v-for="(comment, index) in filteredComments"
                   :key="index"
                   :class="$style.tableRow"
                 >
                   <td :class="$style.tdCustomer">
-                    <span :class="$style.customerNameClickable" @click="openLoan(customer)">
-                      {{ customer.customerName }}
+                    <span :class="$style.customerNameClickable" @click="openIdea(comment)">
+                      {{ comment.ideaName }}
                     </span>
                   </td>
-                  <td :class="$style.tdAmount">{{ customer.loanAmount }}</td>
-                  <td :class="$style.tdTerm">{{ customer.loanTerm }}</td>
+                  <td :class="$style.tdAmount">{{ comment.evaluator }}</td>
+                  <td :class="$style.tdTerm">
+                    <div class="$style.commentCell">
+                      <p :class="[$style.p2, comment.commentLong ? $style.p2Truncated : '']">{{ comment.comment }}</p>
+                      <button
+                        v-if="comment.commentLong"
+                        :class="$style.viewMoreBtn"
+                        type="button"
+                        @click="viewMore(comment)"
+                      >
+                        View more
+                      </button>
+                      <div v-if="comment.showReply" :class="$style.replyBox">
+                        <input
+                          v-model="replyText"
+                          type="text"
+                          :class="$style.replyInput"
+                          @keyup.enter="sendReply(comment)"
+                          placeholder="Type a reply…"
+                        />
+                        <button :class="$style.replySend" type="button" @click="sendReply(comment)">
+                          Send reply
+                        </button>
+                      </div>
+                      <button :class="$style.replyToggle" type="button" @click="toggleReply(comment)">
+                        {{ comment.status === 'unread' ? 'Reply' : 'Add reply' }}
+                      </button>
+                    </div>
+                  </td>
                   <td :class="$style.tdStatusCenter">
-                    <span :class="getStatusClass(customer.status)">
-                      {{ customer.status }}
+                    <span :class="[
+                      $style.unreadBadge,
+                      comment.status === 'unread' ? $style.unreadOn : '',
+                      comment.status === 'answered' ? $style.answeredOn : '',
+                    ]">
+                      {{ comment.status === 'unread' ? 'Unread' : 'Answered' }}
                     </span>
+                  </td>
+                  <td :class="$style.tdTerm">
+                    <span :class="$style.p4">{{ comment.submittedDate }}</span>
                   </td>
                   <td :class="$style.tdAction">
                     <button
-                      :class="$style.viewLoanBtn"
+                      :class="$style.resubmitBtn"
                       type="button"
-                      @click="openLoan(customer)"
+                      @click="resubmitIdea(comment.ideaId)"
                     >
-                      View loan
+                      Resubmit
                       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                         <polyline points="9 18 15 12 9 6"></polyline>
                       </svg>
                     </button>
                   </td>
                 </tr>
-                <tr v-if="filteredCustomers.length === 0">
-                  <td :class="$style.noResults" colspan="5">
-                    No customers match your search criteria.
+                <tr v-if="filteredComments.length === 0">
+                  <td :class="$style.noResults" colspan="6">
+                    No comments match your search criteria.
                   </td>
                 </tr>
               </tbody>
@@ -154,88 +360,188 @@
         </div>
       </section>
     </main>
+    <ChatWithAgent />
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, useCssModule } from "vue";
+import { ref, computed } from "vue";
 import { useRouter } from "vue-router";
 import Main from "../components/Main.vue";
+import ChatWithAgent from "../components/ChatWithAgent.vue";
 
 const router = useRouter();
-const activeFilter = ref("all");
+
+const activeFilter = ref<"all" | "unread" | "answered">("all" as const);
 const searchQuery = ref("");
 
 const filterOptions = [
-  { key: "all", label: "All", count: 300 },
-  { key: "active", label: "Active", count: 290 },
-  { key: "review", label: "In review", count: 1 },
-  { key: "sent12", label: "Sent Back", count: 12 },
-  { key: "sent3", label: "Sent Back", count: 3 },
+  { key: "all", label: "All", count: 5 },
+  { key: "unread", label: "Unread", count: 3 },
+  { key: "answered", label: "Answered", count: 2 },
 ];
 
-interface CustomerRecord {
-  loanId?: string;
-  customerName: string;
-  loanAmount: string;
-  loanTerm: string;
-  status: "ACTIVE" | "REVIEW" | "RETURN" | "REJECTED";
+interface FeedbackRecord {
+  ideaId: string;
+  ideaName: string;
+  evaluator: string;
+  comment: string;
+  severity: "High" | "Medium" | "Low";
+  submittedDate: string;
+  status: "unread" | "answered";
+  showReply: boolean;
+  commentLong: boolean;
+  totalCount: number;
+  bannerText: string;
 }
 
-const customersData: CustomerRecord[] = [
-  { loanId: "SRK-L-10847", customerName: "Kamogelo Lekaba", loanAmount: "P 308.20", loanTerm: "12 months", status: "ACTIVE" },
-  { loanId: "SRK-L-10848", customerName: "Jacob Maleo", loanAmount: "P 2900.91", loanTerm: "3 months", status: "ACTIVE" },
-  { loanId: "SRK-L-10849", customerName: "Susan Chikuma", loanAmount: "P 1800.00", loanTerm: "9 months", status: "REVIEW" },
-  { loanId: "SRK-L-10842", customerName: "Lantern Matho", loanAmount: "P 1400.00", loanTerm: "3 months", status: "RETURN" },
-  { loanId: "SRK-L-10839", customerName: "Naledi Seneo", loanAmount: "P 2000.00", loanTerm: "9 months", status: "REJECTED" },
-  { loanId: "SRK-L-10845", customerName: "Keamogetse Leone", loanAmount: "P 2000.00", loanTerm: "6 months", status: "ACTIVE" },
-  { loanId: "SRK-L-10846", customerName: "Seneo Jacob", loanAmount: "P 2000.00", loanTerm: "10 months", status: "ACTIVE" },
-  { loanId: "SRK-L-10846", customerName: "Seneo Jacob", loanAmount: "P 2000.00", loanTerm: "10 months", status: "ACTIVE" },
-  { loanId: "SRK-L-10846", customerName: "Seneo Jacob", loanAmount: "P 2000.00", loanTerm: "10 months", status: "ACTIVE" },
-  { loanId: "SRK-L-10846", customerName: "Seneo Jacob", loanAmount: "P 2000.00", loanTerm: "10 months", status: "ACTIVE" },
-  { loanId: "SRK-L-10846", customerName: "Seneo Jacob", loanAmount: "P 2000.00", loanTerm: "10 months", status: "ACTIVE" },
-  { loanId: "SRK-L-10846", customerName: "Seneo Jacob", loanAmount: "P 2000.00", loanTerm: "10 months", status: "ACTIVE" },
-  { loanId: "SRK-L-10846", customerName: "Seneo Jacob", loanAmount: "P 2000.00", loanTerm: "10 months", status: "ACTIVE" },
+const feedbackData: FeedbackRecord[] = [
+  {
+    ideaId: "irrigation-kit",
+    ideaName: "Irrigation Kit",
+    evaluator: "Marion Lucas",
+    comment: "Clarify how the drip kit scales to commercial farms. Include capacity per station, pipe lengths for plots up to 2 hectares, and the cost difference between the smallholder and commercial configurations so the review team can assess scalability.",
+    severity: "Medium",
+    submittedDate: "18 November 2026",
+    status: "unread",
+    showReply: false,
+    commentLong: true,
+    totalCount: 1,
+    bannerText: "1 comment on Irrigation Kit · last comment 18 November 2026",
+  },
+  {
+    ideaId: "solar-dryer",
+    ideaName: "Solar Dryer",
+    evaluator: "Marion Lucas",
+    comment: "Add CIPA registration number to the application. Please include the CIPA company registration certificate and the current membership status so the review team can verify compliance before proceeding with the assessment.",
+    severity: "Medium",
+    submittedDate: "2 October 2026",
+    status: "answered",
+    showReply: false,
+    commentLong: true,
+    totalCount: 1,
+    bannerText: "1 comment on Solar Dryer · last comment 2 October 2026",
+  },
+  {
+    ideaId: "edu-app",
+    ideaName: "Edu App",
+    evaluator: "Marion Lucas",
+    comment: "Provide itemised cost estimates for development and hosting. Break down the costs for the mobile app development, server hosting, content creation, and ongoing maintenance so the budget can be reviewed in detail.",
+    severity: "High",
+    submittedDate: "2 October 2026",
+    status: "unread",
+    showReply: false,
+    commentLong: true,
+    totalCount: 1,
+    bannerText: "1 comment on Edu App · last comment 2 October 2026",
+  },
+  {
+    ideaId: "agri-drone",
+    ideaName: "Agri Drone",
+    evaluator: "Marion Lucas",
+    comment: "Demonstrate pesticide reduction metrics from pilot results. Include the before-and-after pesticide usage figures, the sampling methodology, and the confidence interval around the reported 30% reduction so the claim can be validated.",
+    severity: "High",
+    submittedDate: "2 October 2026",
+    status: "unread",
+    showReply: false,
+    commentLong: true,
+    totalCount: 1,
+    bannerText: "1 comment on Agri Drone · last comment 2 October 2026",
+  },
+  {
+    ideaId: "irrigation-kit-draft",
+    ideaName: "Irrigation Kit Draft",
+    evaluator: "Marion Lucas",
+    comment: "Working draft still being refined — resubmit once the budget is finalised. The current draft shows promise but the budget breakdown is incomplete; please finalise the component costs and resubmit for review when ready.",
+    severity: "Low",
+    submittedDate: "18 November 2026",
+    status: "answered",
+    showReply: false,
+    commentLong: true,
+    totalCount: 1,
+    bannerText: "1 comment on Irrigation Kit Draft · last comment 18 November 2026",
+  },
 ];
 
-const filteredCustomers = computed(() => {
-  let list: CustomerRecord[] = [...customersData];
+const filteredComments = computed(() => {
+  let list = [...feedbackData];
 
-  if (activeFilter.value === "active") {
-    list = list.filter((c) => c.status === "ACTIVE");
-  } else if (activeFilter.value === "review") {
-    list = list.filter((c) => c.status === "REVIEW");
+  if (activeFilter.value === "unread") {
+    list = list.filter((c) => c.status === "unread");
+  } else if (activeFilter.value === "answered") {
+    list = list.filter((c) => c.status === "answered");
   }
 
   if (searchQuery.value.trim()) {
     const q = searchQuery.value.toLowerCase().trim();
-    list = list.filter((c) => c.customerName.toLowerCase().includes(q));
+    list = list.filter(
+      (c) =>
+        c.ideaName.toLowerCase().includes(q) ||
+        c.evaluator.toLowerCase().includes(q) ||
+        c.comment.toLowerCase().includes(q)
+    );
   }
 
   return list;
 });
 
-function openLoan(customer: CustomerRecord) {
-  router.push({
-    name: "LoanView",
-    query: {
-      id: customer.loanId || "SRK-L-10847",
-      name: customer.customerName,
-    },
-  });
+const replyText = ref("");
+
+const showPopup = ref(false);
+const popupComment = ref<FeedbackRecord>({
+  ideaId: "",
+  ideaName: "",
+  evaluator: "",
+  comment: "",
+  severity: "Medium",
+  submittedDate: "",
+  status: "unread",
+  showReply: false,
+  commentLong: false,
+  totalCount: 0,
+  bannerText: "",
+});
+
+function viewMore(comment: FeedbackRecord) {
+  popupComment.value = { ...comment };
+  showPopup.value = true;
 }
 
-const style = useCssModule();
+function closePopup() {
+  showPopup.value = false;
+}
 
-const getStatusClass = (status: string) => {
-  switch (status) {
-    case "ACTIVE": return style.statusActive;
-    case "REVIEW": return style.statusReview;
-    case "RETURN": return style.statusReturn;
-    case "REJECTED": return style.statusRejected;
-    default: return style.statusActive;
-  }
-};
+function resubmitFromPopup() {
+  closePopup();
+  resubmitIdea(popupComment.value.ideaId);
+}
+
+function toggleReply(comment: FeedbackRecord) {
+  comment.showReply = !comment.showReply;
+  if (comment.showReply) replyText.value = "";
+}
+
+function sendReply(comment: FeedbackRecord) {
+  if (!replyText.value.trim()) return;
+  comment.status = "answered";
+  comment.showReply = false;
+  replyText.value = "";
+}
+
+function resubmitIdea(ideaId: string) {
+  const names: Record<string, string> = {
+    "irrigation-kit": "Irrigation Kit",
+    "solar-dryer": "Solar Dryer",
+    "edu-app": "Edu App",
+    "agri-drone": "Agri Drone",
+    "irrigation-kit-draft": "Irrigation Kit Draft",
+  };
+  router.push({ name: "IdeaView", query: { name: names[ideaId] || ideaId } });
+}
+
+function openIdea(comment: FeedbackRecord) {
+  router.push({ name: "IdeaView", query: { name: comment.ideaName } });
+}
 </script>
 
 <style module>
@@ -256,7 +562,6 @@ const getStatusClass = (status: string) => {
   box-sizing: border-box;
 }
 
-/* Header matching DashboardSample */
 .div {
   align-self: stretch;
   display: flex;
@@ -390,7 +695,6 @@ const getStatusClass = (status: string) => {
   font-size: var(--fs-15);
 }
 
-/* Filter Pills Row */
 .filtersRow {
   display: flex;
   align-items: center;
@@ -429,7 +733,6 @@ const getStatusClass = (status: string) => {
   opacity: 0.9;
 }
 
-/* Card Container */
 .cardContainer {
   background-color: #ffffff;
   border-radius: 20px;
@@ -439,7 +742,6 @@ const getStatusClass = (status: string) => {
   padding-bottom: 24px;
 }
 
-/* Top Dark Banner */
 .balanceBanner {
   position: relative;
   background-color: var(--color-darkslategray-600);
@@ -501,7 +803,6 @@ const getStatusClass = (status: string) => {
   color: rgba(255, 255, 255, 0.65);
 }
 
-/* Search Box */
 .searchWrapper {
   margin: 24px 28px 20px;
   position: relative;
@@ -543,7 +844,6 @@ const getStatusClass = (status: string) => {
   pointer-events: none;
 }
 
-/* Table Section */
 .tableSection {
   padding: 0 28px;
 }
@@ -595,6 +895,14 @@ const getStatusClass = (status: string) => {
   vertical-align: middle;
 }
 
+.p2 {
+  margin: 0 0 4px;
+  font-size: 13px;
+  line-height: 1.4;
+  color: #374151;
+  max-width: 340px;
+}
+
 .tdCustomer {
   font-weight: 700;
   color: #1a202c;
@@ -604,6 +912,7 @@ const getStatusClass = (status: string) => {
 .customerNameClickable {
   cursor: pointer;
   transition: color 0.15s ease;
+  font-size: 13.5px;
 }
 
 .customerNameClickable:hover {
@@ -614,13 +923,15 @@ const getStatusClass = (status: string) => {
 .tdAmount {
   text-align: center;
   font-weight: 600;
-  color: #92691b;
+  color: #4a5568;
+  font-size: 13.5px;
 }
 
 .tdTerm {
   text-align: center;
   color: #4a5568;
   font-weight: 500;
+  font-size: 13.5px;
 }
 
 .tdStatus {
@@ -637,15 +948,137 @@ const getStatusClass = (status: string) => {
   padding-right: 0 !important;
 }
 
-.viewLoanBtn {
+.replyBox {
+  margin-top: 8px;
+  padding: 8px;
+  background-color: #f3f5f4;
+  border-radius: 8px;
+  border: 1px solid var(--color-goldenrod-200);
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.replyInput {
+  flex: 1;
+  height: 32px;
+  background-color: #ffffff;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  padding: 0 10px;
+  font-size: 13px;
+  font-family: var(--font-inter);
+  color: #1a202c;
+  outline: none;
+}
+
+.replyInput:focus {
+  border-color: var(--color-goldenrod-300);
+  box-shadow: 0 0 0 2px rgba(237, 196, 47, 0.18);
+}
+
+.replySend {
+  background-color: var(--color-darkslategray-500);
+  color: #ffffff;
+  border: none;
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-size: 12.5px;
+  font-weight: 700;
+  font-family: var(--font-inter);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background-color 0.15s ease;
+}
+
+.replySend:hover {
+  background-color: var(--color-darkslategray-600);
+}
+
+.replyToggle {
+  margin-top: 8px;
+  background: none;
+  border: none;
+  color: var(--color-goldenrod-300);
+  font-size: 12.5px;
+  font-weight: 600;
+  font-family: var(--font-inter);
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.replyToggle:hover {
+  color: var(--color-goldenrod-200);
+}
+
+.unreadBadge {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.3px;
+  padding: 4px 10px;
+  border-radius: 9999px;
+  border: 1.5px solid var(--color-softred-200);
+  color: var(--color-softred-700);
+  background-color: #fff5f5;
+  text-transform: uppercase;
+}
+
+.unreadOn {
+  background-color: var(--color-softred-200) !important;
+  color: var(--color-softred-900) !important;
+  border-color: var(--color-softred-200) !important;
+}
+
+.answeredOn {
+  background-color: #f0fdf4;
+  color: var(--color-darkslategray-500);
+  border-color: #bbf7d0;
+}
+
+.p2Truncated {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.viewMoreBtn {
+  margin-top: 6px;
+  background: none;
+  border: none;
+  color: var(--color-goldenrod-300);
+  font-size: 12px;
+  font-weight: 600;
+  font-family: var(--font-inter);
+  cursor: pointer;
+  text-decoration: underline;
+  padding: 0;
+}
+
+.viewMoreBtn:hover {
+  color: var(--color-goldenrod-200);
+}
+
+.commentCell {
+  display: flex;
+  flex-direction: column;
+}
+
+.p4 {
+  font-size: 12.5px;
+  color: #92691b;
+}
+
+.resubmitBtn {
   display: inline-flex;
   align-items: center;
   gap: 6px;
   padding: 6px 14px;
   border-radius: 9999px;
-  border: 1px solid #d1d5db;
-  background-color: #ffffff;
-  color: #0f2e24;
+  border: 1px solid var(--color-darkslategray-400);
+  background-color: var(--color-darkslategray-600);
+  color: #ffffff;
   font-size: 12.5px;
   font-weight: 700;
   cursor: pointer;
@@ -653,59 +1086,9 @@ const getStatusClass = (status: string) => {
   transition: all 0.15s ease;
 }
 
-.viewLoanBtn:hover {
-  background-color: #0f2e24;
-  border-color: #0f2e24;
-  color: #ffffff;
-}
-
-/* Status Badges */
-.statusActive {
-  display: inline-block;
-  background-color: #00b67a;
-  color: #ffffff;
-  font-size: 11px;
-  font-weight: 800;
-  letter-spacing: 0.5px;
-  padding: 4px 14px;
-  border-radius: 6px;
-  text-transform: uppercase;
-}
-
-.statusReview {
-  display: inline-block;
-  background-color: #d99b26;
-  color: #ffffff;
-  font-size: 11px;
-  font-weight: 800;
-  letter-spacing: 0.5px;
-  padding: 4px 14px;
-  border-radius: 6px;
-  text-transform: uppercase;
-}
-
-.statusReturn {
-  display: inline-block;
-  background-color: #8c3310;
-  color: #ffffff;
-  font-size: 11px;
-  font-weight: 800;
-  letter-spacing: 0.5px;
-  padding: 4px 14px;
-  border-radius: 6px;
-  text-transform: uppercase;
-}
-
-.statusRejected {
-  display: inline-block;
-  background-color: #dc2626;
-  color: #ffffff;
-  font-size: 11px;
-  font-weight: 800;
-  letter-spacing: 0.5px;
-  padding: 4px 14px;
-  border-radius: 6px;
-  text-transform: uppercase;
+.resubmitBtn:hover {
+  background-color: var(--color-darkslategray-500);
+  border-color: var(--color-darkslategray-500);
 }
 
 .noResults {
@@ -713,6 +1096,259 @@ const getStatusClass = (status: string) => {
   padding: 32px 0;
   color: #718096;
   font-size: 14px;
+}
+
+/* Popup overlay */
+.popupOverlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 9999;
+  display: flex;
+  align-items: stretch;
+  justify-content: stretch;
+  font-family: var(--font-inter);
+}
+
+.popupCard {
+  display: flex;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.popupSidebar {
+  width: 240px;
+  flex-shrink: 0;
+  background-color: var(--color-darkslategray-500);
+  height: 100vh;
+  overflow-y: auto;
+  font-family: var(--font-inter);
+}
+
+.popupContent {
+  flex: 1;
+  background-color: #ffffff;
+  overflow-y: auto;
+  padding: 28px 36px 36px;
+  box-sizing: border-box;
+}
+
+.popupHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 22px;
+}
+
+.popupTitle {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--color-darkslategray-500);
+  letter-spacing: -0.4px;
+}
+
+.popupClose {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  color: #6b7280;
+  border-radius: 6px;
+  transition: background-color 0.15s ease;
+}
+
+.popupClose:hover {
+  background-color: #f3f4f6;
+}
+
+.popupBanner {
+  position: relative;
+  background-color: var(--color-darkslategray-600);
+  border-radius: 16px;
+  padding: 20px 24px;
+  margin-bottom: 22px;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.popupBannerPattern {
+  position: absolute;
+  top: 0;
+  right: -8px;
+  height: 100%;
+  width: 120px;
+  object-fit: cover;
+  opacity: 0.85;
+  mix-blend-mode: screen;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.popupBannerContent {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.popupTermGroup {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.popupTermBadge {
+  border: 1.5px solid var(--color-goldenrod-200);
+  color: var(--color-goldenrod-200);
+  border-radius: 9999px;
+  padding: 4px 12px;
+  font-size: 11.5px;
+  font-weight: 700;
+}
+
+.popupBalanceAmount {
+  font-size: clamp(28px, 3vw, 36px);
+  font-weight: 900;
+  color: #ffffff;
+  line-height: 1.1;
+  margin-bottom: 4px;
+  letter-spacing: -0.3px;
+}
+
+.popupBorrowedInfo {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.popupDetailBox {
+  background-color: #faf7f2;
+  border: 1px solid #ede4d6;
+  border-radius: 14px;
+  padding: 16px 20px;
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.popupRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13.5px;
+}
+
+.popupLabel {
+  color: #6b7280;
+  font-weight: 500;
+}
+
+.popupValue {
+  color: #111827;
+  font-weight: 700;
+  text-align: right;
+  max-width: 60%;
+}
+
+.popupStatusBadge {
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.3px;
+  padding: 3px 9px;
+  border-radius: 9999px;
+  text-transform: uppercase;
+}
+
+.popupStatusUnread {
+  background-color: var(--color-softred-200);
+  color: var(--color-softred-900);
+  border: 1.5px solid var(--color-softred-200);
+}
+
+.popupStatusAnswered {
+  background-color: #f0fdf4;
+  color: var(--color-darkslategray-500);
+  border: 1.5px solid #bbf7d0;
+}
+
+.popupCommentBox {
+  border: 1px solid #fed7aa;
+  border-radius: 14px;
+  padding: 16px 20px;
+  margin-bottom: 20px;
+  background-color: #fff7ed;
+}
+
+.popupCommentLabel {
+  font-size: 14px;
+  font-weight: 800;
+  color: #7c2d12;
+  margin-bottom: 4px;
+}
+
+.popupCommentText {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.45;
+  color: #9a3412;
+}
+
+.popupActions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.popupResubmitBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 18px;
+  border-radius: 9999px;
+  border: 1px solid var(--color-darkslategray-400);
+  background-color: var(--color-darkslategray-600);
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: var(--font-inter);
+  transition: all 0.15s ease;
+}
+
+.popupResubmitBtn:hover {
+  background-color: var(--color-darkslategray-500);
+  border-color: var(--color-darkslategray-500);
+}
+
+.popupReplyBtn {
+  background: none;
+  border: none;
+  color: var(--color-goldenrod-300);
+  font-size: 13px;
+  font-weight: 600;
+  font-family: var(--font-inter);
+  cursor: pointer;
+  text-decoration: underline;
+  padding: 6px 0;
+}
+
+.popupReplyBtn:hover {
+  color: var(--color-goldenrod-200);
+}
+
+.popupFade-enter-active,
+.popupFade-leave-active {
+  transition: opacity 0.2s ease;
+}
+
+.popupFade-enter-from,
+.popupFade-leave-to {
+  opacity: 0;
 }
 
 @media screen and (max-width: 1050px) {

@@ -5,10 +5,12 @@
         <div :class="$style.repaidSoFar">Submitted so far</div>
       </div>
       <div :class="$style.div3">
-        <h2 :class="$style.p1789192">P 17,891.92</h2>
+        <h2 :class="$style.p1789192">P {{ totalSubmitted }}</h2>
       </div>
       <div :class="$style.div4">
-        <div :class="$style.repaidSoFar">18 proposals submitted so far</div>
+        <div :class="$style.repaidSoFar">
+          {{ proposals.length }} proposals submitted so far
+        </div>
       </div>
     </div>
     <div :class="$style.div5">
@@ -16,27 +18,20 @@
         <div :class="$style.totalRepaymentsDue">Applications in review</div>
       </div>
       <div :class="$style.div7">
-        <h2 :class="$style.p1789192">18 of 18</h2>
+        <h2 :class="$style.p1789192">{{ inReviewCount }} of {{ proposals.length }}</h2>
       </div>
       <div :class="$style.div8">
-        <div :class="$style.span" />
-        <div :class="$style.span" />
-        <div :class="$style.span" />
-        <div :class="$style.span" />
-        <div :class="$style.span" />
-        <div :class="$style.span" />
-        <div :class="$style.span" />
-        <div :class="$style.span" />
-        <div :class="$style.span" />
-        <div :class="$style.span" />
-        <div :class="$style.span" />
-        <div :class="$style.span" />
-        <div :class="$style.span" />
-        <div :class="$style.span" />
-        <div :class="$style.span" />
-        <div :class="$style.span" />
-        <div :class="$style.span" />
-        <div :class="$style.span" />
+        <div
+          v-for="proposal in proposals"
+          :key="proposal.title"
+          :class="[$style.span, dotClass(proposal.status)]"
+          :title="`${proposal.title} — ${proposal.status}`"
+        />
+      </div>
+      <div :class="$style.div4">
+        <div :class="$style.repaidSoFar">
+          {{ statusBreakdown }}
+        </div>
       </div>
     </div>
     <div :class="$style.div9">
@@ -44,14 +39,97 @@
         <div :class="$style.repaidSoFar">Approved to date</div>
       </div>
       <div :class="$style.div11">
-        <h2 :class="$style.h2">10</h2>
+        <h2 :class="$style.h2">{{ approvedCount }}</h2>
       </div>
       <div :class="$style.div4">
-        <div :class="$style.repaidSoFar">Awarded, submitted 2 October</div>
+        <div :class="$style.repaidSoFar">{{ approvedBreakdown }}</div>
       </div>
     </div>
   </section>
 </template>
+
+<script setup lang="ts">
+  import { computed, useCssModule } from "vue";
+
+  const style = useCssModule();
+
+  type ProposalStatus =
+    | "Draft"
+    | "Under Review"
+    | "Approved"
+    | "Feedback Required"
+    | "Awarded";
+
+  interface InnovatorProposal {
+    title: string;
+    amount: number;
+    status: ProposalStatus;
+    submitted: string;
+  }
+
+  // The innovator's own submissions, matching the ideas listed on the dashboard.
+  const proposals: InnovatorProposal[] = [
+    { title: "Irrigation Kit", amount: 900, status: "Under Review", submitted: "25 September" },
+    { title: "Solar Dryer", amount: 1000, status: "Approved", submitted: "25 September" },
+    { title: "Edu App", amount: 3000, status: "Feedback Required", submitted: "2 October" },
+    { title: "Agri Drone", amount: 6000, status: "Awarded", submitted: "2 October" },
+  ];
+
+  const money = (value: number) =>
+    value.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+  const countBy = (status: ProposalStatus) =>
+    proposals.filter((proposal) => proposal.status === status).length;
+
+  const totalSubmitted = computed(() =>
+    money(proposals.reduce((sum, proposal) => sum + proposal.amount, 0))
+  );
+
+  const inReviewCount = countBy("Under Review");
+  const approvedCount = countBy("Approved") + countBy("Awarded");
+
+  const statusBreakdown = computed(() => {
+    const parts = [
+      `${countBy("Under Review")} under review`,
+      `${countBy("Feedback Required")} needing feedback`,
+      `${countBy("Approved")} approved`,
+      `${countBy("Awarded")} awarded`,
+    ].filter((part) => !part.startsWith("0 "));
+    return parts.join(" · ");
+  });
+
+  const approvedBreakdown = computed(() => {
+    const approved = countBy("Approved");
+    const awarded = countBy("Awarded");
+    const latest = proposals
+      .filter((proposal) => proposal.status === "Awarded")
+      .map((proposal) => proposal.submitted)
+      .pop();
+
+    const parts = [
+      approved ? `${approved} approved` : "",
+      awarded ? `${awarded} awarded${latest ? ` on ${latest}` : ""}` : "",
+    ].filter(Boolean);
+
+    return parts.length
+      ? `${parts.join(" · ")} of ${proposals.length} submitted`
+      : "None approved yet";
+  });
+
+  const dotClass = (status: ProposalStatus) => {
+    switch (status) {
+      case "Awarded":
+      case "Approved":
+        return style.dotApproved;
+      case "Under Review":
+        return style.dotReview;
+      case "Feedback Required":
+        return style.dotFeedback;
+      default:
+        return style.dotDraft;
+    }
+  };
+</script>
 <style module>
   .accountSummary {
     width: 100%;
@@ -154,6 +232,18 @@
     position: relative;
     border-radius: var(--br-3);
     background-color: var(--color-seagreen);
+  }
+  .dotApproved {
+    background-color: var(--color-seagreen);
+  }
+  .dotReview {
+    background-color: var(--color-goldenrod-200);
+  }
+  .dotFeedback {
+    background-color: #e65100;
+  }
+  .dotDraft {
+    background-color: #c9ccd1;
   }
   .div9 {
     flex: 1;

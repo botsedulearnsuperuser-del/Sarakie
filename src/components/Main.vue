@@ -119,7 +119,6 @@
         <div :class="$style.dashboard">My Profile</div>
       </div>
       <div
-        v-if="activePage === 'dashboard'"
         :class="$style.asideLink2"
         @click="openAiAgent"
       >
