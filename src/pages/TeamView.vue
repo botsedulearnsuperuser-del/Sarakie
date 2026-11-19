@@ -90,6 +90,81 @@
           </div>
         </div>
 
+        <!-- Edit Member Popup -->
+        <div v-if="showEditPopup" :class="$style.popupOverlay" @click.self="closeEditPopup">
+          <div :class="$style.popupCard">
+            <div :class="$style.popupHeader">
+              <h3 :class="$style.popupTitle">Edit Team Member</h3>
+              <button :class="$style.popupClose" type="button" @click="closeEditPopup">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+              </button>
+            </div>
+            <div :class="$style.popupBody">
+              <label :class="$style.fieldLabel">Display name</label>
+              <input
+                v-model="editMember.name"
+                :class="$style.emailInput"
+                type="text"
+                placeholder="Display name"
+              />
+              <label :class="$style.fieldLabel" style="margin-top: 12px;">Role</label>
+              <select v-model="editMember.role" :class="$style.emailInput" style="height: 48px; cursor: pointer;">
+                <option value="Member">Member</option>
+                <option value="Admin">Admin</option>
+                <option value="Owner">Owner</option>
+              </select>
+              <button :class="$style.inviteSendBtn" type="button" @click="saveEdit" style="margin-top: 12px;">
+                Save Changes
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Remove Confirmation Popup -->
+        <div v-if="showRemoveConfirmation" :class="$style.popupOverlay" @click.self="cancelRemoveMember">
+          <div :class="$style.popupCard">
+            <div :class="$style.popupHeader">
+              <h3 :class="$style.popupTitle">Remove Team Member</h3>
+              <button :class="$style.popupClose" type="button" @click="cancelRemoveMember">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+              </button>
+            </div>
+            <div :class="$style.popupBody">
+              <svg
+                :class="$style.confirmIcon"
+                xmlns="http://www.w3.org/2000/svg"
+                width="1em"
+                height="1em"
+                viewBox="0 0 32 32"
+              >
+                <path d="M0 0h32v32H0z" fill="none" />
+                <g fill="currentColor">
+                  <path d="M15.371 13.041q.167.055.342.081q.278.07.563.1a1.978 1.978 0 0 0 3.846.114c.218-.786.33-1.598.333-2.414a9.4 9.4 0 0 0 1.168-2.1l.013-.03l.107-.26l.137-.346a29 29 0 0 0 .415-1.146l.027-.08l.01-.032c.068-.2.136-.422.2-.646q.057-.194.109-.392a9.5 9.5 0 0 0 .322-1.791v-.03a2 2 0 0 0-1.732-2.052a1.96 1.96 0 0 0-1.134.195a2 2 0 0 0-1.938-.185 1.96 1.96 0 0 0-1.091 1.636v.01a8.5 8.5 0 0 1-.43 1.793c-.1.3-.2.585-.3.84q-.302-.155-.624-.26l-.019-.009a3.592 3.592 0 0 0-2.262 6.818zm3.786.031a.978.978 0 0 1-1.849.117q.285-.051.559-.144a4.4 4.4 0 0 0 1.489-.89q-.075.464-.199.917m-5.11-4.26a2.586 2.586 0 0 1 3.27-1.64l.03.01q.293.094.561.244l-.021.049v.012a5.4 5.4 0 0 1-.9 1.429l-.016.016l-.025.029a2 2 0 0 1-.1.109l-.1-.038l-.03-.01a.634.634 0 0 0-.8.4a.57.57 0 0 0 .03.48c.06.128.162.231.289.292q.05.012.1.028q.136.049.279.061a.8.8 0 0 0 .437-.1q.105-.054.2-.124q.253-.198.458-.445l.01-.01a6.3 6.3 0 0 0 1.077-1.693a5 5 0 0 0 .088-.215v-.015l.01-.024a17 17 0 0 0 .162-.393l.034-.087l.034-.088c.424-1.015.72-2.079.883-3.167q.014-.182.09-.349a1 1 0 0 1 .243-.325a.98.98 0 0 1 .707-.246c.215.012.42.096.58.24a1 1 0 0 1 .34.79q-.016.24-.055.5q-.12.74-.336 1.457l-.042.14a24 24 0 0 1-.615 1.764l-.033.084a24 24 0 0 1-.174.429l-.015.036l-.086.208a8.5 8.5 0 0 1-1.414 2.24a3.74 3.74 0 0 1-1.831 1.26a2.7 2.7 0 0 1-1.043.072a3 3 0 0 1-.422-.084a1 1 0 0 1-.214-.045a2.593 2.593 0 0 1-1.64-3.281M12.06 3.98a.96.96 0 1 1-1.066-1.596a.96.96 0 0 1 1.066 1.596m11.908 18.846a.97.97 0 1 1 1.078 1.612a.97.97 0 0 1-1.078-1.612m.999-13.914a1.16 1.16 0 1 0 0-2.32a1.16 1.16 0 0 0 0 2.32M6.651 8.716a1.16 1.16 0 1 1-1.288-1.929a1.16 1.16 0 0 1 1.288 1.93" />
+                  <path d="M29.396 14.89a1.04 1.04 0 0 1-.799.032a6.65 6.65 0 0 0-6.397.969c2.327.06 4.602.694 6.623 1.849a2.15 2.15 0 0 1-2.086 3.76a9.74 9.74 0 0 0-7.981-.813c.335.643.586 1.327.745 2.035c.057.211.085.43.084.648a1.96 1.96 0 0 1-.48 1.542q-.12.12-.265.209a2.4 2.4 0 0 1-1.055.591l-12.738 3.41a2.42 2.42 0 0 1-2.96-2.97l3.41-12.74a2.4 2.4 0 0 1 .6-1.065q.086-.139.2-.255a1.94 1.94 0 0 1 1.495-.482c.243-.006.486.025.72.092a8 8 0 0 1 1.794.636c.28-1.62.01-3.288-.769-4.736a1.174 1.174 0 0 1 2.07-1.11a9.72 9.72 0 0 1 .824 7.11a21 21 0 0 1 2.209 1.805a1.15 1.15 0 0 1 1.677 1.573q.214-.085.434-.163a16 16 0 0 1 4.088-.888a1.05 1.05 0 0 1 .004-1.641a8.74 8.74 0 0 1 8.486-1.33a1.048 1.048 0 0 1 .067 1.932m-17.888 7.357l-.181-.155l.166.142zm0 0l.132.112zm-7.454 5.908c.24.065.494.065.735.001l.578-.151a11.3 11.3 0 0 1-2.183-2.08l-.131.49a1.42 1.42 0 0 0 1.001 1.74m1.596-2.507a10.3 10.3 0 0 0 2.379 1.641l2.798-.749a17.5 17.5 0 0 1-3.03-2.265a19.2 19.2 0 0 1-3.142-3.853l-.794 2.969a10.2 10.2 0 0 0 1.789 2.257m3.517-2.835a16.3 16.3 0 0 0 4.53 2.96l2.491-.668a16.7 16.7 0 0 1-6.011-4.073a22 22 0 0 1-1.664-1.85q-.345-.428-.644-.853a13 13 0 0 1-1.772-3.307l-.703 2.661a18.7 18.7 0 0 0 3.773 5.13m19.534-3.91a1.2 1.2 0 0 0-.356-.288h-.005a13.15 13.15 0 0 0-11.255-.857l-.192.07l.009.01a13.1 13.1 0 0 0-4.94 3.476c.259.227.51.435.759.635c.349.28.7.539 1.1.8a10.15 10.15 0 0 1 4.028-2.82a10.86 10.86 0 0 1 9.375.693a1.15 1.15 0 0 0 1.477-1.72" />
+                </g>
+              </svg>
+              <p :class="$style.confirmText">
+                Are you sure you want to remove <strong>{{ pendingRemoveMember?.name }}</strong>?
+                This action cannot be undone.
+              </p>
+              <div style="display: flex; gap: 12px; margin-top: 8px;">
+                <button :class="$style.removeConfirmBtn" type="button" @click="removeMember(pendingRemoveMember!.id)">
+                  Remove
+                </button>
+                <button :class="$style.confirmDoneBtn" type="button" @click="cancelRemoveMember">
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <!-- Empty State -->
         <div v-if="teamMembers.length === 0" :class="$style.emptyState">
           <div :class="$style.emptyIconWrap">
@@ -140,13 +215,15 @@
             </button>
           </div>
           <div v-for="member in teamMembers" :key="member.id" :class="$style.memberCard">
-            <img :class="$style.memberAvatar" src="/innovator-man.webp" alt="" />
+            <img :class="$style.memberAvatar" :src="member.avatar || '/innovator-man.webp'" :alt="member.name" />
             <div :class="$style.memberInfo">
               <div :class="$style.memberName">{{ member.name }}</div>
               <div :class="$style.memberEmail">{{ member.email }}</div>
             </div>
-            <span :class="$style.memberRole">{{ member.role }}</span>
-            <button :class="$style.memberRemoveBtn" type="button" @click="removeMember(member.id)">
+            <button :class="$style.memberEditBtn" type="button" @click="openEditPopup(member)">
+              Edit
+            </button>
+            <button :class="$style.memberRemoveBtn" type="button" @click="confirmRemoveMember(member)">
               Remove
             </button>
           </div>
@@ -165,12 +242,21 @@ import ChatWithAgent from "../components/ChatWithAgent.vue";
 // activePage not passed to Main since Team is no longer in the sidebar nav
 // Main defaults to "dashboard" when no matching page is found
 
-const teamMembers = ref<Array<{ id: number; name: string; email: string; role: string }>>([]);
+const teamMembers = ref<Array<{ id: number; name: string; email: string; role: string; avatar?: string }>>([]);
 
 const showInvitePopup = ref(false);
 const showConfirmationPopup = ref(false);
+const showEditPopup = ref(false);
+const showRemoveConfirmation = ref(false);
 const inviteEmail = ref("");
 const sentEmail = ref("");
+const editMember = ref<{ id: number; name: string; email: string; role: string; avatar?: string }>({
+  id: 0,
+  name: "",
+  email: "",
+  role: "Member",
+});
+const pendingRemoveMember = ref<{ id: number; name: string; email: string; role: string } | null>(null);
 
 function openInvitePopup() {
   inviteEmail.value = "";
@@ -203,8 +289,38 @@ function closeConfirmationPopup() {
   sentEmail.value = "";
 }
 
+function openEditPopup(member: { id: number; name: string; email: string; role: string; avatar?: string }) {
+  editMember.value = { ...member };
+  showEditPopup.value = true;
+}
+
+function closeEditPopup() {
+  showEditPopup.value = false;
+  editMember.value = { id: 0, name: "", email: "", role: "Member" };
+}
+
+function saveEdit() {
+  const idx = teamMembers.value.findIndex((m) => m.id === editMember.value.id);
+  if (idx !== -1) {
+    teamMembers.value[idx] = { ...editMember.value };
+  }
+  closeEditPopup();
+}
+
+function confirmRemoveMember(member: { id: number; name: string; email: string; role: string }) {
+  pendingRemoveMember.value = member;
+  showRemoveConfirmation.value = true;
+}
+
+function cancelRemoveMember() {
+  showRemoveConfirmation.value = false;
+  pendingRemoveMember.value = null;
+}
+
 function removeMember(id: number) {
   teamMembers.value = teamMembers.value.filter((m) => m.id !== id);
+  showRemoveConfirmation.value = false;
+  pendingRemoveMember.value = null;
 }
 </script>
 
@@ -486,6 +602,24 @@ function removeMember(id: number) {
   white-space: nowrap;
 }
 
+.memberEditBtn {
+  height: 36px;
+  padding: 0 14px;
+  border-radius: 8px;
+  background-color: transparent;
+  color: var(--color-darkslategray-500);
+  border: 1px solid var(--color-lightgray-200);
+  font-size: var(--fs-13);
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.memberEditBtn:hover {
+  background-color: var(--color-blanchedalmond);
+}
+
 .memberRemoveBtn {
   height: 36px;
   padding: 0 16px;
@@ -502,6 +636,25 @@ function removeMember(id: number) {
 
 .memberRemoveBtn:hover {
   background-color: var(--color-blanchedalmond);
+}
+
+.removeConfirmBtn {
+  height: 44px;
+  flex: 1;
+  border-radius: 10px;
+  background-color: var(--color-saddlebrown);
+  color: var(--color-white);
+  border: none;
+  padding: 0 20px;
+  font-size: var(--fs-15);
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.removeConfirmBtn:hover {
+  background-color: #a14f1c;
 }
 
 /* Popup Overlay */
