@@ -10,6 +10,7 @@ import ForgotPassword from "./pages/ForgotPassword.vue";
 import LoansSheet from "./pages/LoansSheet.vue";
 import Customers from "./pages/Customers.vue";
 import AdminProfile from "./pages/AdminProfile.vue";
+import TeamView from "./pages/TeamView.vue";
 import NewLoan from "./pages/NewLoan.vue";
 import LoanView from "./pages/LoanView.vue";
 import IdeaView from "./pages/IdeaView.vue";
@@ -71,6 +72,11 @@ const routes: Route[] = [
     path: "/admin-profile",
     name: "AdminProfile",
     component: AdminProfile,
+  },
+  {
+    path: "/team",
+    name: "TeamView",
+    component: TeamView,
   },
   {
     path: "/new-loan",
