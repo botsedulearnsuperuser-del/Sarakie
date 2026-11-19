@@ -366,7 +366,7 @@
 
 <script setup lang="ts">
 import { ref, computed } from "vue";
-import { useRouter } from "vue-router";
+import { useRouter, type RouteLocationRaw } from "vue-router";
 import Main from "../components/Main.vue";
 import ChatWithAgent from "../components/ChatWithAgent.vue";
 
@@ -393,6 +393,7 @@ interface FeedbackRecord {
   commentLong: boolean;
   totalCount: number;
   bannerText: string;
+  hasCorrections: boolean;
 }
 
 const feedbackData: FeedbackRecord[] = [
@@ -408,6 +409,7 @@ const feedbackData: FeedbackRecord[] = [
     commentLong: true,
     totalCount: 1,
     bannerText: "1 comment on Irrigation Kit · last comment 18 November 2026",
+    hasCorrections: false,
   },
   {
     ideaId: "solar-dryer",
@@ -421,6 +423,7 @@ const feedbackData: FeedbackRecord[] = [
     commentLong: true,
     totalCount: 1,
     bannerText: "1 comment on Solar Dryer · last comment 2 October 2026",
+    hasCorrections: false,
   },
   {
     ideaId: "edu-app",
@@ -434,6 +437,7 @@ const feedbackData: FeedbackRecord[] = [
     commentLong: true,
     totalCount: 1,
     bannerText: "1 comment on Edu App · last comment 2 October 2026",
+    hasCorrections: true,
   },
   {
     ideaId: "agri-drone",
@@ -447,6 +451,7 @@ const feedbackData: FeedbackRecord[] = [
     commentLong: true,
     totalCount: 1,
     bannerText: "1 comment on Agri Drone · last comment 2 October 2026",
+    hasCorrections: false,
   },
   {
     ideaId: "irrigation-kit-draft",
@@ -460,8 +465,9 @@ const feedbackData: FeedbackRecord[] = [
     commentLong: true,
     totalCount: 1,
     bannerText: "1 comment on Irrigation Kit Draft · last comment 18 November 2026",
+    hasCorrections: true,
   },
-];
+]
 
 const filteredComments = computed(() => {
   let list = [...feedbackData];
@@ -500,6 +506,7 @@ const popupComment = ref<FeedbackRecord>({
   commentLong: false,
   totalCount: 0,
   bannerText: "",
+  hasCorrections: false,
 });
 
 function viewMore(comment: FeedbackRecord) {
@@ -536,7 +543,16 @@ function resubmitIdea(ideaId: string) {
     "agri-drone": "Agri Drone",
     "irrigation-kit-draft": "Irrigation Kit Draft",
   };
-  router.push({ name: "IdeaView", query: { name: names[ideaId] || ideaId } });
+  const ideaName = names[ideaId] || ideaId;
+  const comment = feedbackData.find((c) => c.ideaId === ideaId);
+  const target: Partial<RouteLocationRaw> = {
+    name: "IdeaView",
+    query: { name: ideaName },
+  };
+  if (comment?.hasCorrections) {
+    (target as any).hash = "#corrections";
+  }
+  router.push(target);
 }
 
 function openIdea(comment: FeedbackRecord) {

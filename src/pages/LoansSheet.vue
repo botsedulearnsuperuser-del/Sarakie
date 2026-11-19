@@ -274,8 +274,11 @@
                       @click="openApplication(application)"
                     >
                       View application
-                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                      <svg v-if="application.status !== 'FEEDBACK'" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                         <polyline points="9 18 15 12 9 6"></polyline>
+                      </svg>
+                      <svg v-else width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 9v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                       </svg>
                     </button>
                   </td>
@@ -385,7 +388,10 @@ const filterOptions = computed(() => {
 });
 
 function openApplication(application: ApplicationRecord) {
-  router.push({ name: "IdeaView", query: { name: application.name } });
+  const target = application.status === "FEEDBACK"
+    ? { name: "IdeaView", query: { name: application.name }, hash: "#corrections" }
+    : { name: "IdeaView", query: { name: application.name } };
+  router.push(target);
 }
 
 const filteredApplications = computed(() => {

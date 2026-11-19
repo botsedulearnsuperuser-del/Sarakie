@@ -277,7 +277,7 @@
                 </div>
               </div>
             </div>
-            <div :class="$style.li2">
+            <div :class="[$style.li2, $style.liFeedback]">
               <div :class="$style.div36">
                 <div :class="$style.span17">
                   <b :class="$style.ml">3</b>
@@ -316,7 +316,7 @@
               <div :class="$style.feedbackCalloutText">
                 “Clarify revenue model &amp; add CIPA reg. number”
               </div>
-              <button :class="$style.actionButton" type="button">
+              <button :class="$style.actionButton" type="button" @click="handleRespondToFeedback">
                 Respond to feedback
               </button>
             </div>
@@ -376,6 +376,10 @@
 
   const handleViewIdea = (name: string) => {
     router.push({ name: "IdeaView", query: { name } })
+  }
+
+  const handleRespondToFeedback = () => {
+    router.push({ name: "IdeaView", query: { name: "Edu App" }, hash: "#corrections" })
   }
 </script>
 <style module>
@@ -1537,6 +1541,27 @@
   }
   .actionButton:active {
     transform: translateY(1px);
+  }
+  .liFeedback {
+    animation: pulseFeedback 2s ease-in-out infinite;
+  }
+  .liFeedback .span17 {
+    background-color: var(--color-saddlebrown);
+    border: 2px solid var(--color-saddlebrown);
+  }
+  .liFeedback .div47 b {
+    color: var(--color-saddlebrown);
+  }
+  .liFeedback .div48 div {
+    color: var(--color-saddlebrown);
+  }
+  @keyframes pulseFeedback {
+    0%, 100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.5;
+    }
   }
   .span19 {
     width: var(--width-28);

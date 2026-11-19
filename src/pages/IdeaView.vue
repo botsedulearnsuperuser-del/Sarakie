@@ -351,7 +351,7 @@
         </div>
 
         <!-- Tab: Corrections Required -->
-        <div v-else-if="activeTab === 'corrections'" :class="$style.tableSection">
+        <div v-else-if="activeTab === 'corrections'" :class="$style.tableSection" id="corrections-target">
           <h2 :class="$style.tableHeading">Corrections Required</h2>
           <p :class="$style.tableSub">Items flagged by the review team that need to be addressed before approval.</p>
 
@@ -632,14 +632,37 @@ onMounted(() => nextTick(resizeDraftTextareas));
 watch(currentIdea, () => nextTick(resizeDraftTextareas));
 
 watch(
-  () => [route.query.name, route.params.id],
+  () => [route.query.name, route.params.id, route.hash],
   () => {
     ideaKey.value = resolveKey();
     currentIdea.value = loadIdea(ideaKey.value);
     savedNotice.value = "";
-    activeTab.value = "application";
+    if (route.hash === "#corrections") {
+      activeTab.value = "corrections";
+    } else {
+      activeTab.value = "application";
+    }
+  },
+  { immediate: true }
+);
+
+watch(
+  activeTab,
+  (tab) => {
+    if (tab === "corrections") {
+      nextTick(scrollToCorrections);
+    }
   }
 );
+
+function scrollToCorrections() {
+  nextTick(() => {
+    const el = document.querySelector("#corrections-target") as HTMLElement | null;
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  });
+}
 
 function saveDraft() {
   draftStore[ideaKey.value] = snapshot(currentIdea.value);
