@@ -103,7 +103,50 @@
               </button>
             </div>
             <div :class="$style.popupBody">
-              <label :class="$style.fieldLabel">Display name</label>
+              <div :class="$style.editAvatarSection">
+                <label :class="$style.editAvatarUploadBtn">
+                  <div :class="$style.editAvatarWrap">
+                    <img
+                      v-if="editMember.avatar"
+                      :src="editMember.avatar"
+                      :class="$style.editAvatarImg"
+                      alt=""
+                    />
+                    <div :class="$style.editAvatarPlaceholder" v-else>
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="1em"
+                        height="1em"
+                        viewBox="0 0 24 24"
+                      >
+                        <path d="M0 0h24v24H0z" fill="none" />
+                        <path fill="currentColor" d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm0 3c1.657 0 3 1.343 3 3s-1.343 3-3 3-3-1.343-3-3 1.343-3 3-3zm0 14.2c-1.323 0-2.415-1.106-2.415-2.5V16c0-.616.185-1.207.515-1.715a6.5 6.5 0 1 1 2.35 4.63c-.093.047-.193.08-.298.103a2.61 2.61 0 0 1-.842.038c-.622-.06-1.13-.407-1.37-1.042A2.4 2.4 0 0 1 10 15.5V12c0-.758.295-1.458.784-1.962A2.5 2.5 0 0 1 12 9.5c.758 0 1.458.295 1.962.784.203.192.347.431.436.692.37.093.737.167 1.105.214a6.5 6.5 0 0 1 .004 1.38c-.384.11-.762.264-1.128.46a6.5 6.5 0 0 1-1.271 1.135c-.081.055-.164.114-.249.166a2.58 2.58 0 0 1-1.522.145c-.538-.056-1.004-.39-1.243-1.005A2.5 2.5 0 0 1 5 11.5v-1c0-.796.367-1.512.97-1.958A2.48 2.48 0 0 1 7 8a2.48 2.48 0 0 1 2.03.542c.532.446 1.014.996 1.209 1.606a6.5 6.5 0 0 1 .818 2.858 6.5 6.5 0 0 1-.234 1.455 6.5 6.5 0 0 1-.962 1.056 6.5 6.5 0 0 1-2.043 1.156c-.42.16-.858.244-1.303.244z" />
+                      </svg>
+                    </div>
+                    <div :class="$style.editAvatarOverlayIcon">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="1em"
+                        height="1em"
+                        viewBox="0 0 24 24"
+                      >
+                        <path d="M0 0h24v24H0z" fill="none" />
+                        <path fill="currentColor" d="M12 15.2a3.2 3.2 0 1 1 0-6.4 3.2 3.2 0 0 1 0 6.4zM9.776 19.72a6.56 6.56 0 0 1 4.448 0A11.5 11.5 0 0 1 12 22.7a11.5 11.5 0 0 1-2.224-3a6.56 6.56 0 0 1 0-2.98zM3.5 10a5.5 5.5 0 0 1 5.5-5.5A5.5 5.5 0 0 1 14 7.5a5.5 5.5 0 0 1-5.5 5.5 5.5 5.5 0 0 1-5.5-5.5zM12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2z" />
+                      </svg>
+                    </div>
+                  </div>
+                  <input
+                    type="file"
+                    :class="$style.avatarFileInput"
+                    accept="image/*"
+                    @change="handleAvatarUpload"
+                  />
+                </label>
+                <button :class="$style.removeAvatarBtn" type="button" @click="removeAvatar">
+                  Remove image
+                </button>
+              </div>
+              <label :class="$style.fieldLabel" style="margin-top: 16px;">Display name</label>
               <input
                 v-model="editMember.name"
                 :class="$style.emailInput"
@@ -111,12 +154,8 @@
                 placeholder="Display name"
               />
               <label :class="$style.fieldLabel" style="margin-top: 12px;">Role</label>
-              <select v-model="editMember.role" :class="$style.emailInput" style="height: 48px; cursor: pointer;">
-                <option value="Member">Member</option>
-                <option value="Admin">Admin</option>
-                <option value="Owner">Owner</option>
-              </select>
-              <button :class="$style.inviteSendBtn" type="button" @click="saveEdit" style="margin-top: 12px;">
+              <div :class="$style.roleBadgeEdit">{{ editMember.role }}</div>
+              <button :class="$style.inviteSendBtn" type="button" @click="saveEdit" style="margin-top: 16px;">
                 Save Changes
               </button>
             </div>
@@ -215,9 +254,13 @@
             </button>
           </div>
           <div v-for="member in teamMembers" :key="member.id" :class="$style.memberCard">
-            <img :class="$style.memberAvatar" :src="member.avatar || '/innovator-man.webp'" :alt="member.name" />
+            <img
+              :src="member.avatar || '/innovator-man.webp'"
+              :alt="member.name"
+              :class="$style.memberAvatar"
+            />
             <div :class="$style.memberInfo">
-              <div :class="$style.memberName">{{ member.name }}</div>
+              <div :class="$style.memberName">{{ member.name }} <span :class="$style.memberRoleBadge">{{ member.role }}</span></div>
               <div :class="$style.memberEmail">{{ member.email }}</div>
             </div>
             <button :class="$style.memberEditBtn" type="button" @click="openEditPopup(member)">
@@ -273,12 +316,13 @@ function sendInvite() {
   const email = inviteEmail.value.trim();
   if (!email || !email.includes("@")) return;
   sentEmail.value = email;
-  // Simulate sending invite
+  // Simulate sending invite — inviter is Owner, invitee is Member
   teamMembers.value.push({
     id: Date.now(),
     name: email.split("@")[0].replace(/[^a-zA-Z]/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()),
     email: email,
     role: "Member",
+    avatar: undefined,
   });
   showConfirmationPopup.value = true;
   closeInvitePopup();
@@ -302,9 +346,33 @@ function closeEditPopup() {
 function saveEdit() {
   const idx = teamMembers.value.findIndex((m) => m.id === editMember.value.id);
   if (idx !== -1) {
-    teamMembers.value[idx] = { ...editMember.value };
+    // Preserve the original role — invitee always stays Member, inviter is Owner
+    const original = teamMembers.value[idx];
+    teamMembers.value[idx] = {
+      ...editMember.value,
+      role: original.role,
+      avatar: editMember.value.avatar ?? original.avatar,
+    };
   }
   closeEditPopup();
+}
+
+function handleAvatarUpload(event: Event) {
+  const target = event.target as HTMLInputElement | null;
+  if (!target || !target.files || !target.files[0]) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    if (typeof reader.result === "string") {
+      editMember.value.avatar = reader.result;
+    }
+  };
+  reader.readAsDataURL(target.files[0]);
+}
+
+function removeAvatar() {
+  editMember.value.avatar = undefined;
+  const input = document.querySelector(".avatarFileInput") as HTMLInputElement | null;
+  if (input) input.value = "";
 }
 
 function confirmRemoveMember(member: { id: number; name: string; email: string; role: string }) {
@@ -322,6 +390,8 @@ function removeMember(id: number) {
   showRemoveConfirmation.value = false;
   pendingRemoveMember.value = null;
 }
+
+
 </script>
 
 <style module>
@@ -587,6 +657,18 @@ function removeMember(id: number) {
   color: var(--color-darkslategray-500);
 }
 
+.memberRoleBadge {
+  font-size: var(--fs-12);
+  font-weight: 700;
+  color: var(--color-darkslategray-300);
+  padding: 2px 10px;
+  border-radius: 20px;
+  background-color: var(--color-blanchedalmond);
+  text-transform: capitalize;
+  margin-left: 6px;
+  white-space: nowrap;
+}
+
 .memberEmail {
   font-size: var(--fs-13);
   color: var(--color-darkslategray-300);
@@ -656,6 +738,121 @@ function removeMember(id: number) {
 .removeConfirmBtn:hover {
   background-color: #a14f1c;
 }
+
+/* Edit Avatar Upload */
+.editAvatarSection {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.editAvatarUploadBtn {
+  cursor: pointer;
+  display: block;
+}
+
+.editAvatarUploadBtn:hover .editAvatarWrap {
+  border-color: var(--color-darkslategray-500);
+  box-shadow: 0 0 0 3px var(--color-blanchedalmond);
+}
+
+.editAvatarWrap {
+  position: relative;
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  overflow: hidden;
+  background-color: var(--color-blanchedalmond);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--color-lightgray-200);
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.editAvatarImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.editAvatarPlaceholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-darkslategray-300);
+  gap: 4px;
+}
+
+.editAvatarPlaceholder svg {
+  width: 32px;
+  height: 32px;
+}
+
+.editAvatarOverlayIcon {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background-color: var(--color-white);
+  border: 2px solid var(--color-darkslategray-500);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px;
+  color: var(--color-darkslategray-500);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+}
+
+.editAvatarOverlayIcon svg {
+  width: 14px;
+  height: 14px;
+}
+
+.avatarFileInput {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+  width: 100%;
+  height: 100%;
+}
+
+.removeAvatarBtn {
+  height: 36px;
+  padding: 0 14px;
+  border-radius: 8px;
+  background-color: transparent;
+  color: var(--color-saddlebrown);
+  border: 1px solid var(--color-goldenrod-200);
+  font-size: var(--fs-13);
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  white-space: nowrap;
+}
+
+.removeAvatarBtn:hover {
+  background-color: var(--color-blanchedalmond);
+}
+
+.roleBadgeEdit {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 20px;
+  background-color: var(--color-blanchedalmond);
+  color: var(--color-darkslategray-500);
+  font-size: var(--fs-13);
+  font-weight: 600;
+}
+
+
 
 /* Popup Overlay */
 .popupOverlay {

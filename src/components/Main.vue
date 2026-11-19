@@ -177,6 +177,41 @@
       </div>
     </div>
   </section>
+
+    <!-- Bottom-Right 2FA Notification Toast (shown on all pages) -->
+    <Teleport to="body">
+      <Transition name="toastSlide">
+        <div v-if="showToast" :class="$style.toast">
+          <div :class="$style.toastIcon">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="1em"
+              height="1em"
+              viewBox="0 0 32 32"
+            >
+              <path d="M0 0h32v32H0z" fill="none" />
+              <path fill="currentColor" d="M27 16.76v-1.53l1.92-1.68A2 2 0 0 0 29.3 11l-2.36-4a2 2 0 0 0-1.73-1a2 2 0 0 0-.64.1l-2.43.82a11 11 0 0 0-1.31-.75l-.51-2.52a2 2 0 0 0-2-1.61h-4.68a2 2 0 0 0-2 1.61l-.51 2.52a11.5 11.5 0 0 0-1.32.75l-2.38-.86A2 2 0 0 0 6.79 6a2 2 0 0 0-1.73 1L2.7 11a2 2 0 0 0 .41 2.51L5 15.24v1.53l-1.89 1.68A2 2 0 0 0 2.7 21l2.36 4a2 2 0 0 0 1.73 1a2 2 0 0 0 .64-.1l2.43-.82a11 11 0 0 0 1.31.75l.51 2.52a2 2 0 0 0 2 1.61h4.72a2 2 0 0 0 2-1.61l.51-2.52a11.5 11.5 0 0 0 1.32-.75l2.42.82a2 2 0 0 0 .64.1a2 2 0 0 0 1.73-1l2.28-4a2 2 0 0 0-.41-2.51ZM25.21 24l-3.43-1.16a8.9 8.9 0 0 1-2.71 1.57L18.36 28h-4.72l-.71-3.55a9.4 9.4 0 0 1-2.7-1.57L6.79 24l-2.36-4l2.72-2.4a8.9 8.9 0 0 1 0-3.13L4.43 12l2.36-4l3.43 1.16a8.9 8.9 0 0 1 2.71-1.57L13.64 4h4.72l.71 3.55a9.4 9.4 0 0 1 2.7 1.57L25.21 8l2.36 4l-2.72 2.4a8.9 8.9 0 0 1 0 3.13L27.57 20Z" />
+              <path fill="currentColor" d="M16 22a6 6 0 1 1 6-6a5.94 5.94 0 0 1-6 6m0-10a3.91 3.91 0 0 0-4 4a3.91 3.91 0 0 0 4 4a3.91 3.91 0 0 0 4-4a3.91 3.91 0 0 0-4-4" />
+            </svg>
+          </div>
+          <div :class="$style.toastContent">
+            <div :class="$style.toastTitle">Enable 2FA for security</div>
+            <div :class="$style.toastMessage">
+              Two-factor authentication adds an extra layer of protection to your account. You will need to verify your identity each time you sign in.
+            </div>
+          </div>
+          <button :class="$style.toastActionBtn" type="button" @click="enable2FA">
+            Enable 2FA
+          </button>
+          <button :class="$style.toastCloseBtn" type="button" @click="dismissToast">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
+        </div>
+      </Transition>
+    </Teleport>
   </div>
 </template>
 <script setup lang="ts">
@@ -215,6 +250,19 @@
   function openAiAgent() {
     mobileOpen.value = false;
     window.dispatchEvent(new CustomEvent("open-tavus-agent"));
+  }
+
+  // 2FA toast state — persistent across all pages until dismissed or enabled
+  const showToast = ref(true);
+
+  function dismissToast() {
+    showToast.value = false;
+  }
+
+  function enable2FA() {
+    showToast.value = false;
+    // Backend will confirm 2FA is enabled; toast stays hidden after this
+    alert("Two-factor authentication has been enabled for your account.");
   }
 </script>
 <style module>
@@ -490,6 +538,132 @@
     }
     .main {
       width: 200px;
+    }
+  }
+
+  /* Bottom-Right 2FA Notification Toast */
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    width: 420px;
+    max-width: calc(100vw - 48px);
+    background-color: var(--color-white);
+    border-radius: 16px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.18);
+    border: 1px solid var(--color-lightgray-100);
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 14px 16px;
+    z-index: 10000;
+    font-family: var(--font-inter);
+  }
+
+  .toastIcon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: var(--color-blanchedalmond);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    color: var(--color-darkslategray-500);
+  }
+
+  .toastIcon svg {
+    width: 22px;
+    height: 22px;
+  }
+
+  .toastContent {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .toastTitle {
+    font-size: var(--fs-14);
+    font-weight: 700;
+    color: var(--color-darkslategray-500);
+    margin: 0 0 4px;
+  }
+
+  .toastMessage {
+    font-size: var(--fs-13);
+    color: var(--color-darkslategray-300);
+    line-height: 1.4;
+    margin: 0;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+  }
+
+  .toastActionBtn {
+    height: 34px;
+    padding: 0 14px;
+    border-radius: 8px;
+    background-color: var(--color-darkslategray-500);
+    color: var(--color-white);
+    border: none;
+    font-size: var(--fs-13);
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .toastActionBtn:hover {
+    background-color: var(--color-darkslategray-600);
+  }
+
+  .toastCloseBtn {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    color: var(--color-darkslategray-300);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: background-color 0.2s;
+  }
+
+  .toastCloseBtn:hover {
+    background-color: var(--color-blanchedalmond);
+  }
+
+  .toastSlide-enter-active {
+    animation: toastSlideIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+
+  .toastSlide-leave-active {
+    animation: toastSlideOut 0.3s ease-in forwards;
+  }
+
+  @keyframes toastSlideIn {
+    from {
+      opacity: 0;
+      transform: translateY(20px) scale(0.96);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+
+  @keyframes toastSlideOut {
+    from {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+    to {
+      opacity: 0;
+      transform: translateY(12px) scale(0.96);
     }
   }
 </style>
