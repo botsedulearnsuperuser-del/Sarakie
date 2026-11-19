@@ -282,68 +282,85 @@
               <p :class="$style.formSub">Upload documents required for this idea submission.</p>
 
               <div :class="$style.formCardInner">
-                <!-- Idea Description Document -->
-                <div :class="$style.docItem">
-                  <div :class="$style.docInfo">
-                    <div :class="$style.docIconBox">
-                      <img v-if="documents.ideaDescription" :src="documents.ideaDescription.preview" :class="$style.docPreviewImg" alt="" />
-                      <svg v-else width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0f2e24" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-                    </div>
-                    <div>
-                      <b :class="$style.docName">Idea description</b>
-                      <span :class="$style.docMeta">PDF, JPG, or DOCX · Max 10MB</span>
-                      <span v-if="documents.ideaDescription" :class="$style.docFileName">{{ documents.ideaDescription.name }}</span>
-                    </div>
+                <!-- Empty state: nothing uploaded yet -->
+                <div v-if="documents.length === 0" :class="$style.emptyDocState">
+                  <div :class="$style.emptyDocIcons">
+                    <svg
+                      v-for="(icon, index) in docIcons"
+                      :key="icon.key"
+                      :class="$style.emptyDocIcon"
+                      :style="{ animationDelay: `${index * 0.12}s` }"
+                      viewBox="0 0 24 24"
+                      aria-hidden="true"
+                    >
+                      <path d="M0 0h24v24H0z" fill="none" />
+                      <g fill="none">
+                        <path :d="docIconBase" fill="currentColor" opacity=".2" />
+                        <path :d="docIconOutline" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" />
+                        <path :d="icon.glyph" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" />
+                      </g>
+                    </svg>
                   </div>
-                  <div v-if="!documents.ideaDescription">
-                    <label :class="$style.docUploadBtn">
-                      <input type="file" :class="$style.docFileInput" accept=".pdf,.jpg,.jpeg,.png,.docx" @change="onDocumentUpload('ideaDescription', $event)" />
-                      <span>
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-                        Upload
-                      </span>
-                    </label>
-                  </div>
-                  <div v-else>
-                    <button :class="$style.docRemoveBtn" type="button" @click="removeDocument('ideaDescription')" title="Remove">
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-                    </button>
-                  </div>
-                  <span v-if="documents.ideaDescription" :class="$style.docBadgeUploaded">Uploaded</span>
+                  <b :class="$style.noUploadTitle">Documents have not yet been uploaded</b>
+                  <span :class="$style.noUploadText">
+                    Add up to 10 files — PDF, JPG, PNG or DOCX, maximum 10MB each.
+                  </span>
+                  <label :class="$style.docUploadBtn">
+                    <input type="file" multiple :class="$style.docFileInput" accept=".pdf,.jpg,.jpeg,.png,.docx" @change="onDocumentsSelected" />
+                    <span>
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                      Choose files
+                    </span>
+                  </label>
                 </div>
 
-                <!-- Supporting Research / Market Analysis -->
-                <div :class="$style.docItem">
-                  <div :class="$style.docInfo">
-                    <div :class="$style.docIconBox">
-                      <img v-if="documents.research" :src="documents.research.preview" :class="$style.docPreviewImg" alt="" />
-                      <svg v-else width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0f2e24" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                <!-- Uploaded documents -->
+                <div v-else :class="$style.docList">
+                  <div v-for="(doc, index) in documents" :key="doc.id" :class="$style.docItem">
+                    <div :class="$style.docInfo">
+                      <div :class="$style.docIconBox">
+                        <img v-if="doc.preview" :src="doc.preview" :class="$style.docPreviewImg" alt="" />
+                        <svg v-else width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0f2e24" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                      </div>
+                      <div :class="$style.docInfoText">
+                        <b :class="$style.docName">{{ doc.name }}</b>
+                        <span :class="$style.docMeta">{{ doc.meta }}</span>
+                      </div>
                     </div>
-                    <div>
-                      <b :class="$style.docName">Supporting research</b>
-                      <span :class="$style.docMeta">PDF or JPG · Max 10MB</span>
-                      <span v-if="documents.research" :class="$style.docFileName">{{ documents.research.name }}</span>
+                    <div :class="$style.docItemRight">
+                      <span :class="$style.docBadgeUploaded">Uploaded</span>
+                      <button :class="$style.docRemoveBtn" type="button" :title="`Remove ${doc.name}`" @click="removeDocument(index)">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                          <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                      </button>
                     </div>
                   </div>
-                  <div v-if="!documents.research">
-                    <label :class="$style.docUploadBtn">
-                      <input type="file" :class="$style.docFileInput" accept=".pdf,.jpg,.jpeg,.png" @change="onDocumentUpload('research', $event)" />
+
+                  <div :class="$style.addMoreRow">
+                    <span :class="$style.docCount">{{ documents.length }} of 10 files</span>
+                    <label v-if="documents.length < 10" :class="$style.docUploadBtn">
+                      <input type="file" multiple :class="$style.docFileInput" accept=".pdf,.jpg,.jpeg,.png,.docx" @change="onDocumentsSelected" />
                       <span>
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-                        Upload
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                          <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                        Add more files
                       </span>
                     </label>
                   </div>
-                  <div v-else>
-                    <button :class="$style.docRemoveBtn" type="button" @click="removeDocument('research')" title="Remove">
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-                    </button>
+                </div>
+
+                <p v-if="uploadError" :class="$style.uploadError">{{ uploadError }}</p>
+
+                <!-- Clue: what kind of documents to submit -->
+                <div :class="$style.docHints">
+                  <b :class="$style.docHintsTitle">What to include</b>
+                  <div :class="$style.docHintPills">
+                    <span v-for="hint in documentHints" :key="hint" :class="$style.docHintPill">{{ hint }}</span>
                   </div>
-                  <span v-if="documents.research" :class="$style.docBadgeUploaded">Uploaded</span>
+                  <span :class="$style.docHintsNote">
+                    Combine these into one proposal document if you prefer — anything that shows the problem, your solution and the numbers behind it.
+                  </span>
                 </div>
               </div>
             </div>
@@ -388,12 +405,30 @@
               </button>
 
               <!-- Final Submission Button only on Step 6 -->
-              <button v-else :class="[$style.submitBtn, $style.recordBtn]" type="button" :disabled="!documents.ideaDescription || !documents.research || !ideaAuthorization" @click="submitIdeaRecord">
+              <button v-else :class="[$style.submitBtn, $style.recordBtn]" type="button" :disabled="documents.length === 0 || !ideaAuthorization" @click="submitIdeaRecord">
                 Submit idea application
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                   <polyline points="20 6 9 17 4 12"/>
                 </svg>
               </button>
+            </div>
+
+            <!-- Step 5: documents uploaded summary -->
+            <div v-if="currentStep === 5" :class="$style.docSummaryInline">
+              <div :class="$style.docSummaryHeader">
+                <b :class="$style.docSummaryTitle">Documents uploaded</b>
+                <span :class="$style.docSummaryCount">{{ totalUploaded }} / 10</span>
+              </div>
+              <div v-if="documents.length" :class="$style.docProgressList">
+                <div v-for="doc in documents" :key="doc.id" :class="[$style.docProgressItem, $style.docProgressDone]">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                  <span :class="$style.docProgressName">{{ doc.name }}</span>
+                </div>
+              </div>
+              <p v-else :class="$style.docSummaryEmpty">Documents have not yet been uploaded.</p>
+              <div v-if="!documents.length" :class="$style.docSummaryHint">
+                Upload at least 1 document to proceed to the final step.
+              </div>
             </div>
           </div>
         </section>
@@ -442,29 +477,6 @@
               <span :class="$style.infoText">Customer records are encrypted and handled in strict compliance with CEDA and innovation regulations.</span>
             </div>
           </div>
-
-          <!-- Document Upload Progress Card -->
-          <div v-if="currentStep >= 5" :class="$style.docProgressCard">
-            <div :class="$style.docProgressHeader">
-              <b :class="$style.docProgressTitle">Documents uploaded</b>
-              <span :class="$style.docProgressCount">{{ totalUploaded }} / 2</span>
-            </div>
-            <div :class="$style.docProgressList">
-              <div :class="$style.docProgressItem, documents.ideaDescription ? $style.docProgressDone : ''">
-                <svg v-if="documents.ideaDescription" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-                <span v-else class="$style.docProgressBullet"></span>
-                <span>Idea description</span>
-              </div>
-              <div :class="$style.docProgressItem, documents.research ? $style.docProgressDone : ''">
-                <svg v-if="documents.research" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-                <span v-else class="$style.docProgressBullet"></span>
-                <span>Supporting research</span>
-              </div>
-            </div>
-            <div v-if="currentStep >= 5 && totalUploaded < 2" :class="$style.docProgressHint">
-              Upload all 2 documents to proceed to the final step.
-            </div>
-          </div>
         </aside>
       </div>
     </main>
@@ -511,42 +523,140 @@ const regulatoryRequirements = ref("");
 const ipProtection = ref("None");
 const ideaAuthorization = ref(false);
 
-const documents = ref<{
-  ideaDescription: { name: string; preview: string } | null;
-  research: { name: string; preview: string } | null;
-}>({
-  ideaDescription: null,
-  research: null,
-});
+interface UploadedDocument {
+  id: string;
+  name: string;
+  meta: string;
+  preview: string;
+}
+
+const MAX_DOCUMENTS = 10;
+const MAX_DOCUMENT_BYTES = 10 * 1024 * 1024;
+const ALLOWED_DOC_EXTENSIONS = [".pdf", ".jpg", ".jpeg", ".png", ".docx"];
+
+const documents = ref<UploadedDocument[]>([]);
+const uploadError = ref("");
+
+const documentHints = [
+  "Problem statement",
+  "Proposed solution",
+  "Financial projections",
+  "Business proposal",
+  "Market research",
+  "Founder / team CVs",
+];
+
+const docIconBase =
+  "M3.8 13.02V9.5c0-3.46 0-5.19 1.01-6.32l.32-.32c1.12-1.02 2.85-1.04 6.31-1.07c.88-.01 1.32-.02 1.6.24l.09.08c.26.28.26.72.26 1.6v.84c0 1.89 0 2.83.58 3.41c.59.59 1.53.59 3.42.59h.75c.94 0 1.41 0 1.7.3c.3.29.3.76.3 1.7v2.48z";
+const docIconOutline =
+  "M3.8 12.71V9.1c0-3.13 0-4.69.83-5.77a4 4 0 0 1 .75-.74c1.07-.82 2.63-.82 5.76-.82c1.35 0 2.03 0 2.66.2l.48.2c.6.3 1.07.78 2.04 1.74l.84.84l.56.55c1.2 1.16 1.79 1.74 2.1 2.49c.32.74.32 1.57.32 3.24v1.7";
+
+const docIcons = [
+  {
+    key: "pdf",
+    glyph:
+      "M13.19 2.27V4.7c0 1.9 0 2.84.58 3.42c.59.59 1.53.59 3.42.59h2.44M2.48 21.46v-4.93c0-.4 0-.6.15-.75s.33-.15.7-.15c1.3.01 3.64.44 3.64 3.37s-2.34 3.36-3.64 3.37c-.37 0-.55 0-.7-.15s-.15-.35-.15-.76m6.81-2.49c0-1.84 1.14-3.34 2.55-3.34s2.56 1.5 2.56 3.34s-1.15 3.34-2.56 3.34a2.3 2.3 0 0 1-1.82-1a4 4 0 0 1-.73-2.34m12.23-2.92a3.3 3.3 0 1 0 0 5.9",
+  },
+  {
+    key: "image",
+    glyph:
+      "M13.19 2.27V4.7c0 1.9 0 2.84.58 3.42c.59.59 1.53.59 3.42.59h2.44m-3.23 6.98l1.98 5.58c.23.67.35 1 .56 1s.33-.33.57-1l1.97-5.58m-7.35.87a3 3 0 0 0-2.09-.87c-1 0-2.08.55-2.08 1.72c0 2.51 4.17.51 4.17 3.06c0 1.2-1.07 1.83-2.09 1.83s-1.7-.32-2.17-1.01m-2.58-5.24a3.3 3.3 0 1 0 0 5.9",
+  },
+  {
+    key: "sheet",
+    glyph:
+      "M13.19 2.27V4.7c0 1.9 0 2.84.58 3.42c.59.59 1.53.59 3.42.59h2.44m-6.39 6.98l1.97 5.58c.24.67.36 1 .57 1s.33-.33.56-1l1.98-5.58m-7.88.36a3.3 3.3 0 1 0 0 5.9",
+  },
+  {
+    key: "pages",
+    glyph:
+      "M13.19 2.27V4.7c0 1.9 0 2.84.58 3.42c.59.59 1.53.59 3.42.59h2.44M2.55 20.76c.04.35.3 1.64 1.72 1.64s2.15-.99 2.15-3.13V16.6c0-.48 0-.71-.15-.86c-.15-.14-.38-.14-.85-.14H3.63m17.17.47a3.34 3.34 0 1 0-.3 6.1c.33-.13.5-.19.67-.45c.17-.25.17-.5.17-1v-.44c0-.47 0-.7-.14-.85s-.38-.15-.86-.15h-.78M9.44 22.4v-5.8c0-.48 0-.71.15-.86c.15-.14.38-.14.85-.14h1.46a1.9 1.9 0 0 1 1.84 1.94a1.9 1.9 0 0 1-1.84 1.95H9.47",
+  },
+  {
+    key: "export",
+    glyph:
+      "M13.19 2.27V4.7c0 1.9 0 2.84.58 3.42c.59.59 1.53.59 3.42.59h2.44M3.27 22.37v-5.74c0-.47 0-.7.14-.85s.39-.15.86-.15H5.7c1 0 1.82.87 1.82 1.93c0 1.07-.82 1.93-1.82 1.93H3.3m14.15 2.88v-5.6c0-.48 0-.71.15-.86s.38-.15.85-.15h2.65m-3.65 3.3h2.74m-9.94 2.41v-4.94c0-.4 0-.6.15-.76c.15-.14.33-.14.7-.14c1.3.01 3.62.44 3.62 3.37s-2.33 3.36-3.63 3.37c-.36 0-.54 0-.7-.15c-.14-.14-.14-.35-.14-.75",
+  },
+  {
+    key: "print",
+    glyph:
+      "M13.19 2.27V4.7c0 1.9 0 2.84.58 3.42c.59.59 1.53.59 3.42.59h2.44M3.51 22.37v-5.74c0-.47 0-.7.15-.85s.38-.15.85-.15h1.43c1 0 1.82.87 1.82 1.93c0 1.07-.81 1.93-1.82 1.93h-2.4m6.86 2.88v-5.74c0-.47 0-.7.16-.85c.14-.15.38-.15.85-.15h1.43c1 0 1.82.87 1.82 1.93c0 1.07-.82 1.93-1.82 1.93h-2.4m8.59-3.69v6.57m-2.07-6.57h4.14",
+  },
+];
 
 const ideaSubmitted = ref(false);
 
-const totalUploaded = computed(() => {
-  let count = 0;
-  if (documents.value.ideaDescription) count++;
-  if (documents.value.research) count++;
-  return count;
-});
+const totalUploaded = computed(() => documents.value.length);
 
-function onDocumentUpload(field: "ideaDescription" | "research", event: Event) {
-  const target = event.target as HTMLInputElement;
-  const file = target.files?.[0];
-  if (!file) return;
-  const validTypes = [".pdf", ".jpg", ".jpeg", ".png", ".docx"];
-  const ext = "." + file.name.split(".").pop()?.toLowerCase();
-  if (!validTypes.includes(ext)) return;
-  const reader = new FileReader();
-  reader.onload = () => {
-    documents.value[field] = {
-      name: file.name,
-      preview: reader.result as string,
-    };
-  };
-  reader.readAsDataURL(file);
+function formatDocumentSize(bytes: number) {
+  if (bytes >= 1024 * 1024) return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+  return `${Math.max(1, Math.round(bytes / 1024))} KB`;
 }
 
-function removeDocument(field: "ideaDescription" | "research") {
-  documents.value[field] = null;
+function onDocumentsSelected(event: Event) {
+  const input = event.target as HTMLInputElement;
+  const files = Array.from(input.files ?? []);
+  input.value = "";
+  uploadError.value = "";
+  if (files.length === 0) return;
+
+  const slots = MAX_DOCUMENTS - documents.value.length;
+  if (slots <= 0) {
+    uploadError.value = `You can upload up to ${MAX_DOCUMENTS} files. Remove a file to add another.`;
+    return;
+  }
+
+  const accepted: File[] = [];
+  let oversized = false;
+  let unsupported = false;
+
+  for (const file of files) {
+    const ext = "." + (file.name.split(".").pop() ?? "").toLowerCase();
+    if (!ALLOWED_DOC_EXTENSIONS.includes(ext)) {
+      unsupported = true;
+      continue;
+    }
+    if (file.size > MAX_DOCUMENT_BYTES) {
+      oversized = true;
+      continue;
+    }
+    if (accepted.length >= slots) break;
+    accepted.push(file);
+  }
+
+  for (const file of accepted) {
+    const ext = (file.name.split(".").pop() ?? "").toUpperCase();
+    const doc: UploadedDocument = {
+      id: `${file.name}-${file.size}-${documents.value.length}-${Date.now()}`,
+      name: file.name,
+      meta: `${ext} · ${formatDocumentSize(file.size)}`,
+      preview: "",
+    };
+    documents.value.push(doc);
+
+    if (file.type.startsWith("image/")) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        doc.preview = reader.result as string;
+      };
+      reader.readAsDataURL(file);
+    }
+  }
+
+  if (files.length > accepted.length) {
+    if (accepted.length === 0 && (oversized || unsupported)) {
+      uploadError.value = "Only PDF, JPG, PNG or DOCX files up to 10MB can be uploaded.";
+    } else if (accepted.length + documents.value.length >= MAX_DOCUMENTS) {
+      uploadError.value = `Only ${accepted.length} file(s) added — you can upload up to ${MAX_DOCUMENTS} files.`;
+    } else {
+      uploadError.value = "Some files were skipped — only PDF, JPG, PNG or DOCX files up to 10MB are accepted.";
+    }
+  }
+}
+
+function removeDocument(index: number) {
+  documents.value.splice(index, 1);
+  uploadError.value = "";
 }
 
 function nextStep() {
@@ -572,7 +682,8 @@ function submitIdeaRecord() {
 function resetForm() {
   currentStep.value = 1;
   ideaSubmitted.value = false;
-  documents.value = { ideaDescription: null, research: null };
+  documents.value = [];
+  uploadError.value = "";
   selectedIdea.value = "";
   requestedAmount.value = 0;
   expectedImpact.value = "";
@@ -971,6 +1082,267 @@ function resetForm() {
 
 .docItem:last-child {
   margin-bottom: 0;
+}
+
+/* ── Step 5 empty state & multi-file uploads ── */
+.emptyDocState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 10px;
+  padding: 22px 8px 10px;
+}
+
+.emptyDocIcons {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 4px;
+}
+
+.emptyDocIcon {
+  width: 38px;
+  height: 38px;
+  color: #0f2e24;
+  flex-shrink: 0;
+  opacity: 0;
+  animation: docIconIn 0.45s ease forwards, docIconFloat 3.4s ease-in-out infinite;
+}
+
+@keyframes docIconIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes docIconFloat {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
+.noUploadTitle {
+  font-size: 15px;
+  font-weight: 800;
+  color: #0f2e24;
+}
+
+.noUploadText {
+  font-size: 13px;
+  color: #6b7280;
+  line-height: 1.5;
+  max-width: 330px;
+}
+
+.docFileInput {
+  display: none;
+}
+
+.docUploadBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+  padding: 11px 22px;
+  border-radius: 9999px;
+  border: none;
+  background-color: #0f2e24;
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 700;
+  font-family: var(--font-inter);
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.docUploadBtn:hover {
+  background-color: #081d16;
+}
+
+.docList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.docList .docItem {
+  margin-bottom: 0;
+}
+
+.docInfoText {
+  min-width: 0;
+}
+
+.docItemRight {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.docPreviewImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 10px;
+}
+
+.docBadgeUploaded {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #2b9c6e;
+  background-color: #e7f4ee;
+  border: 1px solid #c7e7d8;
+  padding: 3px 10px;
+  border-radius: 9999px;
+  white-space: nowrap;
+}
+
+.docRemoveBtn {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 1px solid #e5e7eb;
+  background-color: #ffffff;
+  color: #9ca3af;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.docRemoveBtn:hover {
+  color: #b42318;
+  border-color: #fca5a5;
+}
+
+.addMoreRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 2px;
+}
+
+.addMoreRow .docUploadBtn {
+  margin-top: 0;
+  padding: 9px 18px;
+  font-size: 13px;
+}
+
+.docCount {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #6b7280;
+}
+
+.uploadError {
+  margin: 12px 0 0;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #b42318;
+}
+
+.docProgressName {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ── Step 5 hints & inline upload summary ── */
+.docHints {
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid #ece5d9;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.docHintsTitle {
+  font-size: 13px;
+  font-weight: 800;
+  color: #0f2e24;
+}
+
+.docHintPills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.docHintPill {
+  padding: 6px 14px;
+  border-radius: 9999px;
+  background-color: #ffffff;
+  border: 1px solid #e5e7eb;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #374151;
+}
+
+.docHintsNote {
+  font-size: 12px;
+  line-height: 1.5;
+  color: #9ca3af;
+}
+
+.docSummaryInline {
+  margin-top: 20px;
+  padding: 16px 20px;
+  background-color: #faf6f0;
+  border: 1px solid rgba(0, 0, 0, 0.03);
+  border-radius: 14px;
+}
+
+.docSummaryHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.docSummaryTitle {
+  font-size: 13px;
+  font-weight: 700;
+  color: #0f2e24;
+}
+
+.docSummaryCount {
+  font-size: 14px;
+  font-weight: 700;
+  color: #d97706;
+}
+
+.docSummaryEmpty {
+  margin: 0;
+  font-size: 12.5px;
+  color: #9ca3af;
+}
+
+.docSummaryHint {
+  margin-top: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #d97706;
+}
+
+.docProgressEmpty {
+  margin: 0;
+  font-size: 12.5px;
+  color: #9ca3af;
 }
 
 .docInfo {

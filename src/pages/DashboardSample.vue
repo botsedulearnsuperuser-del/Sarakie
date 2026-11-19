@@ -1,11 +1,16 @@
 <template>
-  <div :class="$style.dashboardSample">
+  <div :class="$style.dashboardSample" :style="dashboardBackground">
     <Main />
     <main :class="$style.mainContent">
       <header :class="$style.div">
         <div :class="$style.div2">
           <div :class="$style.h2actH">
-            <h2 :class="$style.dumelaMarion">Dumela, Innovator</h2>
+            <h2 :class="$style.dumelaMarion">
+              Dumela,
+              <PointerHighlight>
+                <span :class="$style.highlightWord">Innovator</span>
+              </PointerHighlight>
+            </h2>
           </div>
           <div :class="$style.p">
             <div :class="$style.sunday4October">
@@ -14,12 +19,34 @@
           </div>
         </div>
         <div :class="$style.div3">
-          <img
-            :class="$style.notifications2New"
-            alt=""
-            src="/Notifications-2-new.svg"
-          />
-          <img :class="$style.notifications2New" alt="" src="/Help.svg" />
+          <div :class="$style.iconWrap">
+            <button
+              :class="$style.iconBtn"
+              type="button"
+              aria-label="Notifications"
+              @click="showNotifications = !showNotifications"
+            >
+              <img
+                :class="$style.notifications2New"
+                alt=""
+                src="/Notifications-2-new.svg"
+              />
+            </button>
+            <NotificationsPanel
+              :open="showNotifications"
+              @close="showNotifications = false"
+            />
+          </div>
+          <div :class="$style.iconWrap">
+            <button
+              :class="$style.iconBtn"
+              type="button"
+              aria-label="Help and frequently asked questions"
+              @click="showFaq = true"
+            >
+              <img :class="$style.notifications2New" alt="" src="/Help.svg" />
+            </button>
+          </div>
           <router-link to="/admin-profile" :class="$style.a" style="text-decoration: none;">
             <img :class="$style.userAvatarImg" src="/innovator-man.webp" alt="Kago Molefe" />
             <div :class="$style.span3">
@@ -325,10 +352,11 @@
       </section>
     </main>
     <ChatWithAgent />
+    <FaqModal :open="showFaq" @close="showFaq = false" />
   </div>
 </template>
 <script setup lang="ts">
-  import { ref } from "vue"
+  import { computed, onBeforeUnmount, onMounted, ref } from "vue"
   import { useRouter } from "vue-router"
   import Main from "../components/Main.vue"
   import ChatWithAgent from "../components/ChatWithAgent.vue"
@@ -336,6 +364,72 @@
   import AccountSummary from "../components/AccountSummary.vue"
   import Section from "../components/Section.vue"
   import Li from "../components/Li.vue"
+  import PointerHighlight from "../components/ui/pointer-highlight.vue"
+  import NotificationsPanel from "../components/NotificationsPanel.vue"
+  import FaqModal from "../components/FaqModal.vue"
+  import {
+    CUSTOM_IMAGE_STORAGE_KEY,
+    CUSTOM_THEME_ID,
+    dashboardThemes,
+    THEME_EVENT,
+    THEME_STORAGE_KEY,
+  } from "../components/themes"
+  import type { DashboardTheme } from "../components/themes"
+
+  const activeTheme = ref<DashboardTheme | null>(null)
+  const showNotifications = ref(false)
+  const showFaq = ref(false)
+
+  function loadTheme() {
+    const themeId = localStorage.getItem(THEME_STORAGE_KEY)
+
+    if (themeId === CUSTOM_THEME_ID) {
+      const customImage = localStorage.getItem(CUSTOM_IMAGE_STORAGE_KEY)
+      activeTheme.value = customImage
+        ? { id: CUSTOM_THEME_ID, name: "Your image", image: customImage }
+        : null
+      return
+    }
+
+    activeTheme.value = dashboardThemes.find((theme) => theme.id === themeId) ?? null
+  }
+
+  function onThemeChange(event: Event) {
+    const detail = (event as CustomEvent<{ id: string; image: string }>).detail
+
+    if (detail?.image) {
+      const preset = dashboardThemes.find((theme) => theme.id === detail.id)
+      activeTheme.value = {
+        id: detail.id,
+        name: preset?.name ?? "Your image",
+        image: detail.image,
+      }
+      return
+    }
+
+    loadTheme()
+  }
+
+  onMounted(() => {
+    loadTheme()
+    window.addEventListener(THEME_EVENT, onThemeChange)
+  })
+
+  onBeforeUnmount(() => {
+    window.removeEventListener(THEME_EVENT, onThemeChange)
+  })
+
+  const dashboardBackground = computed(() =>
+    activeTheme.value
+      ? {
+          backgroundImage: `url(${activeTheme.value.image})`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          backgroundAttachment: "fixed",
+          backgroundRepeat: "no-repeat",
+        }
+      : undefined,
+  )
 
   const liItems = ref([
     {
@@ -436,8 +530,14 @@
     min-width: 0;
     max-width: 100%;
   }
+  .highlightWord {
+    display: inline-block;
+  }
+
   .dumelaMarion {
     margin: 0;
+    /* Room for the pointer highlight's arrow so it never sits on the subtitle */
+    padding-bottom: 22px;
     position: relative;
     font-size: 36px;
     letter-spacing: -0.84px;
@@ -475,6 +575,21 @@
     width: 46px;
     position: relative;
     border-radius: 23px;
+  }
+  .iconWrap {
+    position: relative;
+    display: flex;
+  }
+  .iconBtn {
+    display: flex;
+    padding: 0;
+    border: none;
+    background: none;
+    border-radius: 50%;
+    cursor: pointer;
+  }
+  .iconBtn:hover {
+    opacity: 0.85;
   }
   .frameIcon {
     position: absolute;

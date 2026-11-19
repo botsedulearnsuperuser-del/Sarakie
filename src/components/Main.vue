@@ -160,9 +160,18 @@
           <b :class="$style.b">+267 77 663 331</b>
         </div>
       </div>
-      <div :class="$style.asideLink5" @click="signOut">
-        <img :class="$style.frameIcon5" alt="" src="/Frame1.svg" />
-        <div :class="$style.signOut">Sign out</div>
+      <div :class="$style.asideLink5">
+        <button :class="$style.signOutBtn" type="button" @click="signOut">
+          <img :class="$style.frameIcon5" alt="" src="/Frame1.svg" />
+          <span :class="$style.signOut">Sign out</span>
+        </button>
+        <button
+          :class="$style.gearBtn"
+          type="button"
+          aria-label="Dashboard appearance"
+          title="Dashboard appearance"
+          @click="openThemePicker"
+        >
         <svg
           :class="$style.gearIcon"
           xmlns="http://www.w3.org/2000/svg"
@@ -174,6 +183,7 @@
           <path fill="currentColor" d="M27 16.76v-1.53l1.92-1.68A2 2 0 0 0 29.3 11l-2.36-4a2 2 0 0 0-1.73-1a2 2 0 0 0-.64.1l-2.43.82a11 11 0 0 0-1.31-.75l-.51-2.52a2 2 0 0 0-2-1.61h-4.68a2 2 0 0 0-2 1.61l-.51 2.52a11.5 11.5 0 0 0-1.32.75l-2.38-.86A2 2 0 0 0 6.79 6a2 2 0 0 0-1.73 1L2.7 11a2 2 0 0 0 .41 2.51L5 15.24v1.53l-1.89 1.68A2 2 0 0 0 2.7 21l2.36 4a2 2 0 0 0 1.73 1a2 2 0 0 0 .64-.1l2.43-.82a11 11 0 0 0 1.31.75l.51 2.52a2 2 0 0 0 2 1.61h4.72a2 2 0 0 0 2-1.61l.51-2.52a11.5 11.5 0 0 0 1.32-.75l2.42.82a2 2 0 0 0 .64.1a2 2 0 0 0 1.73-1l2.28-4a2 2 0 0 0-.41-2.51ZM25.21 24l-3.43-1.16a8.9 8.9 0 0 1-2.71 1.57L18.36 28h-4.72l-.71-3.55a9.4 9.4 0 0 1-2.7-1.57L6.79 24l-2.36-4l2.72-2.4a8.9 8.9 0 0 1 0-3.13L4.43 12l2.36-4l3.43 1.16a8.9 8.9 0 0 1 2.71-1.57L13.64 4h4.72l.71 3.55a9.4 9.4 0 0 1 2.7 1.57L25.21 8l2.36 4l-2.72 2.4a8.9 8.9 0 0 1 0 3.13L27.57 20Z" />
           <path fill="currentColor" d="M16 22a6 6 0 1 1 6-6a5.94 5.94 0 0 1-6 6m0-10a3.91 3.91 0 0 0-4 4a3.91 3.91 0 0 0 4 4a3.91 3.91 0 0 0 4-4a3.91 3.91 0 0 0-4-4" />
         </svg>
+        </button>
       </div>
     </div>
   </section>
@@ -212,11 +222,37 @@
         </div>
       </Transition>
     </Teleport>
+
+    <!-- Authenticator app setup opened from the 2FA toast -->
+    <TwoFactorSetup
+      :open="showTwoFactorSetup"
+      @close="closeTwoFactorSetup"
+      @enabled="onTwoFactorEnabled"
+    />
+
+    <!-- Dashboard background picker opened from the sidebar settings icon -->
+    <ThemePicker
+      :open="showThemePicker"
+      :selected="activeThemeId"
+      :custom-image="customImage"
+      @close="showThemePicker = false"
+      @select="selectTheme"
+      @select-custom="selectCustomTheme"
+    />
   </div>
 </template>
 <script setup lang="ts">
   import { ref } from "vue";
   import { useRouter } from "vue-router";
+  import TwoFactorSetup from "./TwoFactorSetup.vue";
+  import ThemePicker from "./ThemePicker.vue";
+  import {
+    CUSTOM_IMAGE_STORAGE_KEY,
+    CUSTOM_THEME_ID,
+    dashboardThemes,
+    THEME_EVENT,
+    THEME_STORAGE_KEY,
+  } from "./themes";
 
   interface Props {
     activePage?: "dashboard" | "loans-sheet" | "customers" | "admin-profile";
@@ -252,8 +288,10 @@
     window.dispatchEvent(new CustomEvent("open-tavus-agent"));
   }
 
-  // 2FA toast state — persistent across all pages until dismissed or enabled
-  const showToast = ref(true);
+  // 2FA toast state — hidden for the session once 2FA has been enabled
+  const twoFactorEnabled = ref(sessionStorage.getItem("sarka-2fa-enabled") === "1");
+  const showToast = ref(!twoFactorEnabled.value);
+  const showTwoFactorSetup = ref(false);
 
   function dismissToast() {
     showToast.value = false;
@@ -261,8 +299,54 @@
 
   function enable2FA() {
     showToast.value = false;
-    // Backend will confirm 2FA is enabled; toast stays hidden after this
-    alert("Two-factor authentication has been enabled for your account.");
+    showTwoFactorSetup.value = true;
+  }
+
+  function closeTwoFactorSetup() {
+    showTwoFactorSetup.value = false;
+    if (!twoFactorEnabled.value) showToast.value = true;
+  }
+
+  const showThemePicker = ref(false);
+  const activeThemeId = ref(localStorage.getItem(THEME_STORAGE_KEY) ?? "");
+  const customImage = ref(localStorage.getItem(CUSTOM_IMAGE_STORAGE_KEY) ?? "");
+
+  function notifyThemeChange(themeId: string, image: string) {
+    window.dispatchEvent(new CustomEvent(THEME_EVENT, { detail: { id: themeId, image } }));
+  }
+
+  function openThemePicker() {
+    mobileOpen.value = false;
+    showThemePicker.value = !showThemePicker.value;
+  }
+
+  function selectTheme(themeId: string) {
+    const theme = dashboardThemes.find((item) => item.id === themeId);
+    if (!theme) return;
+    activeThemeId.value = themeId;
+    localStorage.setItem(THEME_STORAGE_KEY, themeId);
+    notifyThemeChange(themeId, theme.image);
+    showThemePicker.value = false;
+  }
+
+  function selectCustomTheme(dataUrl: string) {
+    try {
+      localStorage.setItem(CUSTOM_IMAGE_STORAGE_KEY, dataUrl);
+      localStorage.setItem(THEME_STORAGE_KEY, CUSTOM_THEME_ID);
+    } catch {
+      // Storage may be full: the image still applies for this visit.
+    }
+    customImage.value = dataUrl;
+    activeThemeId.value = CUSTOM_THEME_ID;
+    notifyThemeChange(CUSTOM_THEME_ID, dataUrl);
+    showThemePicker.value = false;
+  }
+
+  function onTwoFactorEnabled() {
+    twoFactorEnabled.value = true;
+    sessionStorage.setItem("sarka-2fa-enabled", "1");
+    showTwoFactorSetup.value = false;
+    showToast.value = false;
   }
 </script>
 <style module>
@@ -455,13 +539,43 @@
     border-radius: var(--br-12);
     display: flex;
     align-items: center;
+    justify-content: space-between;
     padding: 12px 14px;
     box-sizing: border-box;
     gap: var(--gap-12);
     min-height: 44px;
     font-size: var(--fs-14);
     color: var(--color-gainsboro);
+  }
+  .signOutBtn {
+    display: flex;
+    align-items: center;
+    gap: var(--gap-12);
+    padding: 0;
+    border: none;
+    background: none;
+    color: inherit;
+    font-family: inherit;
+    font-size: var(--fs-14);
     cursor: pointer;
+  }
+  .gearBtn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    padding: 0;
+    border: none;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--color-gainsboro);
+    cursor: pointer;
+    transition: background-color 0.15s ease, color 0.15s ease;
+  }
+  .gearBtn:hover {
+    background-color: rgba(255, 255, 255, 0.12);
+    color: #ffffff;
   }
   .frameIcon5 {
     height: var(--height-18);

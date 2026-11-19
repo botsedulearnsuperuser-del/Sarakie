@@ -48,23 +48,6 @@
           <span>{{ filter.label }}</span>
           <span :class="$style.filterCount">{{ filter.count }}</span>
         </button>
-
-        <router-link to="/new-loan" :class="$style.newApplicationBtn" style="text-decoration: none;">
-          <svg
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2.5"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          >
-            <line x1="12" y1="5" x2="12" y2="19" />
-            <line x1="5" y1="12" x2="19" y2="12" />
-          </svg>
-          New application
-        </router-link>
       </div>
 
       <!-- Main White Card Container -->
@@ -122,6 +105,23 @@
               </button>
             </div>
           </div>
+
+          <router-link to="/new-loan" :class="$style.newApplicationBtn" style="text-decoration: none;">
+            <svg
+              width="15"
+              height="15"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <line x1="12" y1="5" x2="12" y2="19" />
+              <line x1="5" y1="12" x2="19" y2="12" />
+            </svg>
+            New application
+          </router-link>
         </div>
 
         <!-- Settle Early Notice Banner -->
@@ -668,22 +668,32 @@ const getStatusClass = (status: string) => {
 }
 
 .newApplicationBtn {
-  margin-left: auto;
+  position: absolute;
+  top: 28px;
+  right: 32px;
+  z-index: 2;
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 10px 20px;
+  padding: 9px 18px;
   border-radius: 9999px;
-  background-color: var(--color-darkslategray-600);
-  color: #ffffff;
-  font-size: 14px;
+  background-color: var(--color-goldenrod-200);
+  color: #0f2e24;
+  font-size: 13.5px;
   font-weight: 700;
   white-space: nowrap;
   transition: background-color 0.2s ease;
 }
 
 .newApplicationBtn:hover {
-  background-color: #081d16;
+  background-color: #fbe3a8;
+}
+
+@media screen and (max-width: 700px) {
+  .newApplicationBtn {
+    position: static;
+    margin-top: 16px;
+  }
 }
 
 /* Card Container */
