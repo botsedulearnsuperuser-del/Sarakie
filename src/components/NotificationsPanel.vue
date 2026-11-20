@@ -1,78 +1,74 @@
 <template>
   <Teleport to="body">
     <div v-if="open" :class="$style.overlay" @click.self="emit('close')">
-      <div :class="$style.card" role="dialog" aria-modal="true" aria-labelledby="notifications-title">
+      <div
+        :class="$style.card"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="notifications-title"
+      >
         <div :class="$style.header">
-          <h2 id="notifications-title" :class="$style.title">Notifications</h2>
-          <button :class="$style.closeBtn" type="button" aria-label="Close" @click="emit('close')">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-              <line x1="18" y1="6" x2="6" y2="18" />
-              <line x1="6" y1="6" x2="18" y2="18" />
-            </svg>
-          </button>
+          <div :class="$style.headerLeft">
+            <h2 id="notifications-title" :class="$style.title">Notifications</h2>
+            <span v-if="unreadCount > 0" :class="$style.count">{{ unreadCount }}</span>
+          </div>
+          <div :class="$style.headerActions">
+            <button
+              v-if="unreadCount > 0"
+              :class="$style.textBtn"
+              type="button"
+              @click="markAllRead"
+            >
+              Mark all as read
+            </button>
+            <button :class="$style.closeBtn" type="button" aria-label="Close" @click="emit('close')">
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <line x1="18" y1="6" x2="6" y2="18" />
+                <line x1="6" y1="6" x2="18" y2="18" />
+              </svg>
+            </button>
+          </div>
         </div>
 
-        <div :class="$style.content">
-          <div :class="$style.banner">
-            <img :class="$style.bannerPattern" src="/pattern-2.webp" alt="" />
-            <div :class="$style.bannerContent">
-              <div :class="$style.termGroup">
-                <span :class="$style.termBadge">Unread notifications</span>
-              </div>
-              <div :class="$style.balanceAmount">{{ unreadCount }}</div>
-              <div :class="$style.borrowedInfo">
-                {{ items.length }} notifications &middot; latest {{ items[0].time }}
-              </div>
+        <div :class="$style.list">
+          <article
+            v-for="item in items"
+            :key="item.id"
+            :class="[$style.notice, item.read ? $style.noticeRead : '']"
+          >
+            <div :class="$style.noticeTop">
+              <span :class="$style.noticeTitle">{{ item.title }}</span>
+              <span v-if="!item.read" :class="$style.dot" aria-label="Unread" />
             </div>
-          </div>
-
-          <article v-for="item in items" :key="item.id" :class="$style.notice">
-            <div :class="$style.detailBox">
-              <div :class="$style.row">
-                <span :class="$style.label">Application</span>
-                <span :class="$style.value">{{ item.application }}</span>
-              </div>
-              <div :class="$style.row">
-                <span :class="$style.label">Status</span>
-                <span
-                  :class="[
-                    $style.statusBadge,
-                    item.read ? $style.statusAnswered : $style.statusUnread,
-                  ]"
-                >
-                  {{ item.read ? "Read" : "Unread" }}
-                </span>
-              </div>
-              <div :class="$style.row">
-                <span :class="$style.label">Received</span>
-                <span :class="$style.value">{{ item.time }}</span>
-              </div>
+            <p :class="$style.noticeText">{{ item.text }}</p>
+            <div :class="$style.meta">
+              <span>{{ item.application }}</span>
+              <span :class="$style.sep">·</span>
+              <span>{{ item.time }}</span>
             </div>
-
-            <div :class="$style.commentBox">
-              <div :class="$style.commentLabel">{{ item.title }}</div>
-              <p :class="$style.commentText">{{ item.text }}</p>
-            </div>
-
             <div :class="$style.actions">
-              <button :class="$style.primaryBtn" type="button" @click="openApplication">
+              <button :class="$style.action" type="button" @click="openApplication">
                 View application
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                  <polyline points="9 18 15 12 9 6" />
-                </svg>
               </button>
-              <button :class="$style.linkBtn" type="button" :disabled="item.read" @click="markRead(item)">
+              <button
+                :class="[$style.action, item.read ? $style.actionMuted : '']"
+                type="button"
+                :disabled="item.read"
+                @click="markRead(item)"
+              >
                 {{ item.read ? "Read" : "Mark as read" }}
               </button>
             </div>
           </article>
-
-          <div :class="$style.actionsBottom">
-            <button :class="$style.primaryBtn" type="button" :disabled="unreadCount === 0" @click="markAllRead">
-              Mark all as read
-            </button>
-            <button :class="$style.linkBtn" type="button" @click="emit('close')">Close</button>
-          </div>
         </div>
       </div>
     </div>
@@ -153,289 +149,202 @@ function openApplication() {
 .overlay {
   position: fixed;
   inset: 0;
-  background-color: rgba(0, 0, 0, 0.5);
   z-index: 10004;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 28px 20px;
-  box-sizing: border-box;
+  background-color: transparent;
   font-family: var(--font-inter);
 }
 
 .card {
-  width: 100%;
-  max-width: 720px;
-  max-height: 88vh;
+  position: fixed;
+  top: 82px;
+  right: 28px;
+  width: 392px;
+  max-width: calc(100vw - 32px);
+  max-height: min(72vh, 620px);
   background-color: #ffffff;
-  border-radius: 20px;
-  overflow: hidden;
+  border: 1px solid #e8e2d6;
+  border-radius: 16px;
+  box-shadow: 0 18px 46px rgba(0, 0, 0, 0.18);
   display: flex;
   flex-direction: column;
-  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.3);
+  overflow: hidden;
 }
 
 .header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 22px 32px 16px;
+  gap: 12px;
+  padding: 14px 16px 12px;
+  border-bottom: 1px solid #f1ede5;
+}
+
+.headerLeft {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .title {
   margin: 0;
-  font-size: 26px;
+  font-size: 15px;
   font-weight: 800;
   color: var(--color-darkslategray-500);
-  letter-spacing: -0.4px;
 }
 
-.closeBtn {
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 4px;
-  color: #6b7280;
-  border-radius: 6px;
-  transition: background-color 0.15s ease;
+.count {
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: 9999px;
+  background-color: var(--color-goldenrod-300);
+  color: var(--color-darkslategray-600);
+  font-size: 11.5px;
+  font-weight: 800;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.closeBtn:hover {
-  background-color: #f3f4f6;
-}
-
-.content {
-  padding: 0 32px 32px;
-  overflow-y: auto;
-}
-
-.banner {
-  position: relative;
-  background-color: var(--color-darkslategray-600);
-  border-radius: 16px;
-  padding: 20px 24px;
-  margin-bottom: 22px;
-  overflow: hidden;
-  box-sizing: border-box;
-}
-
-.bannerPattern {
-  position: absolute;
-  top: 0;
-  right: -8px;
-  height: 100%;
-  width: 120px;
-  object-fit: cover;
-  opacity: 0.85;
-  mix-blend-mode: screen;
-  pointer-events: none;
-  z-index: 0;
-}
-
-.bannerContent {
-  position: relative;
-  z-index: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-}
-
-.termGroup {
+.headerActions {
   display: flex;
   align-items: center;
   gap: 10px;
-  margin-bottom: 10px;
 }
 
-.termBadge {
-  border: 1.5px solid var(--color-goldenrod-200);
-  color: var(--color-goldenrod-200);
-  border-radius: 9999px;
-  padding: 4px 12px;
-  font-size: 11.5px;
-  font-weight: 700;
-}
-
-.balanceAmount {
-  font-size: clamp(28px, 3vw, 36px);
-  font-weight: 900;
-  color: #ffffff;
-  line-height: 1.1;
-  margin-bottom: 4px;
-  letter-spacing: -0.3px;
-}
-
-.borrowedInfo {
+.textBtn {
+  background: none;
+  border: none;
+  padding: 0;
+  color: var(--color-darkslategray-300);
+  font-family: inherit;
   font-size: 12px;
-  color: rgba(255, 255, 255, 0.7);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.textBtn:hover {
+  color: var(--color-darkslategray-500);
+  text-decoration: underline;
+}
+
+.closeBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: #8a8378;
+  cursor: pointer;
+}
+
+.closeBtn:hover {
+  background-color: #f3efe6;
+}
+
+.list {
+  overflow-y: auto;
 }
 
 .notice {
-  padding-bottom: 22px;
-  margin-bottom: 22px;
-  border-bottom: 1px solid #f1ede5;
+  padding: 12px 16px;
+  border-bottom: 1px solid #f4f0e8;
 }
 
-.notice:last-of-type {
+.notice:last-child {
   border-bottom: none;
-  margin-bottom: 4px;
-  padding-bottom: 4px;
 }
 
-.detailBox {
-  background-color: #faf7f2;
-  border: 1px solid #ede4d6;
-  border-radius: 14px;
-  padding: 16px 20px;
-  margin-bottom: 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+.notice:hover {
+  background-color: #fbf9f5;
 }
 
-.row {
+.noticeTop {
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  gap: 8px;
+  margin-bottom: 3px;
+}
+
+.noticeTitle {
   font-size: 13.5px;
-  gap: 16px;
-}
-
-.label {
-  color: #6b7280;
-  font-weight: 500;
-}
-
-.value {
-  color: #111827;
   font-weight: 700;
-  text-align: right;
-  max-width: 65%;
-}
-
-.statusBadge {
-  font-size: 10.5px;
-  font-weight: 800;
-  letter-spacing: 0.3px;
-  padding: 3px 9px;
-  border-radius: 9999px;
-  text-transform: uppercase;
-}
-
-.statusUnread {
-  background-color: #fde4e1;
-  color: #8c1c13;
-  border: 1.5px solid #fbd0cb;
-}
-
-.statusAnswered {
-  background-color: #f0fdf4;
   color: var(--color-darkslategray-500);
-  border: 1.5px solid #bbf7d0;
 }
 
-.commentBox {
-  border: 1px solid #fed7aa;
-  border-radius: 14px;
-  padding: 16px 20px;
-  margin-bottom: 16px;
-  background-color: #fff7ed;
+.noticeRead .noticeTitle {
+  font-weight: 600;
+  color: #5c6b64;
 }
 
-.commentLabel {
-  font-size: 14px;
-  font-weight: 800;
-  color: #7c2d12;
-  margin-bottom: 4px;
+.dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: var(--color-goldenrod-300);
+  flex-shrink: 0;
 }
 
-.commentText {
-  margin: 0;
-  font-size: 13px;
+.noticeText {
+  margin: 0 0 6px;
+  font-size: 12.5px;
   line-height: 1.5;
-  color: #9a3412;
+  color: #4b5563;
+}
+
+.meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11.5px;
+  color: #8a8378;
+  margin-bottom: 8px;
+}
+
+.sep {
+  opacity: 0.6;
 }
 
 .actions {
   display: flex;
   align-items: center;
-  gap: 12px;
-  flex-wrap: wrap;
+  gap: 14px;
 }
 
-.actionsBottom {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  flex-wrap: wrap;
-  padding-top: 18px;
-  border-top: 1px solid #f1ede5;
-}
-
-.primaryBtn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 8px 18px;
-  border-radius: 9999px;
-  border: 1px solid var(--color-darkslategray-400);
-  background-color: var(--color-darkslategray-600);
-  color: #ffffff;
-  font-size: 13px;
-  font-weight: 700;
-  cursor: pointer;
-  font-family: var(--font-inter);
-  transition: all 0.15s ease;
-}
-
-.primaryBtn:hover {
-  background-color: var(--color-darkslategray-500);
-  border-color: var(--color-darkslategray-500);
-}
-
-.primaryBtn:disabled {
-  background-color: #d6d3c9;
-  border-color: #d6d3c9;
-  cursor: default;
-}
-
-.linkBtn {
+.action {
   background: none;
   border: none;
-  color: var(--color-goldenrod-300);
-  font-size: 13px;
-  font-weight: 600;
-  font-family: var(--font-inter);
-  cursor: pointer;
+  padding: 0;
+  font-family: inherit;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--color-darkslategray-500);
   text-decoration: underline;
-  padding: 6px 0;
+  text-underline-offset: 2px;
+  cursor: pointer;
 }
 
-.linkBtn:hover {
-  color: var(--color-goldenrod-200);
+.action:hover {
+  color: var(--color-darkslategray-300);
 }
 
-.linkBtn:disabled {
-  color: #b8b2a5;
+.actionMuted {
+  color: #a8a29a;
   text-decoration: none;
   cursor: default;
 }
 
 @media screen and (max-width: 560px) {
-  .overlay {
-    padding: 12px;
-  }
-
-  .header {
-    padding: 18px 18px 12px;
-  }
-
-  .title {
-    font-size: 21px;
-  }
-
-  .content {
-    padding: 0 18px 22px;
+  .card {
+    top: 70px;
+    right: 12px;
+    left: 12px;
+    width: auto;
+    max-width: none;
   }
 }
 </style>

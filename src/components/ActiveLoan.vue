@@ -21,19 +21,19 @@
       <div :class="$style.divmargin">
         <div :class="$style.div3">
           <div :class="$style.valueOfCurrent">
-            Value of current active proposals
+            Milestone progress on active proposals
           </div>
         </div>
       </div>
       <div :class="$style.div4">
-        <h1 :class="$style.p14793">P 14,793</h1>
+        <h1 :class="$style.p14793">68</h1>
         <div :class="$style.div5">
-          <h2 :class="$style.h2">.40</h2>
+          <h2 :class="$style.h2">%</h2>
         </div>
       </div>
       <div :class="$style.div6">
         <div :class="$style.valueOfCurrent">
-          of P 25,000.00 requested, 25% co-fund over 36 months
+          of milestones reported on time, reviewed every 3 months
         </div>
       </div>
       <img
@@ -44,7 +44,7 @@
       />
       <div :class="$style.div7">
         <div :class="$style.span3">
-          <div :class="$style.repaymentsDueSoon">36 milestones due soon</div>
+          <div :class="$style.repaymentsDueSoon">6 milestones due soon</div>
         </div>
         <div :class="$style.span3">
           <div :class="$style.repaymentsDueSoon">
@@ -56,17 +56,17 @@
     <div :class="$style.div8">
       <div :class="$style.div9">
         <div :class="$style.div3">
-          <b :class="$style.valueOfCurrent">P 994.00 on 25 October</b>
+          <b :class="$style.valueOfCurrent">Next milestone on 25 October</b>
         </div>
         <div :class="$style.div11">
           <div :class="$style.debitOrderFrom">
-            Next review from CEDA portal ••••4417
+            Review notes from the CEDA portal
           </div>
         </div>
       </div>
       <div :class="$style.div12">
         <div :class="$style.agold" role="button" tabindex="0" @click="reviewNow" @keyup.enter="reviewNow">
-          <b :class="$style.payEarly">Review now</b>
+          <b :class="$style.payEarly">Update progress</b>
         </div>
         <div :class="$style.a" role="button" tabindex="0" @click="viewProposal" @keyup.enter="viewProposal">
           <div :class="$style.longTermLoans">View proposal</div>

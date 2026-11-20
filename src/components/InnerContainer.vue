@@ -9,31 +9,67 @@
     </header>
 
     <div :class="$style.cards">
-      <article
+      <FollowerPointerCard
         v-for="card in cards"
         :key="card.title"
-        :class="$style.card"
+        :class="$style.cardWrap"
       >
-        <img :class="$style.icon" alt="" src="/Group-2.svg" />
-        <h3 :class="$style.cardTitle">{{ card.title }}</h3>
-        <p :class="$style.cardBody">
-          A helping hand for life’s immediate needs.
-        </p>
-        <a :class="$style.cardLink" href="#contact">Talk to an Agent</a>
-        <img
-          :class="$style.cardPattern"
-          alt=""
-          src="/untitled-3-21.webp"
-        />
-      </article>
+        <template #title>
+          <span :class="$style.followerTitle">
+            <img
+              :class="$style.followerAvatar"
+              src="/innovator-man.webp"
+              alt="thumbnail"
+              height="20"
+              width="20"
+            />
+            <span>{{ card.title }}</span>
+          </span>
+        </template>
+
+        <div :class="$style.demoCard">
+          <div :class="$style.thumbWrap">
+            <img :class="$style.thumb" :src="card.image" alt="thumbnail" />
+          </div>
+          <img
+            :class="$style.cardPattern"
+            alt=""
+            src="/untitled-3-21.webp"
+          />
+          <div :class="$style.cardContent">
+            <h2 :class="$style.cardHeading">{{ card.title }}</h2>
+            <h2 :class="$style.cardBody">
+              A helping hand for life’s immediate needs.
+            </h2>
+            <div :class="$style.cardFooter">
+              <span :class="$style.cardDate">{{ card.date }}</span>
+              <a :class="$style.cardCta" href="#contact">Talk to an Agent</a>
+            </div>
+          </div>
+        </div>
+      </FollowerPointerCard>
     </div>
   </div>
 </template>
 <script setup lang="ts">
+import FollowerPointerCard from "./ui/following-pointer.vue";
+
 const cards = [
-  { title: "Short Term Loans" },
-  { title: "Long Term Loans" },
-  { title: "Loan Consolidation" },
+  {
+    title: "Short Term Loans",
+    date: "Applications open",
+    image: "/themes/gaborone.jpg",
+  },
+  {
+    title: "Long Term Loans",
+    date: "Rolling intake",
+    image: "/themes/gaborone-hills.jpg",
+  },
+  {
+    title: "Loan Consolidation",
+    date: "By appointment",
+    image: "/themes/okavango.jpg",
+  },
 ];
 </script>
 <style module>
@@ -87,57 +123,56 @@ const cards = [
   grid-template-columns: repeat(3, 1fr);
   gap: 28px;
 }
-.card {
+
+/* ── Card: rounded-2xl border border-zinc-100 bg-white transition duration-200 hover:shadow-xl ── */
+.cardWrap {
   width: 100%;
-  position: relative;
-  z-index: 1;
-  isolation: isolate;
-  background: var(--color-white);
-  border: 3px solid var(--color-goldenrod-300);
-  border-radius: 28px;
-  padding: 36px 28px 40px;
-  overflow: hidden;
+  height: 100%;
   display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 16px;
-  min-height: 320px;
-  box-sizing: border-box;
 }
-.icon {
-  width: 72px;
-  height: 72px;
-  z-index: 1;
+.demoCard {
+  position: relative;
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  border-radius: 16px;
+  border: 1px solid #f4f4f5;
+  background-color: #ffffff;
+  transition: box-shadow 200ms ease;
 }
-.cardTitle {
-  margin: 0;
-  color: var(--color-darkslategray-600);
-  font-size: var(--fs-24);
-  font-weight: 900;
-  font-family: var(--font-inter);
-  z-index: 1;
+.cardWrap:hover .demoCard {
+  box-shadow:
+    0 20px 25px -5px rgb(0 0 0 / 0.1),
+    0 8px 10px -6px rgb(0 0 0 / 0.1);
 }
-.cardBody {
-  margin: 0;
-  color: var(--color-darkslategray-600);
-  font-size: var(--fs-18);
-  font-family: var(--font-inter);
-  line-height: 1.45;
-  max-width: 240px;
-  z-index: 1;
-  flex: 1;
+
+/* relative aspect-[16/10] w-full overflow-hidden rounded-tl-lg rounded-tr-lg bg-gray-100 */
+.thumbWrap {
+  position: relative;
+  aspect-ratio: 16 / 10;
+  width: 100%;
+  overflow: hidden;
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+  background-color: #f3f4f6;
 }
-.cardLink {
-  color: var(--color-darkslategray-600);
-  font-size: var(--fs-18);
-  font-weight: 600;
-  font-family: var(--font-inter);
-  text-decoration: underline;
-  text-underline-offset: 5px;
-  text-decoration-thickness: 2px;
-  text-decoration-color: var(--color-goldenrod-300);
-  z-index: 1;
+
+/* h-full object-cover transition duration-200 group-hover:scale-95 group-hover:rounded-2xl */
+.thumb {
+  height: 100%;
+  width: 100%;
+  display: block;
+  object-fit: cover;
+  transition:
+    transform 200ms ease,
+    border-radius 200ms ease;
 }
+.cardWrap:hover .thumb {
+  transform: scale(0.95);
+  border-radius: 16px;
+}
+
+/* decorative pattern sitting behind the card copy */
 .cardPattern {
   position: absolute;
   right: -70px;
@@ -148,6 +183,87 @@ const cards = [
   z-index: 0;
   object-fit: contain;
 }
+
+/* p-4 */
+.cardContent {
+  position: relative;
+  z-index: 1;
+  padding: 16px;
+}
+
+/* my-4 text-lg font-bold text-zinc-700 */
+.cardHeading {
+  margin: 16px 0;
+  font-size: 18px;
+  line-height: 28px;
+  font-weight: 700;
+  color: #3f3f46;
+  font-family: var(--font-inter);
+}
+
+/* my-4 text-sm font-normal text-zinc-500 */
+.cardBody {
+  margin: 16px 0;
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 400;
+  color: #71717a;
+  font-family: var(--font-inter);
+}
+
+/* mt-10 flex flex-row items-center justify-between */
+.cardFooter {
+  margin-top: 40px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+/* text-sm text-gray-500 */
+.cardDate {
+  font-size: 14px;
+  line-height: 20px;
+  color: #6b7280;
+  font-family: var(--font-inter);
+}
+
+/* relative z-10 block rounded-xl bg-black px-6 py-2 text-xs font-bold text-white */
+.cardCta {
+  position: relative;
+  z-index: 10;
+  display: block;
+  border-radius: 12px;
+  background-color: #000000;
+  padding: 8px 24px;
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 700;
+  color: #ffffff;
+  text-decoration: none;
+  white-space: nowrap;
+  font-family: var(--font-inter);
+  transition: background-color 200ms ease;
+}
+.cardCta:hover {
+  background-color: #27272a;
+}
+
+/* Cursor tag: flex items-center space-x-2 */
+.followerTitle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.followerAvatar {
+  height: 20px;
+  width: 20px;
+  border-radius: 9999px;
+  border: 2px solid #ffffff;
+  object-fit: cover;
+}
+
 @media screen and (max-width: 1000px) {
   .cards {
     grid-template-columns: 1fr;

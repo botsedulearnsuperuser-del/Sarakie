@@ -1,5 +1,5 @@
 <template>
-  <div :class="$style.page">
+  <div :class="$style.page" :style="pageBackground">
     <!-- Reusable Stationary Sidebar -->
     <Main :active-page="'loans-sheet'" />
 
@@ -328,6 +328,10 @@
 </template>
 
 <script setup lang="ts">
+  import { usePageTheme } from "../composables/usePageTheme";
+
+  const pageBackground = usePageTheme();
+
 import { ref, computed, useCssModule } from "vue";
 import { useRouter } from "vue-router";
 import Main from "../components/Main.vue";

@@ -255,7 +255,13 @@
   } from "./themes";
 
   interface Props {
-    activePage?: "dashboard" | "loans-sheet" | "customers" | "admin-profile";
+    activePage?:
+      | "dashboard"
+      | "evaluator"
+      | "ai-agent"
+      | "loans-sheet"
+      | "customers"
+      | "admin-profile";
   }
 
   withDefaults(defineProps<Props>(), {
@@ -265,7 +271,9 @@
   const router = useRouter();
   const mobileOpen = ref(false);
 
-  function goTo(page: "dashboard" | "loans-sheet" | "customers" | "admin-profile") {
+  function goTo(
+    page: "dashboard" | "loans-sheet" | "customers" | "admin-profile",
+  ) {
     mobileOpen.value = false;
     if (page === "dashboard") {
       router.push({ name: "DashboardSample" });

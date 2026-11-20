@@ -5,7 +5,7 @@
         <div :class="$style.repaidSoFar">Submitted so far</div>
       </div>
       <div :class="$style.div3">
-        <h2 :class="$style.p1789192">P {{ totalSubmitted }}</h2>
+        <h2 :class="$style.p1789192">{{ proposals.length }}</h2>
       </div>
       <div :class="$style.div4">
         <div :class="$style.repaidSoFar">
@@ -62,28 +62,20 @@
 
   interface InnovatorProposal {
     title: string;
-    amount: number;
     status: ProposalStatus;
     submitted: string;
   }
 
   // The innovator's own submissions, matching the ideas listed on the dashboard.
   const proposals: InnovatorProposal[] = [
-    { title: "Irrigation Kit", amount: 900, status: "Under Review", submitted: "25 September" },
-    { title: "Solar Dryer", amount: 1000, status: "Approved", submitted: "25 September" },
-    { title: "Edu App", amount: 3000, status: "Feedback Required", submitted: "2 October" },
-    { title: "Agri Drone", amount: 6000, status: "Awarded", submitted: "2 October" },
+    { title: "Irrigation Kit", status: "Under Review", submitted: "25 September" },
+    { title: "Solar Dryer", status: "Approved", submitted: "25 September" },
+    { title: "Edu App", status: "Feedback Required", submitted: "2 October" },
+    { title: "Agri Drone", status: "Awarded", submitted: "2 October" },
   ];
-
-  const money = (value: number) =>
-    value.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
   const countBy = (status: ProposalStatus) =>
     proposals.filter((proposal) => proposal.status === status).length;
-
-  const totalSubmitted = computed(() =>
-    money(proposals.reduce((sum, proposal) => sum + proposal.amount, 0))
-  );
 
   const inReviewCount = countBy("Under Review");
   const approvedCount = countBy("Approved") + countBy("Awarded");

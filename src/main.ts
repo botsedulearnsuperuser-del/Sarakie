@@ -4,6 +4,8 @@ import App from "./App.vue";
 
 import LandingPage from "./pages/LandingPage.vue";
 import DashboardSample from "./pages/DashboardSample.vue";
+import EvaluatorDashboard from "./pages/EvaluatorDashboard.vue";
+import AiAgent from "./pages/AiAgent.vue";
 import AdminLogin from "./pages/AdminLogin.vue";
 import AdminSignUp from "./pages/AdminSignUp.vue";
 import ForgotPassword from "./pages/ForgotPassword.vue";
@@ -14,12 +16,16 @@ import TeamView from "./pages/TeamView.vue";
 import NewLoan from "./pages/NewLoan.vue";
 import LoanView from "./pages/LoanView.vue";
 import IdeaView from "./pages/IdeaView.vue";
+import CloudShaderHero from "./pages/CloudShaderHero.vue";
+import FaqPage from "./pages/FaqPage.vue";
+import LegalPage from "./pages/LegalPage.vue";
 import "./global.css";
 
 interface Route {
   path: string;
   name: string;
   component: any;
+  meta?: Record<string, unknown>;
 }
 
 const routes: Route[] = [
@@ -32,6 +38,16 @@ const routes: Route[] = [
     path: "/dashboard-sample",
     name: "DashboardSample",
     component: DashboardSample,
+  },
+  {
+    path: "/evaluator-dashboard",
+    name: "EvaluatorDashboard",
+    component: EvaluatorDashboard,
+  },
+  {
+    path: "/ai-agent",
+    name: "AiAgent",
+    component: AiAgent,
   },
   {
     path: "/loans-sheet",
@@ -79,6 +95,11 @@ const routes: Route[] = [
     component: TeamView,
   },
   {
+    path: "/cloud-shader",
+    name: "CloudShaderHero",
+    component: CloudShaderHero,
+  },
+  {
     path: "/new-loan",
     name: "NewLoan",
     component: NewLoan,
@@ -102,6 +123,23 @@ const routes: Route[] = [
     path: "/forgot-password",
     name: "ForgotPassword",
     component: ForgotPassword,
+  },
+  {
+    path: "/faq",
+    name: "FaqPage",
+    component: FaqPage,
+  },
+  {
+    path: "/privacy",
+    name: "PrivacyPolicy",
+    component: LegalPage,
+    meta: { legal: "privacy" },
+  },
+  {
+    path: "/terms",
+    name: "TermsConditions",
+    component: LegalPage,
+    meta: { legal: "terms" },
   },
 ];
 

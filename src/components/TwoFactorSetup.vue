@@ -87,8 +87,27 @@
         <div v-else :class="$style.body">
           <div :class="$style.successBox">
             <div :class="$style.successIcon">
-              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#2b9c6e" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                <polyline points="20 6 9 17 4 12" />
+              <svg
+                width="44"
+                height="44"
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path d="M0 0h24v24H0z" fill="none" />
+                <g
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="1.5"
+                >
+                  <path
+                    d="M9.5 15.25v.5m.5-.25a.5.5 0 1 1-1 0a.5.5 0 0 1 1 0m4.5-.25v.5m.5-.25a.5.5 0 1 1-1 0a.5.5 0 0 1 1 0M16.5 9V6.5a4.5 4.5 0 1 0-9 0V9"
+                  />
+                  <path
+                    d="M4.268 18.845c.225 1.67 1.608 2.979 3.292 3.056c1.416.065 2.855.099 4.44.099s3.024-.034 4.44-.1c1.684-.076 3.067-1.385 3.292-3.055c.147-1.09.268-2.207.268-3.345s-.121-2.255-.268-3.345c-.225-1.67-1.608-2.979-3.292-3.056A95 95 0 0 0 12 9c-1.585 0-3.024.034-4.44.1c-1.684.076-3.067 1.385-3.292 3.055C4.12 13.245 4 14.362 4 15.5s.121 2.255.268 3.345"
+                  />
+                </g>
               </svg>
             </div>
             <h4 :class="$style.successTitle">Two-factor authentication enabled</h4>
@@ -501,10 +520,11 @@ function finish() {
 }
 
 .successIcon {
-  width: 56px;
-  height: 56px;
-  border-radius: 50%;
-  background-color: #e7f4ee;
+  width: auto;
+  height: auto;
+  border-radius: 0;
+  background: none;
+  color: #2b9c6e;
   display: flex;
   align-items: center;
   justify-content: center;

@@ -42,7 +42,7 @@
               :class="$style.iconBtn"
               type="button"
               aria-label="Help and frequently asked questions"
-              @click="showFaq = true"
+              @click="openFaq"
             >
               <img :class="$style.notifications2New" alt="" src="/Help.svg" />
             </button>
@@ -102,9 +102,7 @@
               :p="item.p"
               :thatoLekgoba="item.thatoLekgoba"
               :september="item.september"
-              :p90000="item.p90000"
-              :p90000MinWidth="item.p90000MinWidth"
-              :p90000Display="item.p90000Display"
+              :status="item.status"
             @view="handleViewIdea"
             />
           </div>
@@ -115,76 +113,40 @@
           <div :class="$style.div8">
             <div :class="$style.div9">
               <div :class="$style.h2actH">
-                <div :class="$style.loanCalculator">Funding calculator</div>
+                <div :class="$style.loanCalculator">How proposals are scored</div>
               </div>
               <div :class="$style.p2">
                 <div :class="$style.seeWhatA">
-                  Estimate funding and costs before submitting your innovation proposal.
+                  Five weighted criteria.
                 </div>
               </div>
             </div>
-            <div :class="$style.div10">
-              <div :class="$style.div11">
-                <div :class="$style.marionLucas">Amount</div>
-                <h3 :class="$style.p10000">P 10,000</h3>
-              </div>
-              <div :class="$style.inputcalcAmt">
-                <div :class="$style.div12">
-                  <div :class="$style.divtrack" />
+            <div :class="$style.criteriaList">
+              <div
+                v-for="criterion in criteria"
+                :key="criterion.name"
+                :class="$style.criterionRow"
+              >
+                <div :class="$style.criterionHead">
+                  <span :class="$style.criterionName">{{ criterion.name }}</span>
+                  <span :class="$style.criterionWeight">{{ criterion.weight }}%</span>
                 </div>
-              </div>
-              <div :class="$style.div13">
-                <div :class="$style.span4">
-                  <div :class="$style.ml">P 500</div>
+                <div :class="$style.criterionTrack">
+                  <div
+                    :class="$style.criterionFill"
+                    :style="{ width: criterion.weight + '%' }"
+                  />
                 </div>
-                <div :class="$style.span4">
-                  <div :class="$style.ml">P 50,000</div>
-                </div>
-              </div>
-            </div>
-            <div :class="$style.div14">
-              <div :class="$style.div15">
-                <div :class="$style.repayOver">Repay over</div>
-                <h3 :class="$style.months">12 months</h3>
-              </div>
-              <div :class="$style.inputcalcAmt">
-                <div :class="$style.div12">
-                  <div :class="$style.divtrack2" />
-                </div>
-              </div>
-              <div :class="$style.div13">
-                <div :class="$style.span4">
-                  <div :class="$style.ml">1 month</div>
-                </div>
-                <div :class="$style.span4">
-                  <div :class="$style.ml">60 months</div>
-                </div>
+                <div :class="$style.criterionText">{{ criterion.hint }}</div>
               </div>
             </div>
-            <div :class="$style.div18">
-              <div :class="$style.h2actH">
-                <div :class="$style.interestRatePer">
-                  Interest rate (per year)
-                </div>
-              </div>
-              <div :class="$style.div19">
-                <div :class="$style.button">
-                  <div :class="$style.spanscInterp">
-                    <b :class="$style.termButtonList">20%</b>
-                  </div>
-                </div>
-                <div :class="$style.button2">
-                  <div :class="$style.spanscInterp2">
-                    <b :class="$style.b">25%</b>
-                  </div>
-                </div>
-                <div :class="$style.button">
-                  <div :class="$style.spanscInterp">
-                    <b :class="$style.termButtonList">30%</b>
-                  </div>
-                </div>
-              </div>
-            </div>
+            <router-link
+              to="/faq#scoring-rubric"
+              :class="$style.criteriaLink"
+              style="text-decoration: none"
+            >
+              Full rubric
+            </router-link>
           </div>
           <div :class="$style.div20">
             <img
@@ -193,61 +155,40 @@
               src="/pattern-1.webp"
             />
             <div :class="$style.div21">
-              <div :class="$style.ml">Monthly repayment</div>
+              <div :class="$style.ml">Typical review window</div>
             </div>
             <div :class="$style.div22">
-              <h2 :class="$style.p95044">P 950.44</h2>
+              <h2 :class="$style.p95044">10 days</h2>
             </div>
             <div :class="$style.div23">
-              <div :class="$style.for12Months">for 12 months at 25% a year</div>
+              <div :class="$style.for12Months">submission to decision</div>
             </div>
             <img
               :class="$style.divmarginIcon"
               alt=""
               src="/div-margin1.webp"
             />
-            <div :class="$style.repaymentBreakdownGroup">
-              <div :class="$style.div26">
-                <div :class="$style.span8">
-                  <div :class="$style.span9" />
-                  <div :class="$style.amountBorrowed">Amount borrowed</div>
-                </div>
-                <div :class="$style.span8">
-                  <div :class="$style.span11" />
-                  <div :class="$style.ml">Interest</div>
-                </div>
-              </div>
-              <div :class="$style.div27">
-                <div :class="$style.div28">
-                  <div :class="$style.h2actH">
-                    <div :class="$style.totalToRepay">Total to repay</div>
-                  </div>
-                  <div :class="$style.div30">
-                    <b :class="$style.p1140530">P 11,405.30</b>
-                  </div>
-                </div>
-                <div :class="$style.div28">
-                  <div :class="$style.h2actH">
-                    <div :class="$style.totalToRepay">Total interest</div>
-                  </div>
-                  <div :class="$style.div30">
-                    <b :class="$style.p1140530">P 1,405.30</b>
-                  </div>
-                </div>
+            <div :class="$style.reviewSteps">
+              <div
+                v-for="step in reviewSteps"
+                :key="step"
+                :class="$style.reviewStep"
+              >
+                <span :class="$style.reviewDot" />
+                <span>{{ step }}</span>
               </div>
             </div>
-            <router-link to="/new-loan" :class="$style.agold2" style="text-decoration: none;">
-              <b :class="$style.applyFor">Record loan for</b>
-              <div :class="$style.spanscInterp4">
-                <b :class="$style.p100002">P 10,000</b>
-              </div>
+            <router-link
+              to="/new-loan"
+              :class="$style.agold2"
+              style="text-decoration: none"
+            >
+              <b :class="$style.applyFor">Start submission</b>
               <img :class="$style.frameIcon4" alt="" src="/Frame7.svg" />
             </router-link>
             <div :class="$style.p3">
               <div :class="$style.indicativeOnlyInterest">
-                Indicative calculation only. Interest is calculated on the reducing balance;
-                <br />
-                customer approval depends on affordability assessment and branch limits.
+                Indicative only. Missing documents can extend this.
               </div>
             </div>
           </div>
@@ -271,71 +212,46 @@
             </div>
           </div>
           <div :class="$style.ol">
-            <div :class="$style.li">
-              <div :class="$style.div36">
-                <div :class="$style.span13">
-                  <div :class="$style.spanshadow" />
-                  <b :class="$style.stepEmptyList">1</b>
+            <div
+              v-for="(step, index) in pipelineSteps"
+              :key="step.name"
+              :class="$style.pipelineStep"
+            >
+              <div :class="$style.stepRail">
+                <div
+                  :class="[
+                    $style.stepCircle,
+                    step.state === 'current' ? $style.stepCircleCurrent : '',
+                  ]"
+                >
+                  {{ index + 1 }}
                 </div>
-                <div :class="$style.span14" />
+                <div
+                  v-if="index < pipelineSteps.length - 1"
+                  :class="$style.stepConnector"
+                />
               </div>
-              <div :class="$style.div37">
-                <div :class="$style.div38">
-                  <b :class="$style.ml">Under Review</b>
+              <div :class="$style.stepBody">
+                <div
+                  :class="[
+                    $style.stepName,
+                    step.state === 'current' ? $style.stepNameCurrent : '',
+                  ]"
+                >
+                  {{ step.name }}
                 </div>
-                <div :class="$style.div39">
-                  <div :class="$style.ml">90</div>
-                </div>
-              </div>
-            </div>
-            <div :class="$style.li2">
-              <div :class="$style.div36">
-                <div :class="$style.span15">
-                  <b :class="$style.ml">2</b>
-                </div>
-                <div :class="$style.span14" />
-              </div>
-              <div :class="$style.div41">
-                <div :class="$style.div42">
-                  <b :class="$style.ml">Approved</b>
-                </div>
-                <div :class="$style.div43">
-                  <div :class="$style.ml">10</div>
-                </div>
-              </div>
-            </div>
-            <div :class="[$style.li2, $style.liFeedback]">
-              <div :class="$style.div36">
-                <div :class="$style.span17">
-                  <b :class="$style.ml">3</b>
-                </div>
-                <div :class="$style.span14" />
-              </div>
-              <div :class="$style.div41">
-                <div :class="$style.div47">
-                  <b :class="$style.ml">Feedback Required</b>
-                </div>
-                <div :class="$style.div48">
-                  <div :class="$style.ml">3</div>
+                <div :class="$style.stepNote">{{ step.note }}</div>
+                <div
+                  :class="[
+                    $style.stepState,
+                    step.state === 'current' ? $style.stepStateCurrent : '',
+                  ]"
+                >
+                  {{ step.state === "current" ? "Application is here" : "Pending" }}
                 </div>
               </div>
             </div>
-            <div :class="$style.li2">
-              <div :class="$style.div36">
-                <div :class="$style.span19">
-                  <b :class="$style.ml">4</b>
-                </div>
-                <div :class="$style.span20" />
-              </div>
-              <div :class="$style.div41">
-                <div :class="$style.div52">
-                  <b :class="$style.ml">Awarded</b>
-                </div>
-                <div :class="$style.div53">
-                  <div :class="$style.ml">1</div>
-                </div>
-              </div>
-            </div>
+
             <div :class="$style.feedbackCallout">
               <div :class="$style.feedbackCalloutTitle">
                 Demo feedback on “Feedback Required”
@@ -352,7 +268,6 @@
       </section>
     </main>
     <ChatWithAgent />
-    <FaqModal :open="showFaq" @close="showFaq = false" />
   </div>
 </template>
 <script setup lang="ts">
@@ -366,7 +281,6 @@
   import Li from "../components/Li.vue"
   import PointerHighlight from "../components/ui/pointer-highlight.vue"
   import NotificationsPanel from "../components/NotificationsPanel.vue"
-  import FaqModal from "../components/FaqModal.vue"
   import {
     CUSTOM_IMAGE_STORAGE_KEY,
     CUSTOM_THEME_ID,
@@ -378,7 +292,6 @@
 
   const activeTheme = ref<DashboardTheme | null>(null)
   const showNotifications = ref(false)
-  const showFaq = ref(false)
 
   function loadTheme() {
     const themeId = localStorage.getItem(THEME_STORAGE_KEY)
@@ -431,42 +344,96 @@
       : undefined,
   )
 
+  const criteria = [
+    {
+      name: "Problem and market need",
+      weight: 25,
+      hint: "Real, sizeable problem.",
+    },
+    {
+      name: "Solution and feasibility",
+      weight: 25,
+      hint: "Works and is buildable.",
+    },
+    {
+      name: "Team and capability",
+      weight: 20,
+      hint: "Who delivers it.",
+    },
+    {
+      name: "Sustainability and growth",
+      weight: 20,
+      hint: "Runs and scales.",
+    },
+    {
+      name: "Impact and youth ownership",
+      weight: 10,
+      hint: "Jobs and youth ownership.",
+    },
+  ]
+
+  const reviewSteps = [
+    "Submitted",
+    "Documents checked",
+    "Scored",
+    "Decision",
+  ]
+
+  const pipelineSteps = [
+    {
+      name: "Under Review",
+      state: "current",
+      note: "SRK-IN-2026-0481 is with the CEDA review team.",
+    },
+    {
+      name: "Approved",
+      state: "pending",
+      note: "Reached if the review is successful.",
+    },
+    {
+      name: "Feedback Required",
+      state: "pending",
+      note: "Only if evaluators ask for changes.",
+    },
+    {
+      name: "Awarded",
+      state: "pending",
+      note: "Funding released to the innovator.",
+    },
+  ]
+
   const liItems = ref([
     {
       p: "I",
       thatoLekgoba: "Irrigation Kit",
       september: "25 September",
-      p90000: " P 900.00",
-      p90000MinWidth: "67px",
-      p90000Display: "inline-block",
+      status: "Under review",
     },
     {
       p: "S",
       thatoLekgoba: "Solar Dryer",
       september: "25 September",
-      p90000: " P 1000.00",
-      p90000MinWidth: "74px",
-      p90000Display: "inline-block",
+      status: "Approved",
     },
     {
       p: "E",
       thatoLekgoba: "Edu App",
       september: "2 October",
-      p90000: "P 3,000.00",
-      p90000MinWidth: "unset",
-      p90000Display: "unset",
+      status: "Feedback required",
     },
     {
       p: "A",
       thatoLekgoba: "Agri Drone",
       september: "2 October",
-      p90000: "P 6,000.00",
-      p90000MinWidth: "unset",
-      p90000Display: "unset",
+      status: "Awarded",
     },
   ])
 
   const router = useRouter()
+
+  function openFaq() {
+    router.push("/faq")
+  }
 
   const handleViewIdea = (name: string) => {
     router.push({ name: "IdeaView", query: { name } })
@@ -1325,7 +1292,7 @@
   .agold2 {
     width: 100%;
     height: 48px;
-    margin: 8px 0 0;
+    margin: auto 0 10px;
     position: relative;
     bottom: auto;
     left: auto;
@@ -1614,6 +1581,88 @@
     font-size: var(--fs-13);
     color: var(--color-darkslategray-100);
   }
+  .pipelineStep {
+    align-self: stretch;
+    display: flex;
+    align-items: stretch;
+    gap: 14px;
+  }
+  .stepRail {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex-shrink: 0;
+  }
+  .stepCircle {
+    width: 28px;
+    height: 28px;
+    border-radius: 14px;
+    border: 1px solid var(--color-antiquewhite-200);
+    background-color: var(--color-white);
+    color: var(--color-darkslategray-100);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: var(--fs-13);
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+  .stepCircleCurrent {
+    background-color: var(--color-goldenrod-200);
+    border-color: var(--color-goldenrod-200);
+    color: var(--color-darkslategray-500);
+    animation: stepPulse 2s ease-in-out infinite;
+  }
+  .stepConnector {
+    width: 2px;
+    flex: 1;
+    min-height: 20px;
+    margin: 4px 0;
+    background-color: var(--color-antiquewhite-200);
+  }
+  .stepBody {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+    padding-bottom: 16px;
+    min-width: 0;
+  }
+  .stepName {
+    font-size: var(--fs-15);
+    font-weight: 700;
+    color: var(--color-darkslategray-500);
+  }
+  .stepNameCurrent {
+    color: var(--color-saddlebrown);
+    animation: pulseFeedback 2s ease-in-out infinite;
+  }
+  .stepNote {
+    font-size: var(--fs-13);
+    line-height: 1.4;
+    color: var(--color-darkslategray-100);
+  }
+  .stepState {
+    margin-top: 2px;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.6px;
+    text-transform: uppercase;
+    color: var(--color-darkslategray-100);
+  }
+  .stepStateCurrent {
+    color: var(--color-saddlebrown);
+  }
+  @keyframes stepPulse {
+    0%,
+    100% {
+      box-shadow: 0 0 0 4px rgba(238, 194, 75, 0.35);
+    }
+    50% {
+      box-shadow: 0 0 0 8px rgba(238, 194, 75, 0.12);
+    }
+  }
+
   .feedbackCallout {
     align-self: stretch;
     margin-top: 12px;
@@ -1709,6 +1758,85 @@
     align-items: flex-start;
     font-size: var(--fs-13);
     color: var(--color-darkslategray-100);
+  }
+
+  .criteriaList {
+    align-self: stretch;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .criterionRow {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 6px;
+  }
+  .criterionHead {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .criterionName {
+    font-size: var(--fs-14);
+    font-weight: 700;
+    color: var(--color-darkslategray-500);
+  }
+  .criterionWeight {
+    font-size: var(--fs-13);
+    font-weight: 800;
+    color: var(--color-darkslategray-500);
+  }
+  .criterionTrack {
+    height: 8px;
+    border-radius: 999px;
+    background-color: #e3dccb;
+    overflow: hidden;
+  }
+  .criterionFill {
+    height: 100%;
+    border-radius: 999px;
+    background-color: var(--color-darkslategray-500);
+  }
+  .criterionText {
+    font-size: var(--fs-12);
+    line-height: 1.45;
+    color: var(--color-darkslategray-100);
+  }
+  .criteriaLink {
+    margin-top: auto;
+    padding-top: 10px;
+    font-size: var(--fs-14);
+    font-weight: 700;
+    color: var(--color-darkslategray-500);
+    text-decoration: underline;
+    text-underline-offset: 4px;
+    text-decoration-color: var(--color-goldenrod-300);
+    cursor: pointer;
+  }
+  .reviewSteps {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding-top: 6px;
+    z-index: 5;
+    flex-shrink: 0;
+  }
+  .reviewStep {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: var(--fs-13);
+    color: var(--color-gainsboro);
+  }
+  .reviewDot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background-color: var(--color-goldenrod-200);
+    flex-shrink: 0;
   }
 
   @media screen and (max-width: 1200px) {

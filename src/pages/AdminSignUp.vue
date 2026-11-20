@@ -155,9 +155,9 @@
           <p :class="$style.legalNote">
             By continuing to access this system, you confirm that you agree to
             our
-            <a :class="$style.legalLink" href="#privacy-policy">Privacy Policy</a>
+            <router-link :class="$style.legalLink" to="/privacy">Privacy Policy</router-link>
             and
-            <a :class="$style.legalLink" href="#terms-and-conditions">Terms &amp; Conditions</a>.
+            <router-link :class="$style.legalLink" to="/terms">Terms &amp; Conditions</router-link>.
           </p>
         </form>
       </div>

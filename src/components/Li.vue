@@ -42,7 +42,7 @@
       </div>
     </div>
     <div :class="$style.span2">
-      <b :class="$style.p90000" :style="p90000Style">{{ p90000 }}</b>
+      <span :class="[$style.statusBadge, statusClass]">{{ status }}</span>
     </div>
     <button :class="$style.viewButton" type="button" @click="$emit('view', thatoLekgoba ?? '')">
       View
@@ -50,25 +50,33 @@
   </div>
 </template>
 <script setup lang="ts">
-  import { StyleValue, computed } from "vue"
+  import { computed, useCssModule } from "vue"
 
   const props = defineProps<{
     p?: string
     thatoLekgoba?: string
     september?: string
-    p90000?: string
-    p90000MinWidth?: string | number
-    p90000Display?: string
+    status?: string
   }>()
 
   defineEmits<{
     (e: "view", name: string): void
   }>()
 
-  const p90000Style = computed((): StyleValue => ({
-    minWidth: props.p90000MinWidth !== undefined ? String(props.p90000MinWidth) : undefined,
-    display: props.p90000Display,
-  }))
+  const styles = useCssModule()
+
+  const statusClass = computed(() => {
+    switch ((props.status ?? "").toLowerCase()) {
+      case "approved":
+        return styles.statusApproved
+      case "awarded":
+        return styles.statusAwarded
+      case "feedback required":
+        return styles.statusFeedback
+      default:
+        return styles.statusReview
+    }
+  })
 </script>
 <style module>
   .li {
@@ -139,15 +147,36 @@
     position: relative;
   }
   .span2 {
-    height: var(--height-17);
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
+    align-items: flex-end;
+    flex-shrink: 0;
   }
-  .p90000 {
-    position: relative;
-    display: inline-block;
-    min-width: 67px;
+  .statusBadge {
+    display: inline-flex;
+    align-items: center;
+    height: 24px;
+    padding: 0 10px;
+    border-radius: 999px;
+    font-size: var(--fs-12);
+    font-weight: 700;
+    white-space: nowrap;
+  }
+  .statusReview {
+    background-color: var(--color-blanchedalmond);
+    color: var(--color-saddlebrown);
+  }
+  .statusApproved {
+    background-color: #e6f4ea;
+    color: #1e7a46;
+  }
+  .statusFeedback {
+    background-color: #fdecea;
+    color: #b3261e;
+  }
+  .statusAwarded {
+    background-color: #e8eefc;
+    color: #274690;
   }
   .viewButton {
     height: 34px;
@@ -195,10 +224,10 @@
     .september {
       font-size: var(--fs-12);
     }
-    .p90000 {
-      min-width: 0 !important;
-      font-size: var(--fs-13);
-      white-space: nowrap;
+    .statusBadge {
+      height: 22px;
+      padding: 0 8px;
+      font-size: 11px;
     }
     .viewButton {
       height: 32px;

@@ -1,5 +1,5 @@
 <template>
-  <div :class="$style.page">
+  <div :class="$style.page" :style="pageBackground">
     <!-- Reusable Stationary Sidebar -->
     <Main />
 
@@ -278,6 +278,10 @@
 </template>
 
 <script setup lang="ts">
+  import { usePageTheme } from "../composables/usePageTheme";
+
+  const pageBackground = usePageTheme();
+
 import { ref } from "vue";
 import Main from "../components/Main.vue";
 import ChatWithAgent from "../components/ChatWithAgent.vue";

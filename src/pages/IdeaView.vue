@@ -1,5 +1,5 @@
 <template>
-  <div :class="$style.page">
+  <div :class="$style.page" :style="pageBackground">
     <!-- Reusable Stationary Sidebar -->
     <Main :active-page="'dashboard'" />
 
@@ -83,18 +83,24 @@
             </div>
 
             <div :class="$style.balanceAmount">
-              <span :class="$style.currencyPrefix">P</span>
-              <span>{{ currentIdea.fundingAmount }}</span>
+              <span>{{ completeness }}</span>
+              <span :class="$style.currencyPrefix">%</span>
             </div>
 
+            <div :class="$style.borrowedInfo">proposal complete</div>
+
             <div :class="$style.borrowedInfo">
-              {{ currentIdea.category }} &bull; {{ currentIdea.innovator }} &bull; {{ currentIdea.status }}
+              {{ currentIdea.category }} &bull; {{ currentIdea.innovator }} &bull; {{ currentIdea.stage }}
             </div>
 
             <div :class="$style.metricsStrip">
               <div :class="$style.metricItem">
-                <span :class="$style.metricTitle">Funding Requested</span>
+                <span :class="$style.metricTitle">Funding required</span>
                 <span :class="$style.metricValGold">P {{ currentIdea.fundingAmount }}</span>
+              </div>
+              <div :class="$style.metricItem">
+                <span :class="$style.metricTitle">Proposal complete</span>
+                <span :class="$style.metricValGold">{{ completeness }}%</span>
               </div>
               <div :class="$style.metricDivider"></div>
               <div :class="$style.metricItem">
@@ -116,34 +122,74 @@
         </div>
 
         <!-- Editable draft panel -->
-        <div v-if="isDraft" :class="$style.editSection">
+        <div v-if="isDraft || editingCorrections" id="edit-panel" :class="$style.editSection">
           <div :class="$style.editHead">
             <div>
-              <h2 :class="$style.tableHeading">Edit draft proposal</h2>
+              <h2 :class="$style.tableHeading">
+                {{ isDraft ? "Edit draft proposal" : "Address corrections" }}
+              </h2>
               <p :class="$style.tableSub">
-                This proposal has not been submitted yet. Edit the fields below, then save it as a draft or submit it for review.
+                {{
+                  isDraft
+                    ? "This proposal has not been submitted yet. Edit the fields below, then save it as a draft or submit it for review."
+                    : "Update the fields the review team flagged, attach the missing documents, then resubmit for review."
+                }}
               </p>
             </div>
             <div :class="$style.editActions">
-              <button :class="$style.actionOutlineBtn" type="button" @click="saveDraft">
+              <button
+                v-if="isDraft"
+                :class="$style.actionOutlineBtn"
+                type="button"
+                @click="saveDraft"
+              >
                 Save draft
               </button>
-              <button :class="$style.actionSolidBtn" type="button" @click="submitDraft">
-                Submit proposal
+              <button
+                v-else
+                :class="$style.actionOutlineBtn"
+                type="button"
+                @click="cancelCorrectionEdit"
+              >
+                Cancel
+              </button>
+              <button
+                :class="$style.actionSolidBtn"
+                type="button"
+                @click="isDraft ? submitDraft() : submitCorrections()"
+              >
+                {{ isDraft ? "Submit proposal" : "Resubmit proposal" }}
               </button>
             </div>
           </div>
 
           <p v-if="savedNotice" :class="$style.savedNotice">{{ savedNotice }}</p>
 
+          <div :class="$style.uploadRow">
+            <label :class="$style.uploadBtn">
+              <input
+                :class="$style.uploadInput"
+                type="file"
+                multiple
+                accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.png,.jpg,.jpeg"
+                @change="handleFiles"
+              />
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                <polyline points="17 8 12 3 7 8" />
+                <line x1="12" y1="3" x2="12" y2="15" />
+              </svg>
+              Upload files
+            </label>
+            <span :class="$style.uploadHint">
+              {{ currentIdea.documents.length }} attached &middot; PDF, Word, Excel, PowerPoint or images
+            </span>
+          </div>
+
           <div ref="editPanel" :class="$style.editGrid">
             <label :class="$style.editField">
               <span :class="$style.editLabel">Idea title</span>
               <input v-model="currentIdea.title" :class="$style.editInput" type="text" />
-            </label>
-            <label :class="$style.editField">
-              <span :class="$style.editLabel">Funding requested (P)</span>
-              <input v-model="currentIdea.fundingAmount" :class="$style.editInput" type="text" />
             </label>
             <label :class="$style.editField">
               <span :class="$style.editLabel">Category</span>
@@ -240,14 +286,18 @@
             <div :class="$style.unifiedCol">
               <div :class="$style.cardHead">
                 <div>
-                  <h3 :class="$style.cardTitle">Funding Details</h3>
-                  <p :class="$style.cardSubtitle">Budget &amp; category</p>
+                  <h3 :class="$style.cardTitle">Proposal details</h3>
+                  <p :class="$style.cardSubtitle">Readiness &amp; category</p>
                 </div>
               </div>
               <div :class="$style.cardDetails">
                 <div :class="$style.dataRow">
-                  <span :class="$style.dataLabel">Funding Requested</span>
+                  <span :class="$style.dataLabel">Funding required</span>
                   <span :class="$style.dataValue">P {{ currentIdea.fundingAmount }}</span>
+                </div>
+                <div :class="$style.dataRow">
+                  <span :class="$style.dataLabel">Proposal complete</span>
+                  <span :class="$style.dataValue">{{ completeness }}%</span>
                 </div>
                 <div :class="$style.dataRow">
                   <span :class="$style.dataLabel">Category</span>
@@ -380,13 +430,150 @@
               <span :class="$style.correctionBadge">{{ c.severity }}</span>
             </div>
           </div>
+
+          <div v-if="currentIdea.corrections.length > 0" :class="$style.correctionsActions">
+            <button :class="$style.resubmitBtn" type="button" @click="startCorrectionEdit">
+              Resubmit
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="5" y1="12" x2="19" y2="12" />
+                <polyline points="12 5 19 12 12 19" />
+              </svg>
+            </button>
+            <span :class="$style.correctionsHint">
+              Opens the proposal in editable mode so you can fix each item and attach files.
+            </span>
+          </div>
         </div>
       </section>
     </main>
+
+    <!-- Print-only compiled application document -->
+    <section :class="$style.printDoc">
+      <header :class="$style.printHead">
+        <div :class="$style.printHeadMain">
+          <img
+            :class="$style.printLogo"
+            src="/ceda-logo.webp"
+            alt="CEDA — Citizen Entrepreneurial Development Agency"
+          />
+          <div :class="$style.printBrand">CEDA Innovation Portal</div>
+          <h1 :class="$style.printTitle">{{ currentIdea.title }}</h1>
+          <div :class="$style.printRef">
+            {{ currentIdea.ideaId }} &middot; {{ currentIdea.category }} &middot; {{ currentIdea.stage }} stage
+          </div>
+        </div>
+        <div :class="$style.printStatus">
+          <span :class="$style.printStatusLabel">Status</span>
+          <span :class="$style.printStatusValue">{{ currentIdea.status }}</span>
+        </div>
+      </header>
+
+      <section :class="$style.printSection">
+        <h2 :class="$style.printSectionTitle">Application details</h2>
+        <table :class="$style.printTable">
+          <tbody>
+            <tr>
+              <th>Innovator</th>
+              <td>{{ currentIdea.innovator }}</td>
+              <th>Submitted</th>
+              <td>{{ currentIdea.submittedDate }}</td>
+            </tr>
+            <tr>
+              <th>Email</th>
+              <td>{{ currentIdea.email }}</td>
+              <th>Phone</th>
+              <td>{{ currentIdea.phone }}</td>
+            </tr>
+            <tr>
+              <th>Location</th>
+              <td>{{ currentIdea.location }}</td>
+              <th>Category</th>
+              <td>{{ currentIdea.category }}</td>
+            </tr>
+            <tr>
+              <th>Stage</th>
+              <td>{{ currentIdea.stage }}</td>
+              <th>Review officer</th>
+              <td>{{ currentIdea.officer }}</td>
+            </tr>
+            <tr>
+              <th>Funding required</th>
+              <td>P {{ currentIdea.fundingAmount }}</td>
+              <th>Proposal complete</th>
+              <td>{{ completeness }}%</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section :class="$style.printSection">
+        <h2 :class="$style.printSectionTitle">Idea summary</h2>
+        <p :class="$style.printText">{{ currentIdea.description }}</p>
+      </section>
+
+      <section :class="$style.printSection">
+        <h2 :class="$style.printSectionTitle">Problem statement</h2>
+        <p :class="$style.printText">{{ currentIdea.problem }}</p>
+      </section>
+
+      <section :class="$style.printSection">
+        <h2 :class="$style.printSectionTitle">Proposed solution</h2>
+        <p :class="$style.printText">{{ currentIdea.solution }}</p>
+      </section>
+
+      <section :class="$style.printSection">
+        <h2 :class="$style.printSectionTitle">Target beneficiaries</h2>
+        <p :class="$style.printText">{{ currentIdea.beneficiaries }}</p>
+      </section>
+
+      <section :class="$style.printSection">
+        <h2 :class="$style.printSectionTitle">Expected impact</h2>
+        <p :class="$style.printText">{{ currentIdea.impact }}</p>
+      </section>
+
+      <section v-if="currentIdea.corrections.length > 0" :class="$style.printSection">
+        <h2 :class="$style.printSectionTitle">Corrections required</h2>
+        <table :class="$style.printTable">
+          <thead>
+            <tr>
+              <th>Field</th>
+              <th>What is required</th>
+              <th>Priority</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="(correction, index) in currentIdea.corrections" :key="index">
+              <td>{{ correction.field }}</td>
+              <td>{{ correction.issue }}</td>
+              <td>{{ correction.severity }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section :class="$style.printSection">
+        <h2 :class="$style.printSectionTitle">Supporting documents</h2>
+        <p :class="$style.printText">
+          {{ currentIdea.documents.length }} supporting
+          {{ currentIdea.documents.length === 1 ? "document is" : "documents are" }}
+          attached to this application. Documents are not included in this printout — they
+          can be downloaded and shared separately from the CEDA Innovation Portal.
+        </p>
+      </section>
+
+      <footer :class="$style.printFooter">
+        <span>CEDA Innovation Portal &middot; {{ currentIdea.ideaId }}</span>
+        <span>Printed {{ printedOn }}</span>
+      </footer>
+    </section>
   </div>
 </template>
 
 <script setup lang="ts">
+  import { usePageTheme } from "../composables/usePageTheme";
+
+  const pageBackground = usePageTheme();
+
 import { ref, computed, watch, nextTick, onMounted } from "vue";
 import { useRoute } from "vue-router";
 import { useCssModule } from "vue";
@@ -418,7 +605,6 @@ interface IdeaDetail {
   location: string;
   submittedDate: string;
   fundingAmount: string;
-  fundingAmountClean: string;
   category: string;
   stage: string;
   status: "Draft" | "Under Review" | "Approved" | "Feedback Required" | "Awarded";
@@ -436,13 +622,12 @@ const mockIdeas: Record<string, IdeaDetail> = {
   "irrigation-kit": {
     ideaId: "CEDA-IN-2026-0481",
     title: "Irrigation Kit",
+    fundingAmount: "900.00",
     innovator: "Thato Lekgoba",
     email: "t.lekgoba@gmail.com",
     phone: "+267 71 442 901",
     location: "Maun, North-West District",
     submittedDate: "25 September 2026",
-    fundingAmount: "900.00",
-    fundingAmountClean: "900.00",
     category: "Agri-Tech",
     stage: "Idea",
     status: "Under Review",
@@ -462,13 +647,12 @@ const mockIdeas: Record<string, IdeaDetail> = {
   "solar-dryer": {
     ideaId: "CEDA-IN-2026-0482",
     title: "Solar Dryer",
+    fundingAmount: "1,000.00",
     innovator: "Solar Innovators (Pty) Ltd",
     email: "info@solarinnovators.co.bw",
     phone: "+267 72 118 440",
     location: "Gaborone, South-East District",
     submittedDate: "25 September 2026",
-    fundingAmount: "1,000.00",
-    fundingAmountClean: "1,000.00",
     category: "Renewable Energy",
     stage: "Prototype",
     status: "Approved",
@@ -487,13 +671,12 @@ const mockIdeas: Record<string, IdeaDetail> = {
   "edu-app": {
     ideaId: "CEDA-IN-2026-0483",
     title: "Edu App",
+    fundingAmount: "3,000.00",
     innovator: "Kago Molefe",
     email: "k.molefe@ceda.co.bw",
     phone: "+267 74 900 212",
     location: "Francistown, North-East District",
     submittedDate: "2 October 2026",
-    fundingAmount: "3,000.00",
-    fundingAmountClean: "3,000.00",
     category: "EdTech",
     stage: "Idea",
     status: "Feedback Required",
@@ -516,13 +699,12 @@ const mockIdeas: Record<string, IdeaDetail> = {
   "agri-drone": {
     ideaId: "CEDA-IN-2026-0484",
     title: "Agri Drone",
+    fundingAmount: "6,000.00",
     innovator: "AgriTech Botswana",
     email: "contact@agritechbw.co.bw",
     phone: "+267 76 550 101",
     location: "Selebi-Phikwe, Central District",
     submittedDate: "2 October 2026",
-    fundingAmount: "6,000.00",
-    fundingAmountClean: "6,000.00",
     category: "Agri-Tech",
     stage: "Prototype",
     status: "Awarded",
@@ -543,13 +725,12 @@ const mockIdeas: Record<string, IdeaDetail> = {
   "irrigation-kit-draft": {
     ideaId: "CEDA-IN-2026-0485",
     title: "Irrigation Kit Draft",
+    fundingAmount: "14,793.40",
     innovator: "Thato Lekgoba",
     email: "t.lekgoba@gmail.com",
     phone: "+267 71 442 901",
     location: "Maun, North-West District",
     submittedDate: "Not submitted yet",
-    fundingAmount: "14,793.40",
-    fundingAmountClean: "14,793.40",
     category: "Agri-Tech",
     stage: "Idea",
     status: "Draft",
@@ -609,6 +790,29 @@ const savedNotice = ref("");
 
 const isDraft = computed(() => currentIdea.value.status === "Draft");
 
+const printedOn = new Date().toLocaleDateString("en-GB", {
+  day: "numeric",
+  month: "long",
+  year: "numeric",
+});
+const editingCorrections = ref(false);
+
+// How much of the proposal is filled in, so the page shows progress instead of a budget.
+const completeness = computed(() => {
+  const fields = [
+    currentIdea.value.title,
+    currentIdea.value.category,
+    currentIdea.value.description,
+    currentIdea.value.problem,
+    currentIdea.value.solution,
+    currentIdea.value.beneficiaries,
+    currentIdea.value.impact,
+  ];
+  const filled = fields.filter((value) => (value ?? "").trim().length > 0).length;
+  const documents = currentIdea.value.documents.length > 0 ? 1 : 0;
+  return Math.round(((filled + documents) / (fields.length + 1)) * 100);
+});
+
 // Grow each draft textarea to fit its content so long text is never cut off.
 const editPanel = ref<HTMLElement | null>(null);
 
@@ -667,6 +871,62 @@ function scrollToCorrections() {
 function saveDraft() {
   draftStore[ideaKey.value] = snapshot(currentIdea.value);
   savedNotice.value = `Draft saved — ${currentIdea.value.title}`;
+}
+
+function startCorrectionEdit() {
+  editingCorrections.value = true;
+  nextTick(() => {
+    const el = document.getElementById("edit-panel");
+    el?.scrollIntoView({ behavior: "smooth", block: "start" });
+    el?.querySelector("input")?.focus();
+  });
+}
+
+function cancelCorrectionEdit() {
+  editingCorrections.value = false;
+  savedNotice.value = "";
+}
+
+function submitCorrections() {
+  draftStore[ideaKey.value] = snapshot(currentIdea.value);
+  currentIdea.value.status = "Under Review";
+  currentIdea.value.submittedDate = new Date().toLocaleDateString("en-GB", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
+  currentIdea.value.corrections = [];
+  editingCorrections.value = false;
+  savedNotice.value = "Corrections submitted. The proposal is back under review.";
+}
+
+function formatFileSize(bytes: number) {
+  if (bytes >= 1024 * 1024) return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+  return `${Math.max(1, Math.round(bytes / 1024))} KB`;
+}
+
+function handleFiles(event: Event) {
+  const input = event.target as HTMLInputElement | null;
+  if (!input?.files) return;
+  const uploaded = new Date().toLocaleDateString("en-GB", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
+
+  Array.from(input.files).forEach((file) => {
+    const extension = file.name.split(".").pop()?.toUpperCase() ?? "FILE";
+    currentIdea.value.documents.push({
+      name: file.name,
+      type: extension,
+      size: formatFileSize(file.size),
+      uploaded,
+    });
+  });
+
+  savedNotice.value = `${input.files.length} file${input.files.length === 1 ? "" : "s"} attached.`;
+  input.value = "";
+  nextTick(resizeDraftTextareas);
 }
 
 function submitDraft() {
@@ -1457,6 +1717,72 @@ function mockPreviewDoc(docName: string) {
   flex-wrap: wrap;
 }
 
+  .correctionsActions {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex-wrap: wrap;
+    margin-top: 18px;
+    padding-top: 18px;
+    border-top: 1px solid #f1ede5;
+  }
+  .resubmitBtn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    height: 42px;
+    padding: 0 20px;
+    border: none;
+    border-radius: 12px;
+    background-color: var(--color-darkslategray-500);
+    color: #ffffff;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+  }
+  .resubmitBtn:hover {
+    background-color: var(--color-darkslategray-600);
+  }
+  .correctionsHint {
+    font-size: 13px;
+    color: var(--color-darkslategray-100);
+  }
+  .uploadRow {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex-wrap: wrap;
+    margin: 4px 0 14px;
+  }
+  .uploadBtn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    height: 40px;
+    padding: 0 16px;
+    border-radius: 12px;
+    border: 1px dashed var(--color-lightgray-200);
+    background-color: var(--color-white);
+    color: var(--color-darkslategray-500);
+    font-size: 13.5px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: border-color 0.2s ease, background-color 0.2s ease;
+  }
+  .uploadBtn:hover {
+    border-color: var(--color-darkslategray-500);
+    background-color: var(--color-floralwhite);
+  }
+  .uploadInput {
+    display: none;
+  }
+  .uploadHint {
+    font-size: 12.5px;
+    color: var(--color-darkslategray-100);
+  }
+
 .savedNotice {
   margin: 14px 0 0;
   padding: 9px 14px;
@@ -1565,6 +1891,173 @@ function mockPreviewDoc(docName: string) {
 @media screen and (max-width: 1050px) {
   .mainContent {
     padding-top: 64px;
+  }
+}
+/* ── Print-only compiled application document ── */
+.printDoc {
+  display: none;
+}
+
+@media print {
+  .page {
+    display: block;
+    width: auto;
+    height: auto;
+    overflow: visible;
+    background: #ffffff;
+  }
+
+  .page > * {
+    display: none !important;
+  }
+
+  .page > .printDoc {
+    display: block !important;
+    color: #111827;
+    background: #ffffff;
+    font-family: var(--font-inter, "Inter", sans-serif);
+    font-size: 11pt;
+    line-height: 1.5;
+    padding: 0;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .printHead {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 24px;
+    padding-bottom: 14px;
+    border-bottom: 2px solid #013626;
+  }
+
+  .printHeadMain {
+    min-width: 0;
+  }
+
+  .printLogo {
+    display: block;
+    width: 150px;
+    height: auto;
+    max-width: 60%;
+    object-fit: contain;
+    margin-bottom: 10px;
+  }
+
+  .printBrand {
+    font-size: 9pt;
+    font-weight: 700;
+    letter-spacing: 1.4px;
+    text-transform: uppercase;
+    color: #6b7280;
+  }
+
+  .printTitle {
+    margin: 4px 0 4px;
+    font-size: 22pt;
+    line-height: 1.15;
+    font-weight: 800;
+    color: #013626;
+  }
+
+  .printRef {
+    font-size: 9.5pt;
+    color: #4b5563;
+  }
+
+  .printStatus {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 2px;
+    text-align: right;
+    white-space: nowrap;
+  }
+
+  .printStatusLabel {
+    font-size: 8pt;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: #6b7280;
+  }
+
+  .printStatusValue {
+    font-size: 11pt;
+    font-weight: 700;
+    color: #013626;
+  }
+
+  .printSection {
+    margin-top: 18px;
+    break-inside: avoid;
+  }
+
+  .printSectionTitle {
+    margin: 0 0 6px;
+    padding-bottom: 3px;
+    border-bottom: 1px solid #d1d5db;
+    font-size: 11pt;
+    font-weight: 800;
+    letter-spacing: 0.2px;
+    text-transform: uppercase;
+    color: #013626;
+  }
+
+  .printText {
+    margin: 0;
+    font-size: 10.5pt;
+    line-height: 1.55;
+    color: #1f2937;
+  }
+
+  .printTable {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 9.5pt;
+  }
+
+  .printTable th,
+  .printTable td {
+    border: 1px solid #d1d5db;
+    padding: 6px 8px;
+    text-align: left;
+    vertical-align: top;
+  }
+
+  .printTable th {
+    width: 22%;
+    background-color: #f3f4f6;
+    font-weight: 700;
+    color: #111827;
+  }
+
+  .printTable thead th {
+    width: auto;
+    background-color: #013626;
+    color: #ffffff;
+    font-size: 9pt;
+    letter-spacing: 0.4px;
+    text-transform: uppercase;
+  }
+
+  .printFooter {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-top: 26px;
+    padding-top: 10px;
+    border-top: 1px solid #d1d5db;
+    font-size: 8.5pt;
+    color: #6b7280;
+  }
+}
+
+@media print {
+  @page {
+    margin: 16mm 15mm;
   }
 }
 </style>
