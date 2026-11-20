@@ -1,5 +1,5 @@
 <template>
-  <div :class="$style.page" :style="pageBackground">
+  <div :class="[$style.page, isGaborone ? $style.isGaborone : '']" :style="pageBackground">
     <!-- Reusable Stationary Sidebar (Pinned, never scrolls) -->
     <Main :active-page="'customers'" />
 
@@ -479,8 +479,13 @@
   import { usePageTheme } from "../composables/usePageTheme";
 
   const pageBackground = usePageTheme();
+  const isGaborone = ref(isGaboroneTheme());
+  onMounted(() => {
+    window.addEventListener(THEME_EVENT, () => (isGaborone.value = isGaboroneTheme()));
+  });
 
-import { ref, computed, useCssModule } from "vue";
+import { onMounted, ref, computed, useCssModule } from "vue";
+import { THEME_EVENT, isGaboroneTheme } from "../components/themes";
 import { useRoute } from "vue-router";
 import Main from "../components/Main.vue";
 
@@ -1806,6 +1811,20 @@ function mockPreviewDoc(docName: string) {
 
   .metricItem {
     flex: 1 1 40%;
+  }
+
+  /* Gaborone theme: white header text only on this preset. */
+  .isGaborone .dumelaMarion {
+    color: #ffffff;
+  }
+  .isGaborone .sunday4October {
+    color: #ffffff;
+  }
+  .isGaborone .sunday4October b {
+    color: #ffffff;
+  }
+  .isGaborone .marionlucas {
+    color: #ffffff;
   }
 }
 </style>

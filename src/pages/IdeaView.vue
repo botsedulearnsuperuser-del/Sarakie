@@ -1,5 +1,5 @@
 <template>
-  <div :class="$style.page" :style="pageBackground">
+  <div :class="[$style.page, isGaborone ? $style.isGaborone : '']" :style="pageBackground">
     <!-- Reusable Stationary Sidebar -->
     <Main :active-page="'dashboard'" />
 
@@ -573,8 +573,13 @@
   import { usePageTheme } from "../composables/usePageTheme";
 
   const pageBackground = usePageTheme();
+  const isGaborone = ref(isGaboroneTheme());
+  onMounted(() => {
+    window.addEventListener(THEME_EVENT, () => (isGaborone.value = isGaboroneTheme()));
+  });
 
-import { ref, computed, watch, nextTick, onMounted } from "vue";
+import { onMounted, ref, computed, watch, nextTick } from "vue";
+import { THEME_EVENT, isGaboroneTheme } from "../components/themes";
 import { useRoute } from "vue-router";
 import { useCssModule } from "vue";
 import Main from "../components/Main.vue";
@@ -2184,6 +2189,26 @@ function mockPreviewDoc(docName: string) {
   .dataValue {
     max-width: 58%;
     overflow-wrap: anywhere;
+  }
+
+  /* Gaborone theme: white header text only on this preset. */
+  .isGaborone .dumelaMarion {
+    color: #ffffff;
+  }
+  .isGaborone .sunday4October {
+    color: #ffffff;
+  }
+  .isGaborone .sunday4October b {
+    color: #ffffff;
+  }
+  .isGaborone .backLink {
+    color: #ffffff;
+  }
+  .isGaborone .navCurrent {
+    color: #ffffff;
+  }
+  .isGaborone .navDivider {
+    color: rgba(255, 255, 255, 0.6);
   }
 }
 </style>

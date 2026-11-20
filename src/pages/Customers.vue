@@ -1,5 +1,5 @@
 <template>
-  <div :class="$style.page" :style="pageBackground">
+  <div :class="[$style.page, isGaborone ? $style.isGaborone : '']" :style="pageBackground">
     <!-- Reusable Stationary Sidebar -->
     <Main :active-page="'customers'" />
 
@@ -368,8 +368,13 @@
   import { usePageTheme } from "../composables/usePageTheme";
 
   const pageBackground = usePageTheme();
+  const isGaborone = ref(isGaboroneTheme());
+  onMounted(() => {
+    window.addEventListener(THEME_EVENT, () => (isGaborone.value = isGaboroneTheme()));
+  });
 
-import { ref, computed } from "vue";
+import { onMounted, ref, computed } from "vue";
+import { THEME_EVENT, isGaboroneTheme } from "../components/themes";
 import { useRouter, type RouteLocationRaw } from "vue-router";
 import Main from "../components/Main.vue";
 import ChatWithAgent from "../components/ChatWithAgent.vue";
@@ -1482,6 +1487,20 @@ function openIdea(comment: FeedbackRecord) {
   .loansTable th:nth-child(5),
   .loansTable td:nth-child(5) {
     display: none;
+  }
+
+  /* Gaborone theme: white header text only on this preset. */
+  .isGaborone .dumelaMarion {
+    color: #ffffff;
+  }
+  .isGaborone .pWrap {
+    color: rgba(255, 255, 255, 0.9);
+  }
+  .isGaborone .sunday4October {
+    color: #ffffff;
+  }
+  .isGaborone .marionlucas {
+    color: #ffffff;
   }
 }
 </style>

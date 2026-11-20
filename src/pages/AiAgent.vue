@@ -1,5 +1,5 @@
 <template>
-  <div :class="$style.aiAgentPage" :style="pageBackground">
+  <div :class="[$style.aiAgentPage, isGaborone ? $style.isGaborone : '']" :style="pageBackground">
     <Main :active-page="'ai-agent'" />
     <main :class="$style.mainContent">
       <header :class="$style.div">
@@ -162,13 +162,18 @@
 </template>
 
 <script setup lang="ts">
-  import { nextTick, onBeforeUnmount, ref } from "vue"
+  import { nextTick, onBeforeUnmount, onMounted, ref } from "vue"
   import { useRouter } from "vue-router"
   import Main from "../components/Main.vue"
   import NotificationsPanel from "../components/NotificationsPanel.vue"
   import { usePageTheme } from "../composables/usePageTheme"
+import { THEME_EVENT, isGaboroneTheme } from "../components/themes"
 
   const pageBackground = usePageTheme()
+  const isGaborone = ref(isGaboroneTheme())
+  onMounted(() => {
+    window.addEventListener(THEME_EVENT, () => (isGaborone.value = isGaboroneTheme()))
+  })
 
   interface ChatMessage {
     role: "agent" | "user"
@@ -912,6 +917,14 @@
 
   .composerInput {
     font-size: 14px;
+  }
+
+  /* Gaborone theme: white header text only on this preset. */
+  .isGaborone .pageTitle {
+    color: #ffffff;
+  }
+  .isGaborone .pageSub {
+    color: #ffffff;
   }
 }
 </style>

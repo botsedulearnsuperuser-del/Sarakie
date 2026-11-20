@@ -1,5 +1,5 @@
 <template>
-  <div :class="$style.dashboardSample" :style="dashboardBackground">
+  <div :class="[$style.dashboardSample, isGaborone ? $style.isGaborone : '']" :style="dashboardBackground">
     <Main />
     <main :class="$style.mainContent">
       <header :class="$style.div">
@@ -285,6 +285,7 @@
     CUSTOM_IMAGE_STORAGE_KEY,
     CUSTOM_THEME_ID,
     dashboardThemes,
+    isGaboroneTheme,
     THEME_EVENT,
     THEME_STORAGE_KEY,
   } from "../components/themes"
@@ -292,6 +293,18 @@
 
   const activeTheme = ref<DashboardTheme | null>(null)
   const showNotifications = ref(false)
+  const isGaborone = ref(isGaboroneTheme())
+
+  function syncGaborone() {
+    isGaborone.value = isGaboroneTheme()
+  }
+  onMounted(() => {
+    syncGaborone()
+    window.addEventListener(THEME_EVENT, syncGaborone)
+  })
+  onBeforeUnmount(() => {
+    window.removeEventListener(THEME_EVENT, syncGaborone)
+  })
 
   function loadTheme() {
     const themeId = localStorage.getItem(THEME_STORAGE_KEY)
@@ -1995,5 +2008,19 @@
     .applicationsTracker {
       font-size: var(--fs-17);
     }
+  }
+
+  /* Gaborone theme: white header text only on this preset. */
+  .isGaborone .dumelaMarion {
+    color: #ffffff;
+  }
+  .isGaborone .p {
+    color: rgba(255, 255, 255, 0.9);
+  }
+  .isGaborone .sunday4October {
+    color: #ffffff;
+  }
+  .isGaborone .marionLucas {
+    color: #ffffff;
   }
 </style>

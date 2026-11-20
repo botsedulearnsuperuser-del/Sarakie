@@ -1,5 +1,5 @@
 <template>
-  <div :class="$style.page" :style="pageBackground">
+  <div :class="[$style.page, isGaborone ? $style.isGaborone : '']" :style="pageBackground">
     <Main />
 
     <main :class="$style.mainContent">
@@ -78,13 +78,18 @@
           </section>
 
           <article v-for="(entry, index) in faqs" :key="entry.question" :class="$style.entry">
-            <div :class="$style.entryHead">
-              <span :class="$style.entryIndex">
-                Question {{ String(index + 1).padStart(2, "0") }}
+            <button type="button" :class="$style.entryToggle" @click="toggle(index)" :aria-expanded="opened[index]">
+              <div :class="$style.entryHead">
+                <span :class="$style.entryIndex">
+                  Question {{ String(index + 1).padStart(2, "0") }}
+                </span>
+                <h3 :class="$style.question">{{ entry.question }}</h3>
+              </div>
+              <span :class="[$style.chevron, opened[index] ? $style.chevronOpen : '']" aria-hidden="true">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
               </span>
-              <h3 :class="$style.question">{{ entry.question }}</h3>
-            </div>
-            <div :class="$style.answer">
+            </button>
+            <div v-show="opened[index]" :class="$style.answer">
               <span :class="$style.answerLabel">Answer</span>
               <p v-for="paragraph in entry.answer" :key="paragraph" :class="$style.answerText">
                 {{ paragraph }}
@@ -113,12 +118,17 @@
 </template>
 
 <script setup lang="ts">
-  import { onMounted, watch } from "vue";
+  import { onMounted, ref, watch } from "vue";
   import { useRoute } from "vue-router";
   import Main from "../components/Main.vue";
   import { usePageTheme } from "../composables/usePageTheme";
+import { THEME_EVENT, isGaboroneTheme } from "../components/themes"
 
   const pageBackground = usePageTheme();
+  const isGaborone = ref(isGaboroneTheme());
+  onMounted(() => {
+    window.addEventListener(THEME_EVENT, () => (isGaborone.value = isGaboroneTheme()));
+  });
   const route = useRoute();
 
   function scrollToRubric() {
@@ -243,6 +253,11 @@ const faqs: FaqEntry[] = [
     ],
   },
 ];
+
+const opened = ref<boolean[]>(faqs.map(() => false));
+function toggle(index: number) {
+  opened.value[index] = !opened.value[index];
+}
 </script>
 
 <style module>
@@ -409,6 +424,38 @@ const faqs: FaqEntry[] = [
   padding-bottom: 24px;
   margin-bottom: 24px;
   border-bottom: 1px solid #f1ede5;
+}
+
+.entryToggle {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+  text-align: left;
+  font-family: inherit;
+}
+
+.entryToggle:hover .question {
+  color: var(--color-goldenrod-300);
+}
+
+.chevron {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-darkslategray-500);
+  transition: transform 0.2s ease;
+}
+
+.chevronOpen {
+  transform: rotate(180deg);
 }
 
 .entry:last-of-type {
@@ -701,5 +748,12 @@ const faqs: FaqEntry[] = [
     letter-spacing: -0.4px;
   }
 
+  /* Gaborone theme: white header text only on this preset. */
+  .isGaborone .dumelaMarion {
+    color: #ffffff;
+  }
+  .isGaborone .p {
+    color: rgba(255, 255, 255, 0.9);
+  }
 }
 </style>

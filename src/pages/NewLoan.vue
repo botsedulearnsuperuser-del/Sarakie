@@ -1,5 +1,5 @@
 <template>
-  <div :class="$style.page" :style="pageBackground">
+  <div :class="[$style.page, isGaborone ? $style.isGaborone : '']" :style="pageBackground">
     <!-- Reusable Stationary Sidebar -->
     <Main :active-page="'dashboard'" />
 
@@ -494,8 +494,14 @@
   import { usePageTheme } from "../composables/usePageTheme";
 
   const pageBackground = usePageTheme();
+  const isGaborone = ref(isGaboroneTheme());
+  onMounted(() => {
+    window.addEventListener(THEME_EVENT, () => (isGaborone.value = isGaboroneTheme()));
+  });
 
-import { ref, computed } from "vue";
+import { onMounted, ref, computed } from "vue";
+import { THEME_EVENT, isGaboroneTheme } from "../components/themes";
+
 import Main from "../components/Main.vue";
 import GhostBuddy from "../components/GhostBuddy.vue";
 
@@ -1845,6 +1851,14 @@ function resetForm() {
 
   .uploadZone {
     padding: 20px 14px;
+  }
+
+  /* Gaborone theme: white header text only on this preset. */
+  .isGaborone .pageTitle {
+    color: #ffffff;
+  }
+  .isGaborone .pageSub {
+    color: #ffffff;
   }
 }
 </style>

@@ -1,5 +1,5 @@
 <template>
-  <div :class="$style.page" :style="pageBackground">
+  <div :class="[$style.page, isGaborone ? $style.isGaborone : '']" :style="pageBackground">
     <!-- Reusable Stationary Sidebar -->
     <Main />
 
@@ -281,8 +281,13 @@
   import { usePageTheme } from "../composables/usePageTheme";
 
   const pageBackground = usePageTheme();
+  const isGaborone = ref(isGaboroneTheme());
+  onMounted(() => {
+    window.addEventListener(THEME_EVENT, () => (isGaborone.value = isGaboroneTheme()));
+  });
 
-import { ref } from "vue";
+import { onMounted, ref } from "vue";
+import { THEME_EVENT, isGaboroneTheme } from "../components/themes";
 import Main from "../components/Main.vue";
 import ChatWithAgent from "../components/ChatWithAgent.vue";
 
@@ -1063,8 +1068,18 @@ function removeMember(id: number) {
     border-radius: 16px;
   }
 
-
-
-
+  /* Gaborone theme: white header text only on this preset. */
+  .isGaborone .dumelaMarion {
+    color: #ffffff;
+  }
+  .isGaborone .pWrap {
+    color: rgba(255, 255, 255, 0.9);
+  }
+  .isGaborone .sunday4October {
+    color: #ffffff;
+  }
+  .isGaborone .marionlucas {
+    color: #ffffff;
+  }
 }
 </style>

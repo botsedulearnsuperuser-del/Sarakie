@@ -1,5 +1,5 @@
 <template>
-  <div :class="$style.page" :style="pageBackground">
+  <div :class="[$style.page, isGaborone ? $style.isGaborone : '']" :style="pageBackground">
     <!-- Reusable Stationary Sidebar -->
     <Main :active-page="'admin-profile'" />
 
@@ -494,8 +494,13 @@
   import { usePageTheme } from "../composables/usePageTheme";
 
   const pageBackground = usePageTheme();
+  const isGaborone = ref(isGaboroneTheme());
+  onMounted(() => {
+    window.addEventListener(THEME_EVENT, () => (isGaborone.value = isGaboroneTheme()));
+  });
 
-import { ref, computed, useCssModule } from "vue";
+import { onMounted, ref, computed, useCssModule } from "vue";
+import { THEME_EVENT, isGaboroneTheme } from "../components/themes";
 import Main from "../components/Main.vue";
 import ChatWithAgent from "../components/ChatWithAgent.vue";
 
@@ -1868,6 +1873,20 @@ function getActionClass(type: string) {
 
   .auditTableWrap {
     overflow-x: auto;
+  }
+
+  /* Gaborone theme: white header text only on this preset. */
+  .isGaborone .pageTitle {
+    color: #ffffff;
+  }
+  .isGaborone .pageSub {
+    color: #ffffff;
+  }
+  .isGaborone .profileName {
+    color: #ffffff;
+  }
+  .isGaborone .profileSub {
+    color: rgba(255, 255, 255, 0.9);
   }
 }
 </style>

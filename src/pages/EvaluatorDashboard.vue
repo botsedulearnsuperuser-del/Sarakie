@@ -1,5 +1,5 @@
 <template>
-  <div :class="$style.evaluatorDashboard" :style="dashboardBackground">
+  <div :class="[$style.evaluatorDashboard, isGaborone ? $style.isGaborone : '']" :style="dashboardBackground">
     <Main :active-page="'evaluator'" />
     <main :class="$style.mainContent">
       <header :class="$style.div">
@@ -254,6 +254,7 @@
     CUSTOM_IMAGE_STORAGE_KEY,
     CUSTOM_THEME_ID,
     dashboardThemes,
+    isGaboroneTheme,
     THEME_EVENT,
     THEME_STORAGE_KEY,
   } from "../components/themes"
@@ -438,6 +439,18 @@
 
   // Dashboard background theme, shared with the innovator dashboard.
   const activeTheme = ref<DashboardTheme | null>(null)
+  const isGaborone = ref(isGaboroneTheme())
+
+  function syncGaborone() {
+    isGaborone.value = isGaboroneTheme()
+  }
+  onMounted(() => {
+    syncGaborone()
+    window.addEventListener(THEME_EVENT, syncGaborone)
+  })
+  onBeforeUnmount(() => {
+    window.removeEventListener(THEME_EVENT, syncGaborone)
+  })
 
   function loadTheme() {
     const themeId = localStorage.getItem(THEME_STORAGE_KEY)
@@ -1385,4 +1398,18 @@
     font-size: 12.5px;
   }
 }
+
+  /* Gaborone theme: white header text only on this preset. */
+  .isGaborone .dumelaMarion {
+    color: #ffffff;
+  }
+  .isGaborone .p {
+    color: rgba(255, 255, 255, 0.9);
+  }
+  .isGaborone .sunday4October {
+    color: #ffffff;
+  }
+  .isGaborone .marionlucas {
+    color: #ffffff;
+  }
 </style>
