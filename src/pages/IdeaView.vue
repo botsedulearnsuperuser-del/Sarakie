@@ -2060,4 +2060,130 @@ function mockPreviewDoc(docName: string) {
     margin: 16mm 15mm;
   }
 }
+
+/* ── Mobile ── */
+@media screen and (max-width: 760px) {
+  .page {
+    display: block;
+    width: 100%;
+    height: auto;
+    min-height: 100vh;
+    overflow: visible;
+  }
+
+  .mainContent {
+    height: auto;
+    min-height: 100vh;
+    overflow: visible;
+    padding: 68px 14px 40px;
+    box-sizing: border-box;
+  }
+
+  .div {
+    flex-direction: column-reverse;
+    align-items: stretch;
+    row-gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  .div2 {
+    width: 100%;
+  }
+
+  .div3 {
+    width: 100%;
+    height: auto;
+    justify-content: flex-end;
+    gap: 8px;
+  }
+
+  .dumelaMarion {
+    font-size: 26px;
+    line-height: 1.15;
+    letter-spacing: -0.4px;
+  }
+
+  .sunday4October {
+    font-size: 14px;
+    line-height: 1.45;
+  }
+
+  .balanceBanner {
+    padding: 20px 16px 22px;
+    border-radius: 16px 16px 0 0;
+  }
+
+  .cardContainer {
+    border-radius: 16px;
+  }
+
+
+  .filterPill {
+    padding: 8px 12px;
+    font-size: 12.5px;
+  }
+
+
+
+  .actionBtns {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+
+  .actionSolidBtn,
+  .actionOutlineBtn {
+    flex: 1;
+    justify-content: center;
+  }
+
+  .bannerTags {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .metricsStrip {
+    gap: 14px 20px;
+    padding: 12px 16px;
+    width: 100%;
+    box-sizing: border-box;
+  }
+}
+
+@media screen and (max-width: 760px) {
+  .actionBar {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .navRow {
+    flex-wrap: wrap;
+    row-gap: 2px;
+  }
+
+  .navCurrent {
+    white-space: nowrap;
+  }
+
+  .sunday4October {
+    white-space: normal;
+    overflow-wrap: break-word;
+  }
+
+  .tabsRow,
+  .tabBar {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .dataRow {
+    gap: 12px;
+  }
+
+  .dataValue {
+    max-width: 58%;
+    overflow-wrap: anywhere;
+  }
+}
 </style>

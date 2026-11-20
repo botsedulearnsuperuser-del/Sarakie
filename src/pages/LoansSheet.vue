@@ -1254,4 +1254,114 @@ const getStatusClass = (status: string) => {
     padding-top: 64px;
   }
 }
+
+/* ── Mobile ── */
+@media screen and (max-width: 760px) {
+  .page {
+    display: block;
+    width: 100%;
+    height: auto;
+    min-height: 100vh;
+    overflow: visible;
+  }
+
+  .mainContent {
+    height: auto;
+    min-height: 100vh;
+    overflow: visible;
+    padding: 68px 14px 40px;
+    box-sizing: border-box;
+  }
+
+  .div {
+    flex-direction: column-reverse;
+    align-items: stretch;
+    row-gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  .div2 {
+    width: 100%;
+  }
+
+  .div3 {
+    width: 100%;
+    height: auto;
+    justify-content: flex-end;
+    gap: 8px;
+  }
+
+  .dumelaMarion {
+    font-size: 26px;
+    line-height: 1.15;
+    letter-spacing: -0.4px;
+  }
+
+  .sunday4October {
+    font-size: 14px;
+    line-height: 1.45;
+  }
+
+  .balanceBanner {
+    padding: 20px 16px 22px;
+    border-radius: 16px 16px 0 0;
+  }
+
+  .cardContainer {
+    border-radius: 16px;
+  }
+
+  .filtersRow {
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+
+  .filterPill {
+    padding: 8px 12px;
+    font-size: 12.5px;
+  }
+
+  .loansTable {
+    min-width: 520px;
+  }
+
+
+  .bannerPattern {
+    width: 92px;
+    opacity: 0.6;
+  }
+
+  .termToggleGroup {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+}
+
+@media screen and (max-width: 760px) {
+  .loansTable {
+    min-width: 0;
+  }
+
+  .loansTable thead th {
+    padding: 8px 6px 10px;
+    font-size: 10.5px;
+    letter-spacing: 0.3px;
+  }
+
+  .tableRow td {
+    padding: 12px 6px;
+    font-size: 12.5px;
+  }
+
+  .loansTable th:nth-child(3),
+  .loansTable td:nth-child(3) {
+    display: none;
+  }
+
+  .bannerTags,
+  .termToggleGroup {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+}
 </style>

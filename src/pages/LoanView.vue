@@ -1652,4 +1652,160 @@ function mockPreviewDoc(docName: string) {
     padding-top: 64px;
   }
 }
+
+/* ── Mobile ── */
+@media screen and (max-width: 760px) {
+  .page {
+    display: block;
+    width: 100%;
+    height: auto;
+    min-height: 100vh;
+    overflow: visible;
+  }
+
+  .mainContent {
+    height: auto;
+    min-height: 100vh;
+    overflow: visible;
+    padding: 68px 14px 40px;
+    box-sizing: border-box;
+  }
+
+  .div {
+    flex-direction: column-reverse;
+    align-items: stretch;
+    row-gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  .div2 {
+    width: 100%;
+  }
+
+  .div3 {
+    width: 100%;
+    height: auto;
+    justify-content: flex-end;
+    gap: 8px;
+  }
+
+  .dumelaMarion {
+    font-size: 26px;
+    line-height: 1.15;
+    letter-spacing: -0.4px;
+  }
+
+  .sunday4October {
+    font-size: 14px;
+    line-height: 1.45;
+  }
+
+  .balanceBanner {
+    padding: 20px 16px 22px;
+    border-radius: 16px 16px 0 0;
+  }
+
+  .cardContainer {
+    border-radius: 16px;
+  }
+
+
+  .filterPill {
+    padding: 8px 12px;
+    font-size: 12.5px;
+  }
+
+  .loansTable {
+    min-width: 520px;
+  }
+
+
+  .actionBtns {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+
+  .actionSolidBtn,
+  .actionOutlineBtn {
+    flex: 1;
+    justify-content: center;
+    white-space: nowrap;
+  }
+
+  .bannerPattern {
+    width: 92px;
+    opacity: 0.6;
+  }
+
+  .loansTable {
+    min-width: 540px;
+  }
+}
+
+@media screen and (max-width: 760px) {
+  .actionBar {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .navRow {
+    flex-wrap: wrap;
+    row-gap: 2px;
+    white-space: normal;
+  }
+
+  .navCurrent {
+    white-space: nowrap;
+  }
+
+  .unifiedInfoContainer {
+    grid-template-columns: 1fr;
+    gap: 16px;
+    padding: 16px;
+  }
+
+  .unifiedColDivider {
+    width: 100%;
+    height: 1px;
+  }
+
+  .loansTable {
+    min-width: 0;
+  }
+
+  .loansTable thead th {
+    padding: 8px 6px 10px;
+    font-size: 10.5px;
+    letter-spacing: 0.3px;
+  }
+
+  .tableRow td {
+    padding: 12px 6px;
+    font-size: 12.5px;
+  }
+
+  .loansTable th:nth-child(3),
+  .loansTable td:nth-child(3),
+  .loansTable th:nth-child(4),
+  .loansTable td:nth-child(4),
+  .loansTable th:nth-child(7),
+  .loansTable td:nth-child(7) {
+    display: none;
+  }
+
+  .metricsStrip {
+    flex-wrap: wrap;
+    gap: 14px 18px;
+    padding: 14px 16px;
+  }
+
+  .metricDivider {
+    display: none;
+  }
+
+  .metricItem {
+    flex: 1 1 40%;
+  }
+}
 </style>

@@ -439,9 +439,16 @@
           <div :class="$style.summaryCard">
             <img src="/pattern-2.webp" :class="$style.patternWatermark" alt="" />
             <div :class="$style.summaryCardInner">
-              <span :class="$style.summaryLabel">Customer idea</span>
-              <div :class="$style.summaryAmount">P {{ requestedAmount || 0 }}</div>
-              <div :class="$style.summaryPurpose">{{ selectedIdea }}, {{ selectedSector }}</div>
+              <div :class="$style.summaryTop">
+                <div :class="$style.summaryTopText">
+                  <span :class="$style.summaryLabel">Customer idea</span>
+                  <div :class="$style.summaryAmount">P {{ requestedAmount || 0 }}</div>
+                  <div :class="$style.summaryPurpose">
+                    {{ selectedIdea || "Untitled idea" }}, {{ selectedSector }}
+                  </div>
+                </div>
+                <GhostBuddy :step="currentStep" :confirmed="ideaAuthorization" />
+              </div>
               <div :class="$style.summaryDivider"></div>
               <div :class="$style.summaryRows">
                 <div :class="$style.summaryRow">
@@ -490,6 +497,7 @@
 
 import { ref, computed } from "vue";
 import Main from "../components/Main.vue";
+import GhostBuddy from "../components/GhostBuddy.vue";
 
 const steps = ["Idea overview", "Innovator details", "Contact & address", "Field / Industry", "Supporting documents", "Submission"];
 const currentStep = ref(1);
@@ -1476,6 +1484,18 @@ function resetForm() {
   z-index: 1;
 }
 
+.summaryTop {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.summaryTopText {
+  flex: 1;
+  min-width: 0;
+}
+
 .summaryLabel {
   font-size: 12px;
   font-weight: 700;
@@ -1694,4 +1714,137 @@ function resetForm() {
   box-shadow: 0 4px 14px rgba(15, 46, 36, 0.25);
 }
 
+
+/* ── Mobile ── */
+@media screen and (max-width: 760px) {
+  .page {
+    display: block;
+    width: 100%;
+    height: auto;
+    min-height: 100vh;
+    overflow: visible;
+  }
+
+  .mainContent {
+    height: auto;
+    min-height: 100vh;
+    overflow: visible;
+    padding: 68px 14px 40px;
+    box-sizing: border-box;
+  }
+
+  .topBar {
+    flex-direction: column-reverse;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .topBarLeft {
+    width: 100%;
+  }
+
+  .topBarRight {
+    width: 100%;
+    justify-content: flex-end;
+  }
+
+  .pageTitle {
+    font-size: 26px;
+    line-height: 1.15;
+  }
+
+  .pageSub {
+    font-size: 14px;
+    line-height: 1.45;
+  }
+
+  .stepsBar {
+    border-radius: 16px;
+    padding: 6px 8px;
+    justify-content: flex-start;
+    gap: 4px;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .step {
+    padding: 8px 10px;
+  }
+
+  .stepLabel {
+    font-size: 12.5px;
+  }
+
+  .contentArea {
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .formSection {
+    width: 100%;
+    order: 1;
+  }
+
+}
+
+@media screen and (max-width: 760px) {
+  .contentArea {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 16px;
+  }
+
+  .formSection {
+    padding: 20px 16px;
+    border-radius: 18px;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .stepsBar {
+    width: 100%;
+    box-sizing: border-box;
+    border-radius: 14px;
+    scrollbar-width: none;
+  }
+
+  .stepsBar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .summaryAside {
+    width: 100%;
+    flex-shrink: 1;
+    order: 2;
+  }
+
+  .formGrid2 {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .formGrid3 {
+    grid-template-columns: 1fr;
+  }
+
+  .fieldRow {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .pageActions,
+  .formActions {
+    flex-direction: column-reverse;
+    gap: 10px;
+  }
+
+  .primaryBtn,
+  .secondaryBtn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .uploadZone {
+    padding: 20px 14px;
+  }
+}
 </style>

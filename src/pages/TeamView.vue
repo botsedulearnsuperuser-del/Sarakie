@@ -1010,4 +1010,61 @@ function removeMember(id: number) {
 .confirmDoneBtn:hover {
   background-color: var(--color-darkslategray-600);
 }
+
+/* ── Mobile ── */
+@media screen and (max-width: 760px) {
+  .page {
+    display: block;
+    width: 100%;
+    height: auto;
+    min-height: 100vh;
+    overflow: visible;
+  }
+
+  .mainContent {
+    height: auto;
+    min-height: 100vh;
+    overflow: visible;
+    padding: 68px 14px 40px;
+    box-sizing: border-box;
+  }
+
+  .div {
+    flex-direction: column-reverse;
+    align-items: stretch;
+    row-gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  .div2 {
+    width: 100%;
+  }
+
+  .div3 {
+    width: 100%;
+    height: auto;
+    justify-content: flex-end;
+    gap: 8px;
+  }
+
+  .dumelaMarion {
+    font-size: 26px;
+    line-height: 1.15;
+    letter-spacing: -0.4px;
+  }
+
+  .sunday4October {
+    font-size: 14px;
+    line-height: 1.45;
+  }
+
+
+  .cardContainer {
+    border-radius: 16px;
+  }
+
+
+
+
+}
 </style>

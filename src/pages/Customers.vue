@@ -758,7 +758,7 @@ function openIdea(comment: FeedbackRecord) {
   border-radius: 20px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
   overflow: hidden;
-  border: 1px solid #ede9e1;
+  border: 1px solid var(--color-darkslategray-500);
   padding-bottom: 24px;
 }
 
@@ -801,8 +801,9 @@ function openIdea(comment: FeedbackRecord) {
 }
 
 .termBadge {
-  border: 1.5px solid var(--color-goldenrod-200);
-  color: var(--color-goldenrod-200);
+  border: 1.5px solid var(--color-darkslategray-500);
+  color: var(--color-darkslategray-500);
+  background-color: #ffffff;
   border-radius: 9999px;
   padding: 6px 16px;
   font-size: 13px;
@@ -1222,8 +1223,9 @@ function openIdea(comment: FeedbackRecord) {
 }
 
 .popupTermBadge {
-  border: 1.5px solid var(--color-goldenrod-200);
-  color: var(--color-goldenrod-200);
+  border: 1.5px solid var(--color-darkslategray-500);
+  color: var(--color-darkslategray-500);
+  background-color: #ffffff;
   border-radius: 9999px;
   padding: 4px 12px;
   font-size: 11.5px;
@@ -1374,6 +1376,112 @@ function openIdea(comment: FeedbackRecord) {
 @media screen and (max-width: 1050px) {
   .mainContent {
     padding-top: 64px;
+  }
+}
+
+/* ── Mobile ── */
+@media screen and (max-width: 760px) {
+  .page {
+    display: block;
+    width: 100%;
+    height: auto;
+    min-height: 100vh;
+    overflow: visible;
+  }
+
+  .mainContent {
+    height: auto;
+    min-height: 100vh;
+    overflow: visible;
+    padding: 68px 14px 40px;
+    box-sizing: border-box;
+  }
+
+  .div {
+    flex-direction: column-reverse;
+    align-items: stretch;
+    row-gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  .div2 {
+    width: 100%;
+  }
+
+  .div3 {
+    width: 100%;
+    height: auto;
+    justify-content: flex-end;
+    gap: 8px;
+  }
+
+  .dumelaMarion {
+    font-size: 26px;
+    line-height: 1.15;
+    letter-spacing: -0.4px;
+  }
+
+  .sunday4October {
+    font-size: 14px;
+    line-height: 1.45;
+  }
+
+  .balanceBanner {
+    padding: 20px 16px 22px;
+    border-radius: 16px 16px 0 0;
+  }
+
+  .cardContainer {
+    border-radius: 16px;
+  }
+
+  .filtersRow {
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+
+  .filterPill {
+    padding: 8px 12px;
+    font-size: 12.5px;
+  }
+
+  .loansTable {
+    min-width: 520px;
+  }
+
+
+  .bannerPattern {
+    width: 92px;
+    opacity: 0.6;
+  }
+}
+
+@media screen and (max-width: 760px) {
+  .loansTable {
+    min-width: 470px;
+  }
+
+  .tableResponsive {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .loansTable thead th {
+    padding: 8px 6px 10px;
+    font-size: 10.5px;
+    letter-spacing: 0.3px;
+  }
+
+  .tableRow td {
+    padding: 12px 6px;
+    font-size: 12.5px;
+  }
+
+  .loansTable th:nth-child(2),
+  .loansTable td:nth-child(2),
+  .loansTable th:nth-child(5),
+  .loansTable td:nth-child(5) {
+    display: none;
   }
 }
 </style>

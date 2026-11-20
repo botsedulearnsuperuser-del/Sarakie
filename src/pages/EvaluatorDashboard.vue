@@ -1335,4 +1335,54 @@
       justify-content: center;
     }
   }
+
+@media screen and (max-width: 760px) {
+  .evaluatorDashboard {
+    display: block;
+    width: 100%;
+    height: auto;
+    min-height: 100vh;
+    overflow: visible;
+  }
+
+  .mainContent {
+    height: auto;
+    min-height: 100vh;
+    overflow: visible;
+    padding: 68px 14px 32px;
+    gap: 14px;
+  }
+
+  .reviewLoadCard {
+    flex-direction: column;
+    padding: 18px 16px;
+    border-radius: 18px;
+    min-height: 0;
+    gap: 14px;
+  }
+
+  .rubricCard {
+    padding: 18px 16px;
+    border-radius: 18px;
+  }
+
+  .rubricPhotoArea {
+    min-height: 140px;
+  }
+
+  .tableWrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .table {
+    min-width: 560px;
+  }
+
+  .table th,
+  .table td {
+    padding: 10px 8px;
+    font-size: 12.5px;
+  }
+}
 </style>

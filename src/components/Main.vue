@@ -1,15 +1,33 @@
 <template>
   <div :class="$style.wrapper">
-    <button
-      :class="$style.hamburger"
-      type="button"
-      aria-label="Toggle navigation menu"
-      @click="mobileOpen = !mobileOpen"
-    >
-      <span></span>
-      <span></span>
-      <span></span>
-    </button>
+    <div :class="$style.mobileBar">
+      <button
+        :class="$style.hamburger"
+        type="button"
+        aria-label="Toggle navigation menu"
+        :aria-expanded="mobileOpen"
+        @click="mobileOpen = !mobileOpen"
+      >
+        <svg
+          :class="$style.hamburgerIcon"
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          aria-hidden="true"
+          focusable="false"
+        >
+          <path d="M0 0h24v24H0z" fill="none" />
+          <path
+            fill="none"
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M12 17h7M5 12h14M5 7h14"
+          />
+        </svg>
+      </button>
+      <img :class="$style.mobileBarPattern" src="/pattern-2.webp" alt="" />
+    </div>
     <div v-if="mobileOpen" :class="$style.backdrop" @click="mobileOpen = false" />
     <section :class="[$style.main, mobileOpen ? $style.open : '']">
     <img
@@ -17,7 +35,7 @@
       alt=""
       src="/pattern-2.webp"
     />
-    <img :class="$style.aIcon" alt="" src="/a.webp" />
+    <img :class="$style.aIcon" alt="CEDA" src="/ceda-logo-white-strong.webp" />
     <div :class="$style.divsideItems">
       <div
         :class="activePage === 'dashboard' ? $style.asideLink : $style.asideLink2"
@@ -373,13 +391,13 @@
     overflow: hidden;
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
+    justify-content: flex-start;
     align-items: stretch;
-    padding: 40px 16px 24px;
+    padding: 24px 16px 24px;
     box-sizing: border-box;
     border-radius: 0 20px 0 0;
     isolation: isolate;
-    gap: 28px;
+    gap: 20px;
     flex-shrink: 0;
     text-align: left;
     font-size: var(--fs-15);
@@ -402,13 +420,13 @@
     flex-shrink: 0;
   }
   .aIcon {
-    align-self: stretch;
-    height: 47.5px;
-    position: relative;
-    max-width: 100%;
-    overflow: hidden;
+    align-self: center;
+    width: 100%;
+    max-width: 118px;
+    margin-bottom: 0;
+    height: auto;
     flex-shrink: 0;
-    object-fit: cover;
+    object-fit: contain;
     z-index: 1;
   }
   .sarakieCashLoan {
@@ -471,7 +489,7 @@
   }
   .divsideHelpmargin {
     align-self: stretch;
-    margin-top: auto;
+    margin-top: 12px;
     height: auto;
     display: flex;
     flex-direction: column;
@@ -479,7 +497,7 @@
     justify-content: flex-end;
     padding: 0;
     box-sizing: border-box;
-    gap: 20px;
+    gap: 12px;
     z-index: 3;
     flex-shrink: 0;
   }
@@ -602,37 +620,58 @@
     color: var(--color-gainsboro);
   }
 
-  .hamburger {
+  .mobileBar {
     display: none;
     position: fixed;
-    top: 14px;
-    left: 14px;
-    z-index: 1100;
-    width: 42px;
-    height: 42px;
-    border: none;
-    border-radius: 12px;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 56px;
     background-color: var(--color-darkslategray-500);
+    z-index: 1090;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 0 0 0 2px;
+    box-sizing: border-box;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.14);
+    overflow: hidden;
+  }
+  .mobileBarPattern {
+    width: 62px;
+    height: 100%;
+    flex-shrink: 0;
+    object-fit: cover;
+    object-position: center;
+    opacity: 0.9;
+    mix-blend-mode: screen;
+    pointer-events: none;
+  }
+  .hamburger {
+    display: none;
+    width: 44px;
+    height: 44px;
+    border: none;
+    background: transparent;
+    color: #ffffff;
     cursor: pointer;
-    flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 5px;
     padding: 0;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
   }
-  .hamburger span {
+  .hamburgerIcon {
+    width: 28px;
+    height: 28px;
     display: block;
-    width: 20px;
-    height: 2px;
-    background-color: var(--color-white);
-    border-radius: 2px;
   }
   .backdrop {
     display: none;
   }
 
   @media screen and (max-width: 1050px) {
+    .mobileBar {
+      display: flex;
+    }
     .hamburger {
       display: flex;
     }
@@ -660,6 +699,7 @@
     }
     .main {
       width: 200px;
+      padding-top: 68px;
     }
   }
 
@@ -786,6 +826,44 @@
     to {
       opacity: 0;
       transform: translateY(12px) scale(0.96);
+    }
+  }
+
+  @media screen and (max-width: 600px) {
+    .toast {
+      left: 10px;
+      right: 10px;
+      bottom: 10px;
+      width: auto;
+      max-width: none;
+      padding: 12px 14px;
+      gap: 10px;
+      border-radius: 14px;
+    }
+
+    .toastIcon {
+      width: 34px;
+      height: 34px;
+    }
+
+    .toastIcon svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    .toastTitle {
+      font-size: 13px;
+    }
+
+    .toastMessage {
+      font-size: 12.5px;
+      line-height: 1.35;
+    }
+
+    .toastActionBtn {
+      height: 32px;
+      padding: 0 12px;
+      font-size: 12.5px;
     }
   }
 </style>

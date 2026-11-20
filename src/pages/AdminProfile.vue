@@ -1241,8 +1241,8 @@ function getActionClass(type: string) {
 }
 
 .auditBadge {
-  background-color: #fef3cd;
-  color: #856404;
+  background-color: #e8f0ea;
+  color: var(--color-darkslategray-500);
   font-size: 11px;
   font-weight: 700;
   padding: 4px 12px;
@@ -1744,6 +1744,130 @@ function getActionClass(type: string) {
 @media screen and (max-width: 1050px) {
   .mainContent {
     padding-top: 64px;
+  }
+}
+
+/* ── Mobile ── */
+@media screen and (max-width: 760px) {
+  .page {
+    display: block;
+    width: 100%;
+    height: auto;
+    min-height: 100vh;
+    overflow: visible;
+  }
+
+  .mainContent {
+    height: auto;
+    min-height: 100vh;
+    overflow: visible;
+    padding: 68px 14px 40px;
+    box-sizing: border-box;
+  }
+
+  .topBar {
+    flex-direction: column-reverse;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .topBarLeft {
+    width: 100%;
+  }
+
+  .topBarRight {
+    width: 100%;
+    justify-content: flex-end;
+  }
+
+  .pageTitle {
+    font-size: 26px;
+    line-height: 1.15;
+  }
+
+  .pageSub {
+    font-size: 14px;
+    line-height: 1.45;
+  }
+
+  .profileBanner {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 20px 16px;
+    gap: 16px;
+  }
+
+  .bannerLeft {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .statWidget {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 14px 16px;
+    gap: 14px;
+    flex-wrap: wrap;
+    justify-content: space-between;
+  }
+
+}
+
+@media screen and (max-width: 760px) {
+  .cardsGrid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 14px;
+  }
+
+  .card {
+    width: 100%;
+    min-width: 0;
+    padding: 18px 16px;
+  }
+
+  .auditTable {
+    overflow-x: auto;
+    scrollbar-width: thin;
+  }
+
+  .auditColIP {
+    display: none;
+  }
+
+  .auditColAction {
+    width: 112px;
+    min-width: 112px;
+  }
+
+  .auditColDetails {
+    min-width: 130px;
+  }
+
+  .cardHeader {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .cardBody {
+    padding: 0;
+  }
+
+  .fieldGrid,
+  .formGrid2 {
+    grid-template-columns: 1fr;
+  }
+
+  .profileName {
+    font-size: 22px;
+  }
+
+  .auditSection {
+    padding: 18px 16px;
+  }
+
+  .auditTableWrap {
+    overflow-x: auto;
   }
 }
 </style>

@@ -876,4 +876,42 @@
       border-radius: 20px;
     }
   }
+
+@media screen and (max-width: 760px) {
+  .aiAgentPage {
+    display: block;
+    width: 100%;
+    height: auto;
+    min-height: 100vh;
+    overflow: visible;
+  }
+
+  .mainContent {
+    height: auto;
+    min-height: 100vh;
+    overflow: visible;
+    padding: 68px 14px 32px;
+    gap: 14px;
+  }
+
+  .tipCard {
+    padding: 16px;
+    border-radius: 18px;
+  }
+
+  .chatCard {
+    border-radius: 18px;
+    min-height: 0;
+  }
+
+  .composer {
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 10px;
+  }
+
+  .composerInput {
+    font-size: 14px;
+  }
+}
 </style>
