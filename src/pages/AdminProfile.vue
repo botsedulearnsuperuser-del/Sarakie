@@ -1874,19 +1874,19 @@ function getActionClass(type: string) {
   .auditTableWrap {
     overflow-x: auto;
   }
+}
 
-  /* Gaborone theme: white header text only on this preset. */
-  .isGaborone .pageTitle {
-    color: #ffffff;
-  }
-  .isGaborone .pageSub {
-    color: #ffffff;
-  }
-  .isGaborone .profileName {
-    color: #ffffff;
-  }
-  .isGaborone .profileSub {
-    color: rgba(255, 255, 255, 0.9);
-  }
+/* Gaborone theme: white header text only on this preset. */
+.isGaborone .pageTitle {
+  color: #ffffff;
+}
+.isGaborone .pageSub {
+  color: #ffffff;
+}
+.isGaborone .profileName {
+  color: #ffffff;
+}
+.isGaborone .profileSub {
+  color: rgba(255, 255, 255, 0.9);
 }
 </style>

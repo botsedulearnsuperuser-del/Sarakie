@@ -1812,19 +1812,19 @@ function mockPreviewDoc(docName: string) {
   .metricItem {
     flex: 1 1 40%;
   }
+}
 
-  /* Gaborone theme: white header text only on this preset. */
-  .isGaborone .dumelaMarion {
-    color: #ffffff;
-  }
-  .isGaborone .sunday4October {
-    color: #ffffff;
-  }
-  .isGaborone .sunday4October b {
-    color: #ffffff;
-  }
-  .isGaborone .marionlucas {
-    color: #ffffff;
-  }
+/* Gaborone theme: white header text only on this preset. */
+.isGaborone .dumelaMarion {
+  color: #ffffff;
+}
+.isGaborone .sunday4October {
+  color: #ffffff;
+}
+.isGaborone .sunday4October b {
+  color: #ffffff;
+}
+.isGaborone .marionLucas {
+  color: var(--color-darkslategray-500);
 }
 </style>

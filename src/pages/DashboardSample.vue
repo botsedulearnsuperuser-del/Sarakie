@@ -2021,6 +2021,6 @@
     color: #ffffff;
   }
   .isGaborone .marionLucas {
-    color: #ffffff;
+    color: var(--color-darkslategray-500);
   }
 </style>

@@ -747,13 +747,13 @@ function toggle(index: number) {
     line-height: 1.15;
     letter-spacing: -0.4px;
   }
+}
 
-  /* Gaborone theme: white header text only on this preset. */
-  .isGaborone .dumelaMarion {
-    color: #ffffff;
-  }
-  .isGaborone .p {
-    color: rgba(255, 255, 255, 0.9);
-  }
+/* Gaborone theme: white header text only on this preset. */
+.isGaborone .dumelaMarion {
+  color: #ffffff;
+}
+.isGaborone .p {
+  color: rgba(255, 255, 255, 0.9);
 }
 </style>

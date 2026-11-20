@@ -1488,19 +1488,19 @@ function openIdea(comment: FeedbackRecord) {
   .loansTable td:nth-child(5) {
     display: none;
   }
+}
 
-  /* Gaborone theme: white header text only on this preset. */
-  .isGaborone .dumelaMarion {
-    color: #ffffff;
-  }
-  .isGaborone .pWrap {
-    color: rgba(255, 255, 255, 0.9);
-  }
-  .isGaborone .sunday4October {
-    color: #ffffff;
-  }
-  .isGaborone .marionlucas {
-    color: #ffffff;
-  }
+/* Gaborone theme: white header text only on this preset. */
+.isGaborone .dumelaMarion {
+  color: #ffffff;
+}
+.isGaborone .pWrap {
+  color: rgba(255, 255, 255, 0.9);
+}
+.isGaborone .sunday4October {
+  color: #ffffff;
+}
+.isGaborone .marionLucas {
+  color: var(--color-darkslategray-500);
 }
 </style>

@@ -1852,13 +1852,13 @@ function resetForm() {
   .uploadZone {
     padding: 20px 14px;
   }
+}
 
-  /* Gaborone theme: white header text only on this preset. */
-  .isGaborone .pageTitle {
-    color: #ffffff;
-  }
-  .isGaborone .pageSub {
-    color: #ffffff;
-  }
+/* Gaborone theme: white header text only on this preset. */
+.isGaborone .pageTitle {
+  color: #ffffff;
+}
+.isGaborone .pageSub {
+  color: #ffffff;
 }
 </style>

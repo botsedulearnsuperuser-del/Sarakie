@@ -918,13 +918,13 @@ import { THEME_EVENT, isGaboroneTheme } from "../components/themes"
   .composerInput {
     font-size: 14px;
   }
+}
 
-  /* Gaborone theme: white header text only on this preset. */
-  .isGaborone .pageTitle {
-    color: #ffffff;
-  }
-  .isGaborone .pageSub {
-    color: #ffffff;
-  }
+/* Gaborone theme: white header text only on this preset. */
+.isGaborone .pageTitle {
+  color: #ffffff;
+}
+.isGaborone .pageSub {
+  color: #ffffff;
 }
 </style>
