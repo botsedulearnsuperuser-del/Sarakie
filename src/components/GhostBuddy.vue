@@ -1,6 +1,6 @@
 <template>
   <div :class="$style.buddy">
-    <div :class="$style.bubble">{{ typed }}</div>
+    <div v-if="props.showBubble !== false" :class="$style.bubble">{{ typed }}</div>
 
     <div :class="$style.stage">
       <div :class="$style.ghost" :style="{ '--bounce': bounceDuration }">
@@ -51,6 +51,7 @@
   const props = defineProps<{
     step?: number;
     confirmed?: boolean;
+    showBubble?: boolean;
   }>();
 
   const step = computed(() => Math.min(Math.max(props.step ?? 1, 1), 6));

@@ -6,7 +6,8 @@ export default defineConfig({
   plugins: [vue()],
   server: {
     allowedHosts: [
-      "pv-d1bcf4fee5ea-21597296-4f5d-4c8b-9ff2-7366e5e9a2d0.style.dev"
+      "pv-d1bcf4fee5ea-21597296-4f5d-4c8b-9ff2-7366e5e9a2d0.style.dev",
+      "pv-d1bcf4fee5ea-37040274-19d0-4072-8a61-ef8d958839a2.style.dev"
     ]
   },
 });

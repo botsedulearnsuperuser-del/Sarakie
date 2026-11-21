@@ -18,7 +18,7 @@
       :class="[$style.label, labelStateClass]"
       :style="{ backgroundColor }"
     >
-      <slot>{{ title || "William Shakespeare" }}</slot>
+      <slot>{{ title }}</slot>
     </div>
   </div>
 </template>
@@ -57,11 +57,8 @@
   let frame: number | null = null
 
   onMounted(() => {
-    // Paint the initial (scale 0.5, opacity 0) state first, then animate in.
     frame = window.requestAnimationFrame(() => {
-      frame = window.requestAnimationFrame(() => {
-        shown.value = true
-      })
+      shown.value = true
     })
   })
 
@@ -95,8 +92,8 @@
     pointer-events: none;
     opacity: 0;
     transition:
-      opacity 150ms ease-out,
-      transform 150ms ease-out;
+      opacity 80ms ease-out,
+      transform 80ms ease-out;
   }
 
   .pointerIn {
@@ -121,6 +118,7 @@
     min-width: max-content;
     border-radius: 9999px;
     padding: 8px;
+    font-family: var(--font-inter);
     font-size: 12px;
     line-height: 16px;
     white-space: nowrap;
@@ -128,8 +126,8 @@
     opacity: 0;
     transform: scale(0.5);
     transition:
-      opacity 150ms ease-out,
-      transform 200ms cubic-bezier(0.34, 1.3, 0.64, 1);
+      opacity 80ms ease-out,
+      transform 120ms cubic-bezier(0.34, 1.3, 0.64, 1);
   }
 
   .labelIn {

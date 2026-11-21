@@ -1,22 +1,30 @@
 <template>
   <div :class="$style.landingPage">
-    <Navbar />
+    <Navigation7 />
     <HeroSection />
     <section :class="$style.loansSection" id="loans">
       <InnerContainer />
     </section>
+    <FeaturesBento />
+    <PerformanceOverview />
+    <Testimonials />
     <FrameComponent />
     <FrameComponent1 />
-    <GroupComponent />
+    <FaqCategorized :dark="true" />
+    <Footer2 />
   </div>
 </template>
 <script setup lang="ts">
-import Navbar from "../components/Navbar.vue";
+import Navigation7 from "../components/ui/navigation7.vue";
 import HeroSection from "../components/HeroSection.vue";
 import InnerContainer from "../components/InnerContainer.vue";
+import FeaturesBento from "../components/FeaturesBento.vue";
+import PerformanceOverview from "../components/PerformanceOverview.vue";
+import Testimonials from "../components/Testimonials.vue";
 import FrameComponent from "../components/FrameComponent.vue";
 import FrameComponent1 from "../components/FrameComponent1.vue";
-import GroupComponent from "../components/GroupComponent.vue";
+import Footer2 from "../components/ui/footer2.vue";
+import FaqCategorized from "../components/ui/FaqCategorized.vue";
 </script>
 <style module>
 .landingPage {
@@ -36,7 +44,7 @@ import GroupComponent from "../components/GroupComponent.vue";
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 72px 40px 80px;
+  padding: 72px 24px 80px;
   box-sizing: border-box;
   position: relative;
   overflow: hidden;

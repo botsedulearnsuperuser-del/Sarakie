@@ -38,128 +38,16 @@
     <img :class="$style.aIcon" alt="CEDA" src="/ceda-logo-white-strong.webp" />
     <div :class="$style.divsideItems">
       <div
-        :class="activePage === 'dashboard' ? $style.asideLink : $style.asideLink2"
-        @click="goTo('dashboard')"
+        v-for="item in navItems"
+        :key="item.id"
+        :class="props.activePage === item.page ? $style.asideLink : $style.asideLink2"
+        @click="handleNav(item)"
       >
-        <svg
-          :class="$style.frameIcon"
-          width="20"
-          height="20"
-          viewBox="0 0 20 20"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path
-            d="M2.5 8.75L10 2.5L17.5 8.75V17.5H12.5V12.5H7.5V17.5H2.5V8.75Z"
-            stroke="white"
-            stroke-width="1.5"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          />
-        </svg>
-        <div :class="$style.dashboard">Dashboard</div>
-      </div>
-      <div
-        :class="activePage === 'loans-sheet' ? $style.asideLink : $style.asideLink2"
-        @click="goTo('loans-sheet')"
-      >
-        <svg
-          :class="$style.frameIcon"
-          width="20"
-          height="20"
-          viewBox="0 0 20 20"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path
-            d="M10 17.5C14.1421 17.5 17.5 14.1421 17.5 10C17.5 5.85786 14.1421 2.5 10 2.5C5.85786 2.5 2.5 5.85786 2.5 10C2.5 14.1421 5.85786 17.5 10 17.5Z"
-            stroke="white"
-            stroke-width="1.5"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          />
-          <path
-            d="M9.99996 6.66663V13.3333M6.66663 9.99996H13.3333"
-            stroke="white"
-            stroke-width="1.5"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          />
-        </svg>
-        <div :class="$style.dashboard">My Applications</div>
-      </div>
-      <div
-        :class="activePage === 'customers' ? $style.asideLink : $style.asideLink2"
-        @click="goTo('customers')"
-      >
-        <svg
-          :class="$style.frameIcon"
-          width="20"
-          height="20"
-          viewBox="0 0 32 32"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path d="M0 0h32v32H0z" fill="none" />
-          <path fill="white" d="M13 22c.828 0 1.479-.68 1.479-1.508S13.829 19 13 19s-1.52.664-1.52 1.492S12.171 22 13 22" />
-          <path fill="white" d="M13 2C6.372 2 1 7.369 1 14s5.366 12 11.994 12c.34 0 .7-.02 1.021-.06v-2.003q-.51.06-1.02.06C7.487 23.997 3 19.51 3 14S7.494 4 13 4s10 4.49 10 10h2c0-6.631-5.372-12-12-12" />
-          <path fill="white" d="M13.98 5.991h-1.502A4.493 4.493 0 0 0 7.974 10.5L8 11h2l-.024-.501a2.505 2.505 0 0 1 2.503-2.504h1.501a2.5 2.5 0 0 1 2.503 2.504a2.505 2.505 0 0 1-2.503 2.504h-2.002v4.508h2.002v-2.504a4.504 4.504 0 0 0 4.506-4.508A4.51 4.51 0 0 0 13.98 5.99Zm15.018 10.987H18.986a2.01 2.01 0 0 0-2.002 2.003v6.01c0 1.102.9 2.004 2.002 2.004h2.403L23.09 30l1.702-1.002l-2.303-4.007h-3.504L19 19h10v6h-3v2l2.998-.005A2.01 2.01 0 0 0 31 24.992v-6.01a2.01 2.01 0 0 0-2.002-2.004" />
-        </svg>
-        <div :class="$style.dashboard">Feedback Center</div>
-      </div>
-      <div
-        :class="activePage === 'admin-profile' ? $style.asideLink : $style.asideLink2"
-        @click="goTo('admin-profile')"
-      >
-        <svg
-          :class="$style.frameIcon"
-          width="20"
-          height="20"
-          viewBox="0 0 20 20"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path
-            d="M9.99996 10C11.8409 10 13.3333 8.50766 13.3333 6.66671C13.3333 4.82576 11.8409 3.33337 9.99996 3.33337C8.15901 3.33337 6.66663 4.82576 6.66663 6.66671C6.66663 8.50766 8.15901 10 9.99996 10Z"
-            stroke="white"
-            stroke-width="1.5"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          />
-          <path
-            d="M3.33337 17.5C4.58337 14.1667 7.08337 12.5 10 12.5C12.9167 12.5 15.4167 14.1667 16.6667 17.5"
-            stroke="white"
-            stroke-width="1.5"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          />
-        </svg>
-        <div :class="$style.dashboard">My Profile</div>
-      </div>
-      <div
-        :class="$style.asideLink2"
-        @click="openAiAgent"
-      >
-        <svg
-          :class="$style.frameIcon"
-          width="20"
-          height="20"
-          viewBox="0 0 24 24"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path d="M0 0h24v24H0z" fill="none" />
-          <path
-            stroke="white"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="1.5"
-            d="M21 11.002v1.496c0 2.829 0 4.243-.879 5.121c-.878.88-2.293.88-5.121.88h-4l-3.794 3.32a.727.727 0 0 1-1.207-.548v-2.773c-.929 0-1.394 0-1.775-.102a3 3 0 0 1-2.122-2.122C2 15.893 2 15.428 2 14.5V9.002c0-2.828 0-4.243.879-5.121c.878-.879 2.293-.879 5.121-.879h5m6 .125v1.875m0 0v1.875m0-1.875h-1.5m1.5 0h1.5m1.5 0l-1.301-.434a2 2 0 0 1-1.265-1.265L19 2.002l-.434 1.301a2 2 0 0 1-1.265 1.265L16 5.002l1.301.434A2 2 0 0 1 18.566 6.7L19 8.002l.434-1.301a2 2 0 0 1 1.265-1.265z"
-          />
-        </svg>
-        <div :class="$style.dashboard">AI Agent</div>
+        <span :class="$style.frameIcon" v-html="item.icon" />
+        <div :class="$style.dashboard">{{ item.label }}</div>
       </div>
     </div>
+
     <div :class="$style.divsideHelpmargin">
       <div :class="$style.divsideHelp">
         <div :class="$style.div">
@@ -260,7 +148,7 @@
   </div>
 </template>
 <script setup lang="ts">
-  import { ref } from "vue";
+  import { ref, computed, onMounted, onUnmounted } from "vue";
   import { useRouter } from "vue-router";
   import TwoFactorSetup from "./TwoFactorSetup.vue";
   import ThemePicker from "./ThemePicker.vue";
@@ -272,36 +160,113 @@
     THEME_STORAGE_KEY,
   } from "./themes";
 
+  type ActivePage =
+    | "dashboard"
+    | "evaluator"
+    | "admin"
+    | "ai-agent"
+    | "loans-sheet"
+    | "customers"
+    | "admin-profile"
+    | "ideas"
+    | "deadlines"
+    | "team";
+
   interface Props {
-    activePage?:
-      | "dashboard"
-      | "evaluator"
-      | "ai-agent"
-      | "loans-sheet"
-      | "customers"
-      | "admin-profile";
+    activePage?: ActivePage;
+    /** Which role's navigation the sidebar shows. */
+    role?: "innovator" | "evaluator" | "admin";
   }
 
-  withDefaults(defineProps<Props>(), {
+  const props = withDefaults(defineProps<Props>(), {
     activePage: "dashboard",
   });
 
   const router = useRouter();
   const mobileOpen = ref(false);
 
-  function goTo(
-    page: "dashboard" | "loans-sheet" | "customers" | "admin-profile",
-  ) {
-    mobileOpen.value = false;
-    if (page === "dashboard") {
-      router.push({ name: "DashboardSample" });
-    } else if (page === "loans-sheet") {
-      router.push({ name: "LoansSheet" });
-    } else if (page === "customers") {
-      router.push({ name: "Customers" });
-    } else if (page === "admin-profile") {
-      router.push({ name: "AdminProfile" });
+  /* Remembers which role's navigation the visitor is working in, so moving from an
+     admin page to a shared page (ideas, deadlines) keeps the admin sidebar. */
+  const ROLE_STORAGE_KEY = "sarka-sidebar-role";
+  type Role = "innovator" | "evaluator" | "admin";
+  const storedRole = ref<Role>(
+    (sessionStorage.getItem(ROLE_STORAGE_KEY) as Role | null) ?? "innovator",
+  );
+  const role = computed<Role>(() => props.role ?? storedRole.value);
+
+  onMounted(() => {
+    if (props.role && props.role !== storedRole.value) {
+      storedRole.value = props.role;
+      sessionStorage.setItem(ROLE_STORAGE_KEY, props.role);
     }
+  });
+
+  interface NavItem {
+    id: string;
+    label: string;
+    icon: string;
+    page?: ActivePage;
+    route?: string;
+    action?: "ai";
+  }
+
+  const ICONS: Record<string, string> = {
+    home: `<svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M2.5 8.75 10 2.5l7.5 6.25V17.5h-5v-5h-5v5h-5V8.75Z" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+    document: `<svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M11.667 2.5H5.833a1.667 1.667 0 0 0-1.666 1.667v11.666a1.667 1.667 0 0 0 1.666 1.667h8.334a1.667 1.667 0 0 0 1.666-1.667V6.667L11.667 2.5Z" stroke="white" stroke-width="1.5" stroke-linejoin="round"/><path d="M11.667 2.5v4.167h4.166M7.5 11.667h5M7.5 14.167h3.75" stroke="white" stroke-width="1.5" stroke-linecap="round"/></svg>`,
+    users: `<svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><circle cx="7.5" cy="6.25" r="3.125" stroke="white" stroke-width="1.5"/><path d="M1.875 16.25c0-2.588 2.517-4.688 5.625-4.688s5.625 2.1 5.625 4.688" stroke="white" stroke-width="1.5" stroke-linecap="round"/><path d="M13.75 3.5a3.125 3.125 0 0 1 0 5.5M15 11.9c1.75.6 3.125 2.2 3.125 4.35" stroke="white" stroke-width="1.5" stroke-linecap="round"/></svg>`,
+    chat: `<svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M17.5 9.583v.834c0 1.876 0 2.814-.583 3.397-.583.583-1.521.583-3.397.583H7.5l-3.183 2.5v-2.5c-.7 0-1.05 0-1.34-.075a2.5 2.5 0 0 1-1.769-1.769c-.041-.145-.041-.545-.041-1.345V7.5c0-1.876 0-2.814.583-3.397C2.833 3.52 3.771 3.52 5.647 3.52h4.186" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+    person: `<svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><circle cx="10" cy="6.667" r="3.333" stroke="white" stroke-width="1.5"/><path d="M3.333 17.5c1.25-3.333 3.75-5 6.667-5s5.417 1.667 6.667 5" stroke="white" stroke-width="1.5" stroke-linecap="round"/></svg>`,
+    sparkle: `<svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M10 2.5l1.6 4.4L16 8.5l-4.4 1.6L10 14.5 8.4 10.1 4 8.5l4.4-1.6L10 2.5Z" stroke="white" stroke-width="1.5" stroke-linejoin="round"/></svg>`,
+    calendar: `<svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><rect x="2.5" y="4.167" width="15" height="13.333" rx="1.667" stroke="white" stroke-width="1.5"/><path d="M2.5 8.333h15M6.667 2.5v3.333M13.333 2.5v3.333" stroke="white" stroke-width="1.5" stroke-linecap="round"/></svg>`,
+    chart: `<svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M3.333 17.5V10M8.333 17.5V4.167M13.333 17.5v-5M18 17.5V7.5" stroke="white" stroke-width="1.5" stroke-linecap="round"/></svg>`,
+    evaluatorOverview: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" aria-hidden="true"><path d="M0 0h24v24H0z" fill="none" /><g fill="none" stroke="currentColor" stroke-linejoin="round" stroke-width="1.5"><path d="m20.689 3.934l-.623-.623a1.063 1.063 0 0 0-1.503 0l-3.349 3.35a3.2 3.2 0 0 0-.872 1.628L14 10l1.71-.342a3.2 3.2 0 0 0 1.63-.872l3.349-3.349a1.063 1.063 0 0 0 0-1.503Z" /><path stroke-linecap="square" d="M13.69 19.457c-.19-.46-.19-1.042-.19-2.207s0-1.747.19-2.207a2.5 2.5 0 0 1 1.353-1.353c.46-.19 1.042-.19 2.207-.19s1.747 0 2.207.19a2.5 2.5 0 0 1 1.353 1.353c.19.46.19 1.042.19 2.207s0 1.747-.19 2.207a2.5 2.5 0 0 1-1.353 1.353c-.46.19-1.042.19-2.207.19s-1.747 0-2.207-.19a2.5 2.5 0 0 1-1.353-1.353Zm-10.5 0C3 18.997 3 18.415 3 17.25s0-1.747.19-2.207a2.5 2.5 0 0 1 1.353-1.353c.46-.19 1.042-.19 2.207-.19s1.747 0 2.207.19a2.5 2.5 0 0 1 1.353 1.353c.19.46.19 1.042.19 2.207s0 1.747-.19 2.207a2.5 2.5 0 0 1-1.353 1.353c-.46.19-1.042.19-2.207.19s-1.747 0-2.207-.19a2.5 2.5 0 0 1-1.353-1.353Zm0-10.5C3 8.497 3 7.915 3 6.75s0-1.747.19-2.207A2.5 2.5 0 0 1 4.543 3.19C5.003 3 5.585 3 6.75 3s1.747 0 2.207.19a2.5 2.5 0 0 1 1.353 1.353c.19.46.19 1.042.19 2.207s0 1.747-.19 2.207a2.5 2.5 0 0 1-1.353 1.353c-.46.19-1.042.19-2.207.19s-1.747 0-2.207-.19A2.5 2.5 0 0 1 3.19 8.957Z" /></g></svg>`,
+    applications: `<svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M10 17.5C14.1421 17.5 17.5 14.1421 17.5 10C17.5 5.85786 14.1421 2.5 10 2.5C5.85786 2.5 2.5 5.85786 2.5 10C2.5 14.1421 5.85786 17.5 10 17.5Z" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M10 6.66663V13.3333M6.66663 9.99996H13.3333" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+    feedback: `<svg viewBox="0 0 32 32" fill="none" aria-hidden="true"><path d="M0 0h32v32H0z" fill="none"/><path fill="white" d="M13 22c.828 0 1.479-.68 1.479-1.508S13.829 19 13 19s-1.52.664-1.52 1.492S12.171 22 13 22"/><path fill="white" d="M13 2C6.372 2 1 7.369 1 14s5.366 12 11.994 12c.34 0 .7-.02 1.021-.06v-2.003q-.51.06-1.02.06C7.487 23.997 3 19.51 3 14S7.494 4 13 4s10 4.49 10 10h2c0-6.631-5.372-12-12-12"/><path fill="white" d="M13.98 5.991h-1.502A4.493 4.493 0 0 0 7.974 10.5L8 11h2l-.024-.501a2.505 2.505 0 0 1 2.503-2.504h1.501a2.5 2.5 0 0 1 2.503 2.504a2.505 2.505 0 0 1-2.503 2.504h-2.002v4.508h2.002v-2.504a4.504 4.504 0 0 0 4.506-4.508A4.51 4.51 0 0 0 13.98 5.99Zm15.018 10.987H18.986a2.01 2.01 0 0 0-2.002 2.003v6.01c0 1.102.9 2.004 2.002 2.004h2.403L23.09 30l1.702-1.002l-2.303-4.007h-3.504L19 19h10v6h-3v2l2.998-.005A2.01 2.01 0 0 0 31 24.992v-6.01a2.01 2.01 0 0 0-2.002-2.004"/></svg>`,
+    aiAgent: `<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M0 0h24v24H0z" fill="none"/><path stroke="white" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 11.002v1.496c0 2.829 0 4.243-.879 5.121c-.878.88-2.293.88-5.121.88h-4l-3.794 3.32a.727.727 0 0 1-1.207-.548v-2.773c-.929 0-1.394 0-1.775-.102a3 3 0 0 1-2.122-2.122C2 15.893 2 15.428 2 14.5V9.002c0-2.828 0-4.243.879-5.121c.878-.879 2.293-.879 5.121-.879h5m6 .125v1.875m0 0v1.875m0-1.875h-1.5m1.5 0h1.5m1.5 0l-1.301-.434a2 2 0 0 1-1.265-1.265L19 2.002l-.434 1.301a2 2 0 0 1-1.265 1.265L16 5.002l1.301.434A2 2 0 0 1 18.566 6.7L19 8.002l.434-1.301a2 2 0 0 1 1.265-1.265z"/></svg>`,
+    innovatorIdeas: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="1em" height="1em" aria-hidden="true"><path d="M0 0h32v32H0z" fill="none" /><path fill="#ffffff" d="M11 24h10v2H11zm2 4h6v2h-6zm3-26A10 10 0 0 0 6 12a9.19 9.19 0 0 0 3.46 7.62c1 .93 1.54 1.46 1.54 2.38h2c0-1.84-1.11-2.87-2.19-3.86A7.2 7.2 0 0 1 8 12a8 8 0 0 1 16 0a7.2 7.2 0 0 1-2.82 6.14c-1.07 1-2.18 2-2.18 3.86h2c0-.92.53-1.45 1.54-2.39A9.18 9.18 0 0 0 26 12A10 10 0 0 0 16 2" /></svg>`,
+    evaluatorProfile: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="1em" height="1em" aria-hidden="true"><path d="M0 0h16v16H0z" fill="none" /><g fill="#ffffff"><path d="M14 9.5a2 2 0 1 1-4 0a2 2 0 0 1 4 0m-6 5.7c0 .8.8.8.8.8h6.4s.8 0 .8-.8s-.8-3.2-4-3.2s-4 2.4-4 3.2" /></g></svg>`,
+  };
+
+  const innovatorNav: NavItem[] = [
+    { id: "dashboard", label: "Dashboard", page: "dashboard", route: "DashboardSample", icon: ICONS.home },
+    { id: "applications", label: "My Applications", page: "loans-sheet", route: "LoansSheet", icon: ICONS.applications },
+    { id: "feedback", label: "Feedback Center", page: "customers", route: "Customers", icon: ICONS.feedback },
+    { id: "profile", label: "My Profile", page: "admin-profile", route: "AdminProfile", icon: ICONS.person },
+    { id: "ai", label: "AI Agent", action: "ai", icon: ICONS.aiAgent },
+  ];
+
+  /* Evaluators work on other people's submissions, so their nav is about the innovator. */
+  const evaluatorNav: NavItem[] = [
+    { id: "overview", label: "Evaluator overview", page: "evaluator", route: "EvaluatorDashboard", icon: ICONS.evaluatorOverview },
+    { id: "queue", label: "Review queue", page: "loans-sheet", route: "ReviewQueue", icon: ICONS.document },
+    { id: "innovator-ideas", label: "Innovator ideas", page: "ideas", route: "IdeasView", icon: ICONS.innovatorIdeas },
+    { id: "innovators", label: "Innovators", page: "customers", route: "Customers", icon: ICONS.users },
+    { id: "team", label: "Evaluation team", page: "team", route: "TeamView", icon: ICONS.person },
+    { id: "profile", label: "Evaluator profile", page: "admin-profile", route: "AdminProfile", icon: ICONS.evaluatorProfile },
+  ];
+
+  const adminNav: NavItem[] = [
+    { id: "overview", label: "Admin overview", page: "admin", route: "AdminDashboard", icon: ICONS.home },
+    { id: "applications", label: "All applications", page: "loans-sheet", route: "LoansSheet", icon: ICONS.document },
+    { id: "innovators", label: "Innovators", page: "customers", route: "Customers", icon: ICONS.users },
+    { id: "ideas", label: "Idea repository", page: "ideas", route: "IdeasView", icon: ICONS.chat },
+    { id: "deadlines", label: "Deadlines", page: "deadlines", route: "DeadlinesView", icon: ICONS.calendar },
+    { id: "team", label: "Team & roles", page: "team", route: "TeamView", icon: ICONS.person },
+  ];
+
+  const navItems = computed(() => {
+    if (role.value === "admin") return adminNav;
+    if (role.value === "evaluator") return evaluatorNav;
+    return innovatorNav;
+  });
+
+  function handleNav(item: NavItem) {
+    mobileOpen.value = false;
+    if (item.action === "ai") {
+      openAiAgent();
+      return;
+    }
+    if (item.route) router.push({ name: item.route });
   }
 
   function signOut() {
@@ -373,7 +338,22 @@
     sessionStorage.setItem("sarka-2fa-enabled", "1");
     showTwoFactorSetup.value = false;
     showToast.value = false;
+    window.dispatchEvent(new CustomEvent("sarka-2fa-changed"));
   }
+
+  /* Pages can ask for the authenticator setup, e.g. the profile security card. */
+  function openTwoFactorSetupFromPage() {
+    showToast.value = false;
+    showTwoFactorSetup.value = true;
+  }
+
+  onMounted(() => {
+    window.addEventListener("open-two-factor-setup", openTwoFactorSetupFromPage);
+  });
+
+  onUnmounted(() => {
+    window.removeEventListener("open-two-factor-setup", openTwoFactorSetupFromPage);
+  });
 </script>
 <style module>
   .wrapper {
@@ -465,6 +445,12 @@
     position: relative;
     flex-shrink: 0;
     display: block;
+  }
+
+  .frameIcon svg {
+    display: block;
+    width: 100%;
+    height: 100%;
   }
   .frameIcon path {
     stroke: #ffffff;

@@ -3,6 +3,7 @@ import { createRouter, createWebHistory } from "vue-router";
 import App from "./App.vue";
 
 import LandingPage from "./pages/LandingPage.vue";
+import AboutPage from "./pages/AboutPage.vue";
 import DashboardSample from "./pages/DashboardSample.vue";
 import EvaluatorDashboard from "./pages/EvaluatorDashboard.vue";
 import AiAgent from "./pages/AiAgent.vue";
@@ -10,15 +11,25 @@ import AdminLogin from "./pages/AdminLogin.vue";
 import AdminSignUp from "./pages/AdminSignUp.vue";
 import ForgotPassword from "./pages/ForgotPassword.vue";
 import LoansSheet from "./pages/LoansSheet.vue";
+import ReviewQueue from "./pages/ReviewQueue.vue";
 import Customers from "./pages/Customers.vue";
 import AdminProfile from "./pages/AdminProfile.vue";
 import TeamView from "./pages/TeamView.vue";
+import IdeasView from "./pages/IdeasView.vue";
+import LoginPage from "./pages/LoginPage.vue";
+import AdminDashboard from "./pages/AdminDashboard.vue";
+import BlogPage from "./pages/BlogPage.vue";
+import ArticlePage from "./pages/ArticlePage.vue";
+import DeadlinesView from "./pages/DeadlinesView.vue";
 import NewLoan from "./pages/NewLoan.vue";
 import LoanView from "./pages/LoanView.vue";
 import IdeaView from "./pages/IdeaView.vue";
 import CloudShaderHero from "./pages/CloudShaderHero.vue";
 import FaqPage from "./pages/FaqPage.vue";
+import ParallaxLayersDemo from "./pages/ParallaxLayersDemo.vue";
+import FolderRevealDemo from "./pages/FolderRevealDemo.vue";
 import LegalPage from "./pages/LegalPage.vue";
+import NotFoundPage from "./pages/NotFoundPage.vue";
 import "./global.css";
 
 interface Route {
@@ -33,6 +44,12 @@ const routes: Route[] = [
     path: "/",
     name: "LandingPage",
     component: LandingPage,
+  },
+  {
+    path: "/about",
+    name: "AboutPage",
+    component: AboutPage,
+    meta: { title: "About CEDA — CEDA Innovation Portal" },
   },
   {
     path: "/dashboard-sample",
@@ -53,6 +70,11 @@ const routes: Route[] = [
     path: "/loans-sheet",
     name: "LoansSheet",
     component: LoansSheet,
+  },
+  {
+    path: "/review-queue",
+    name: "ReviewQueue",
+    component: ReviewQueue,
   },
   {
     path: "/loans",
@@ -95,9 +117,49 @@ const routes: Route[] = [
     component: TeamView,
   },
   {
+    path: "/ideas",
+    name: "IdeasView",
+    component: IdeasView,
+  },
+  {
+    path: "/signin",
+    name: "LoginPage",
+    component: LoginPage,
+  },
+  {
+    path: "/admin-dashboard",
+    name: "AdminDashboard",
+    component: AdminDashboard,
+  },
+  {
+    path: "/blog",
+    name: "BlogPage",
+    component: BlogPage,
+  },
+  {
+    path: "/blog/:slug",
+    name: "ArticlePage",
+    component: ArticlePage,
+  },
+  {
+    path: "/deadlines",
+    name: "DeadlinesView",
+    component: DeadlinesView,
+  },
+  {
     path: "/cloud-shader",
     name: "CloudShaderHero",
     component: CloudShaderHero,
+  },
+  {
+    path: "/parallax-layers",
+    name: "ParallaxLayersDemo",
+    component: ParallaxLayersDemo,
+  },
+  {
+    path: "/folder-reveal",
+    name: "FolderRevealDemo",
+    component: FolderRevealDemo,
   },
   {
     path: "/new-loan",
@@ -140,6 +202,18 @@ const routes: Route[] = [
     name: "TermsConditions",
     component: LegalPage,
     meta: { legal: "terms" },
+  },
+  {
+    path: "/404",
+    name: "NotFound",
+    component: NotFoundPage,
+    meta: { title: "Page not found — CEDA Innovation Portal" },
+  },
+  {
+    path: "/:pathMatch(.*)*",
+    name: "NotFoundCatchAll",
+    component: NotFoundPage,
+    meta: { title: "Page not found — CEDA Innovation Portal" },
   },
 ];
 

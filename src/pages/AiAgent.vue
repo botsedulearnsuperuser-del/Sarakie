@@ -52,9 +52,7 @@
           <div :class="$style.chatHead">
             <div :class="$style.chatHeadLeft">
               <div :class="$style.agentAvatar">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M21 11.002v1.496c0 2.829 0 4.243-.879 5.121c-.878.88-2.293.88-5.121.88h-4l-3.794 3.32a.727.727 0 0 1-1.207-.548v-2.773c-.929 0-1.394 0-1.775-.102a3 3 0 0 1-2.122-2.122C2 15.893 2 15.428 2 14.5V9.002c0-2.828 0-4.243.879-5.121c.878-.879 2.293-.879 5.121-.879h5" />
-                </svg>
+                <AIOrbFace :size="40" :state="assistantState" />
               </div>
               <div>
                 <div :class="$style.chatTitle">CEDA Innovation Assistant</div>
@@ -79,19 +77,48 @@
               :key="index"
               :class="[$style.messageRow, message.role === 'user' ? $style.messageRowUser : '']"
             >
-              <div v-if="message.role === 'agent'" :class="$style.msgAvatar">AI</div>
+              <div v-if="message.role === 'agent'" :class="$style.msgAvatar">
+                <AIOrbFace :size="28" :state="messageState(message)" />
+              </div>
               <div
                 :class="[
                   $style.bubble,
                   message.role === 'user' ? $style.bubbleUser : $style.bubbleAgent,
                 ]"
               >
-                {{ message.text }}
+                <template v-if="message.role === 'agent'">
+                  <AIReasoning
+                    v-if="message.reasoning"
+                    :class-name="$style.reasoning"
+                    :is-streaming="!!message.reasoning.streaming"
+                  >
+                    {{ message.reasoning.text }}
+                  </AIReasoning>
+                  <AIResponse
+                    :text="message.text"
+                    :is-streaming="!!message.streaming"
+                  />
+                  <AIApproval
+                    v-if="message.approval"
+                    :class-name="$style.approvalCard"
+                    :question="message.approval.question"
+                    :options="message.approval.options"
+                    :resolved-id="message.approval.resolvedId"
+                    @decide="onApprovalDecide(message, $event)"
+                  >
+                    <template v-if="message.approval.detail">
+                      {{ message.approval.detail }}
+                    </template>
+                  </AIApproval>
+                </template>
+                <template v-else>{{ message.text }}</template>
               </div>
             </div>
 
             <div v-if="typing" :class="$style.messageRow">
-              <div :class="$style.msgAvatar">AI</div>
+              <div :class="$style.msgAvatar">
+                <AIOrbFace :size="28" state="thinking" />
+              </div>
               <div :class="[$style.bubble, $style.bubbleAgent, $style.typing]">
                 <span /><span /><span />
               </div>
@@ -110,22 +137,13 @@
             </button>
           </div>
 
-          <form :class="$style.composer" @submit.prevent="sendMessage">
-            <textarea
-              v-model="input"
-              :class="$style.composerInput"
-              rows="1"
-              placeholder="Ask about a submission, the rubric or CEDA requirements…"
-              @keydown.enter.exact.prevent="sendMessage"
-            />
-            <button :class="$style.sendBtn" type="submit" :disabled="!input.trim()">
-              Send
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <line x1="22" y1="2" x2="11" y2="13" />
-                <polygon points="22 2 15 22 11 13 2 9 22 2" />
-              </svg>
-            </button>
-          </form>
+          <ComposerPanel
+            v-model="input"
+            placeholder="Ask about a submission, the rubric or CEDA requirements…"
+            :reasoning="reasoningEnabled"
+            @reasoning-change="reasoningEnabled = $event"
+            @submit="handleComposerSubmit"
+          />
         </section>
 
         <aside :class="$style.sideColumn">
@@ -162,10 +180,15 @@
 </template>
 
 <script setup lang="ts">
-  import { nextTick, onBeforeUnmount, onMounted, ref } from "vue"
+  import { computed, nextTick, onBeforeUnmount, onMounted, ref } from "vue"
   import { useRouter } from "vue-router"
   import Main from "../components/Main.vue"
   import NotificationsPanel from "../components/NotificationsPanel.vue"
+  import ComposerPanel from "../components/ui/ComposerPanel.vue"
+  import AIResponse from "../components/ui/AIResponse.vue"
+  import AIApproval, { type AIApprovalOption } from "../components/ui/AIApproval.vue"
+  import AIReasoning from "../components/ui/AIReasoning.vue"
+  import AIOrbFace, { type AIState } from "../components/ui/AIOrbFace.vue"
   import { usePageTheme } from "../composables/usePageTheme"
 import { THEME_EVENT, isGaboroneTheme } from "../components/themes"
 
@@ -175,9 +198,24 @@ import { THEME_EVENT, isGaboroneTheme } from "../components/themes"
     window.addEventListener(THEME_EVENT, () => (isGaborone.value = isGaboroneTheme()))
   })
 
+  interface ApprovalRequest {
+    question: string
+    detail?: string
+    options: AIApprovalOption[]
+    resolvedId?: string
+  }
+
+  interface ReasoningTrace {
+    text: string
+    streaming?: boolean
+  }
+
   interface ChatMessage {
     role: "agent" | "user"
     text: string
+    streaming?: boolean
+    approval?: ApprovalRequest
+    reasoning?: ReasoningTrace
   }
 
   const router = useRouter()
@@ -191,13 +229,28 @@ import { THEME_EVENT, isGaboroneTheme } from "../components/themes"
   const messages = ref<ChatMessage[]>([greeting])
   const input = ref("")
   const typing = ref(false)
+  const reasoningEnabled = ref(false)
+
+  // The header avatar mirrors whatever the assistant is doing right now.
+  const assistantState = computed<AIState>(() => {
+    if (typing.value) return "thinking"
+    if (messages.value.some((message) => message.reasoning?.streaming)) return "thinking"
+    if (messages.value.some((message) => message.streaming)) return "streaming"
+    return "idle"
+  })
+
+  function messageState(message: ChatMessage): AIState {
+    if (message.reasoning?.streaming) return "thinking"
+    if (message.streaming) return "streaming"
+    return "idle"
+  }
   const chatBody = ref<HTMLElement | null>(null)
   let replyTimer: number | null = null
+  let streamTimer: number | null = null
 
   const suggestions = [
     "How is my submission scored?",
     "Which documents do I need?",
-    "How long does review take?",
   ]
 
   const helpItems = [
@@ -245,7 +298,142 @@ import { THEME_EVENT, isGaboroneTheme } from "../components/themes"
       return "Evaluator comments appear in the Feedback Centre against the idea they relate to. Open a comment to read the detail, reply if you need to clarify something, then resubmit the corrected proposal from the same panel."
     }
 
+    if (query.includes("withdraw") || query.includes("delete")) {
+      return "A withdrawal request is sent to your analyst from the Feedback Centre and the status changes to Withdrawn. Nothing you submitted is deleted, so the documents can be reused on a future application."
+    }
+
     return "I can help with submission status, the scoring rubric, required documents and evaluator feedback. This prototype assistant replies from a fixed set of answers, so for anything account-specific contact your CEDA analyst on +267 77 663 331."
+  }
+
+  /**
+   * The moment the assistant needs a human decision, it puts up an approval card
+   * instead of assuming an answer. Only the turns that lead to an action ask.
+   */
+  function approvalFor(text: string): ApprovalRequest | null {
+    const query = text.toLowerCase()
+
+    if (query.includes("withdraw") || query.includes("delete")) {
+      return {
+        question: "Do you want to withdraw this application?",
+        detail: "Your analyst will be notified and the decision is recorded on the application timeline.",
+        options: [
+          { id: "keep", label: "Keep the application" },
+          {
+            id: "withdraw",
+            label: "Withdraw it",
+            detail: "Cannot be undone",
+            destructive: true,
+          },
+        ],
+      }
+    }
+
+    if (query.includes("document") || query.includes("attach") || query.includes("file")) {
+      return {
+        question: "Shall I prepare your document checklist?",
+        detail: "I can tailor the list to the stage your draft is at.",
+        options: [
+          { id: "full", label: "Fuller submission", detail: "Recommended" },
+          { id: "minimum", label: "Minimum three" },
+          { id: "not-now", label: "Not now" },
+        ],
+      }
+    }
+
+    if (query.includes("submit") || query.includes("application") || query.includes("idea")) {
+      return {
+        question: "Shall I start a new submission?",
+        detail: "The form opens on applicant details and nothing is sent until you press Submit.",
+        options: [
+          { id: "start", label: "Start submission" },
+          { id: "draft", label: "Keep it as a draft" },
+        ],
+      }
+    }
+
+    return null
+  }
+
+  function approvalFollowUp(option: AIApprovalOption): string {
+    const replies: Record<string, string> = {
+      full: "Done — the fuller pack is ready: problem statement, solution description, financial projections, business proposal, market research and founder CVs.",
+      minimum: "Done — the minimum pack is noted: problem statement, solution description and financial projections.",
+      "not-now": "No problem. The full document checklist stays on the FAQ page whenever you need it.",
+      start: "Opening the submission form for your draft now. You can move back a step at any time.",
+      draft: "Kept as a draft. You can reopen it from My Applications whenever you are ready.",
+      keep: "Kept — nothing was changed on the application.",
+      withdraw: "Understood. I have sent the withdrawal request to your analyst.",
+    }
+
+    return replies[option.id] ?? `Noted: ${option.label}.`
+  }
+
+  function onApprovalDecide(message: ChatMessage, option: AIApprovalOption) {
+    if (message.approval) message.approval.resolvedId = option.id
+
+    const reply: ChatMessage = {
+      role: "agent",
+      text: approvalFollowUp(option),
+      streaming: false,
+    }
+    messages.value.push(reply)
+    scrollToBottom()
+  }
+
+  function handleComposerSubmit(text: string) {
+    input.value = text
+    sendMessage()
+  }
+
+  function reasoningTextFor(text: string): string {
+    const query = text.toLowerCase()
+
+    if (query.includes("score") || query.includes("rubric") || query.includes("criteria")) {
+      return "This is about the rubric, so I need all five criteria rather than the general shape of the marking. I'll quote each weight exactly, order them from heaviest to lightest, and keep the advice tied to what evaluators actually assess."
+    }
+
+    if (query.includes("document") || query.includes("attach") || query.includes("file")) {
+      return "The question is about attachments, so I should separate the minimum pack from the fuller one before listing anything. Then I need the accepted formats and the per-application limit so the answer is actionable rather than abstract."
+    }
+
+    if (query.includes("long") || query.includes("review") || query.includes("status") || query.includes("time")) {
+      return "The applicant wants a timeline, so I'll anchor it to the 10-working-day norm. I should also say what delays a review and how status changes surface, otherwise the estimate starts to sound like a promise."
+    }
+
+    if (query.includes("feedback") || query.includes("comment") || query.includes("resubmit")) {
+      return "This is about evaluator feedback, so the path from comment to resubmission matters more than the phrasing. I'll describe where comments live and how a corrected proposal is sent back from the same panel."
+    }
+
+    if (query.includes("withdraw") || query.includes("delete")) {
+      return "The user is asking about withdrawing, which is irreversible enough that the consequence has to lead. I'll separate what changes from what is kept, then hand the decision back to them instead of assuming it."
+    }
+
+    return "The request is about CEDA submissions, so I'll check the guidance that covers it before answering. I'll keep the reply to the steps the applicant can actually act on."
+  }
+
+  function streamAnswer(full: string, msgIndex: number, text: string) {
+    const words = full.split(" ")
+    const current = messages.value[msgIndex]
+    if (!current) return
+
+    current.streaming = true
+    let i = 0
+    streamTimer = window.setInterval(() => {
+      i += 1
+      const msg = messages.value[msgIndex]
+      if (msg) {
+        msg.text = words.slice(0, i).join(" ")
+        if (i >= words.length) {
+          msg.streaming = false
+          msg.approval = approvalFor(text) ?? undefined
+        }
+      }
+      scrollToBottom()
+      if (i >= words.length) {
+        if (streamTimer !== null) clearInterval(streamTimer)
+        streamTimer = null
+      }
+    }, 55)
   }
 
   function sendMessage() {
@@ -258,11 +446,45 @@ import { THEME_EVENT, isGaboroneTheme } from "../components/themes"
     scrollToBottom()
 
     if (replyTimer !== null) clearTimeout(replyTimer)
+    if (streamTimer !== null) clearInterval(streamTimer)
     replyTimer = window.setTimeout(() => {
-      messages.value.push({ role: "agent", text: replyTo(text) })
       typing.value = false
+      const full = replyTo(text)
+      const msgIndex = messages.value.length
+      const msg: ChatMessage = { role: "agent", text: "", streaming: false }
+      if (reasoningEnabled.value) {
+        msg.reasoning = { text: "", streaming: true }
+      }
+      messages.value.push(msg)
       replyTimer = null
       scrollToBottom()
+
+      const startAnswer = () => streamAnswer(full, msgIndex, text)
+
+      if (!msg.reasoning) {
+        startAnswer()
+        return
+      }
+
+      const trace = reasoningTextFor(text).split(" ")
+      let r = 0
+      streamTimer = window.setInterval(() => {
+        r += 1
+        const current = messages.value[msgIndex]
+        if (current?.reasoning) {
+          current.reasoning.text = trace.slice(0, r).join(" ")
+          if (r >= trace.length) current.reasoning.streaming = false
+        }
+        scrollToBottom()
+        if (r >= trace.length) {
+          if (streamTimer !== null) clearInterval(streamTimer)
+          streamTimer = null
+          replyTimer = window.setTimeout(() => {
+            replyTimer = null
+            startAnswer()
+          }, 650)
+        }
+      }, 45)
     }, 700)
   }
 
@@ -279,6 +501,10 @@ import { THEME_EVENT, isGaboroneTheme } from "../components/themes"
       clearTimeout(replyTimer)
       replyTimer = null
     }
+    if (streamTimer !== null) {
+      clearInterval(streamTimer)
+      streamTimer = null
+    }
   }
 
   function openFaq() {
@@ -287,6 +513,7 @@ import { THEME_EVENT, isGaboroneTheme } from "../components/themes"
 
   onBeforeUnmount(() => {
     if (replyTimer !== null) clearTimeout(replyTimer)
+    if (streamTimer !== null) clearInterval(streamTimer)
   })
 </script>
 
@@ -469,9 +696,6 @@ import { THEME_EVENT, isGaboroneTheme } from "../components/themes"
   .agentAvatar {
     width: 40px;
     height: 40px;
-    border-radius: 50%;
-    background-color: var(--color-darkslategray-500);
-    color: var(--color-goldenrod-200);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -539,11 +763,6 @@ import { THEME_EVENT, isGaboroneTheme } from "../components/themes"
   .msgAvatar {
     width: 28px;
     height: 28px;
-    border-radius: 50%;
-    background-color: var(--color-darkslategray-500);
-    color: var(--color-goldenrod-200);
-    font-size: 11px;
-    font-weight: 700;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -566,6 +785,14 @@ import { THEME_EVENT, isGaboroneTheme } from "../components/themes"
     background-color: var(--color-darkslategray-500);
     color: var(--color-white);
     border-bottom-right-radius: 4px;
+  }
+  .bubbleAgent .approvalCard {
+    margin-top: 12px;
+    white-space: normal;
+  }
+  .bubbleAgent .reasoning {
+    margin-bottom: 6px;
+    white-space: normal;
   }
   .typing {
     display: inline-flex;

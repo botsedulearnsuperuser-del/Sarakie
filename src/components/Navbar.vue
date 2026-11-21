@@ -10,12 +10,23 @@
       </router-link>
 
       <nav :class="$style.links">
-        <router-link :class="[$style.link, $style.activeLink]" to="/">
+        <router-link
+          :class="$style.link"
+          :exact-active-class="$style.activeLink"
+          to="/"
+        >
           Home
         </router-link>
         <a :class="$style.link" href="#about">About</a>
         <a :class="$style.link" href="#innovation">Innovation Hub</a>
         <a :class="$style.link" href="#how-it-works">How It Works</a>
+        <router-link
+          :class="$style.link"
+          :exact-active-class="$style.activeLink"
+          to="/blog"
+        >
+          Blog
+        </router-link>
         <a :class="$style.link" href="#support">Support</a>
       </nav>
 

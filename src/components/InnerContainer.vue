@@ -2,9 +2,9 @@
   <div :class="$style.wrap">
     <header :class="$style.header">
       <div :class="$style.headerLine" />
-      <h2 :class="$style.title">Everyone needs a helping hand</h2>
+      <h2 :class="$style.title">One platform, end to end</h2>
       <p :class="$style.subtitle">
-        Our Flexible Loan Options Designed for easy repayability and flexibility.
+        From submission through rigorous evaluation to recognition and reward.
       </p>
     </header>
 
@@ -19,7 +19,7 @@
             <img
               :class="$style.followerAvatar"
               src="/innovator-man.webp"
-              alt="thumbnail"
+              :alt="card.title"
               height="20"
               width="20"
             />
@@ -29,7 +29,7 @@
 
         <div :class="$style.demoCard">
           <div :class="$style.thumbWrap">
-            <img :class="$style.thumb" :src="card.image" alt="thumbnail" />
+            <img :class="$style.thumb" :src="card.image" :alt="card.title" />
           </div>
           <img
             :class="$style.cardPattern"
@@ -39,35 +39,53 @@
           <div :class="$style.cardContent">
             <h2 :class="$style.cardHeading">{{ card.title }}</h2>
             <h2 :class="$style.cardBody">
-              A helping hand for life’s immediate needs.
+              {{ card.description }}
             </h2>
             <div :class="$style.cardFooter">
-              <span :class="$style.cardDate">{{ card.date }}</span>
-              <a :class="$style.cardCta" href="#contact">Talk to an Agent</a>
+              <span :class="$style.cardDate">{{ card.open ? 'Application open' : 'Application closed' }}</span>
+              <a :class="$style.cardCta" href="#contact">Learn more</a>
             </div>
           </div>
         </div>
       </FollowerPointerCard>
     </div>
+
+    <Integrations2 />
+
+    <FollowerPointerCard title="Features">
+      <Features4 />
+    </FollowerPointerCard>
+
+    <Bento1 />
+
   </div>
 </template>
 <script setup lang="ts">
 import FollowerPointerCard from "./ui/following-pointer.vue";
+import Integrations2 from "./ui/integrations2.vue";
+import Features4 from "./ui/features4.vue";
+import Bento1 from "./ui/bento1.vue";
 
 const cards = [
   {
-    title: "Short Term Loans",
-    date: "Applications open",
+    title: "Idea Submission",
+    open: true,
+    description:
+      "Intuitive portal with mandatory fields and document uploads for effortless idea capture.",
     image: "/themes/gaborone.jpg",
   },
   {
-    title: "Long Term Loans",
-    date: "Rolling intake",
+    title: "Multi-Level Evaluation",
+    open: true,
+    description:
+      "Evaluation teams score on customisable criteria with adjudication and feedback loops.",
     image: "/themes/gaborone-hills.jpg",
   },
   {
-    title: "Loan Consolidation",
-    date: "By appointment",
+    title: "Status Tracking",
+    open: true,
+    description:
+      "Track every idea from submission through review, feedback, approval and award.",
     image: "/themes/okavango.jpg",
   },
 ];
@@ -75,7 +93,7 @@ const cards = [
 <style module>
 .wrap {
   width: 100%;
-  max-width: 1200px;
+  max-width: 1152px;
   position: relative;
   z-index: 1;
   display: flex;
@@ -137,7 +155,7 @@ const cards = [
   overflow: hidden;
   border-radius: 16px;
   border: 1px solid #f4f4f5;
-  background-color: #ffffff;
+  background-color: rgba(1, 53, 37, 0.04);
   transition: box-shadow 200ms ease;
 }
 .cardWrap:hover .demoCard {

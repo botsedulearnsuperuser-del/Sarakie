@@ -158,14 +158,29 @@
               <div :class="$style.fieldRow">
                 <div :class="$style.field">
                   <span :class="$style.fieldLabel">Two-factor auth</span>
-                  <span :class="$style.fieldValueGreen">Enabled</span>
+                  <span v-if="twoFactorEnabled" :class="$style.fieldValueGreen">Enabled</span>
+                  <button
+                    v-else
+                    :class="$style.enableTwoFactorBtn"
+                    type="button"
+                    @click="openTwoFactorSetup"
+                  >
+                    Enable 2FA
+                  </button>
                 </div>
                 <div :class="$style.field">
                   <span :class="$style.fieldLabel">Last login</span>
                   <span :class="$style.fieldValue">Today, 08:42 AM</span>
                 </div>
               </div>
-              <button :class="$style.changePassBtn" type="button" @click="openPasswordModal">Change password</button>
+              <div :class="$style.securityActions">
+                <button :class="$style.changePassBtn" type="button" @click="openPasswordModal">
+                  Change password
+                </button>
+                <button :class="$style.deleteAccountBtn" type="button" @click="openDeleteModal">
+                  Delete account
+                </button>
+              </div>
             </div>
 
             <!-- Vertical Divider -->
@@ -485,6 +500,60 @@
           </form>
         </div>
       </div>
+
+      <!-- Delete Account Modal -->
+      <div
+        v-if="showDeleteModal"
+        :class="$style.modalOverlay"
+        @click.self="closeDeleteModal"
+      >
+        <div :class="[$style.modalCard, $style.deleteModalCard]">
+          <div :class="$style.modalHeader">
+            <div>
+              <h3 :class="$style.modalTitle">Delete account</h3>
+              <p :class="$style.modalSub">
+                This permanently removes your administrator account and your access to the CEDA
+                Innovation Portal.
+              </p>
+            </div>
+          </div>
+
+          <form :class="$style.modalForm" @submit.prevent="confirmDeleteAccount">
+            <div :class="$style.inputGroup">
+              <label :class="$style.inputLabel" for="delete-email">
+                Type your email address to confirm
+              </label>
+              <input
+                id="delete-email"
+                v-model="deleteEmail"
+                :class="$style.deleteInput"
+                type="email"
+                autocomplete="off"
+                :placeholder="accountEmail"
+              />
+              <div v-if="deleteEmail && !emailMatches" :class="$style.errorText">
+                That email does not match {{ accountEmail }}
+              </div>
+            </div>
+
+            <p :class="$style.deleteBackupNote">
+              Once your account is deleted, a backup of your data will be generated and downloaded for
+              you, including your personal data and the records you created on the portal.
+            </p>
+
+            <p :class="$style.deleteWarning">Warning: this action cannot be undone.</p>
+
+            <div :class="$style.modalActions">
+              <button type="button" :class="$style.modalCancelBtn" @click="closeDeleteModal">
+                Cancel
+              </button>
+              <button type="submit" :class="$style.deleteConfirmBtn" :disabled="!emailMatches">
+                Delete account
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
           </main>
     <ChatWithAgent />
    </div>
@@ -497,9 +566,14 @@
   const isGaborone = ref(isGaboroneTheme());
   onMounted(() => {
     window.addEventListener(THEME_EVENT, () => (isGaborone.value = isGaboroneTheme()));
+    window.addEventListener("sarka-2fa-changed", syncTwoFactorState);
   });
 
-import { onMounted, ref, computed, useCssModule } from "vue";
+  onUnmounted(() => {
+    window.removeEventListener("sarka-2fa-changed", syncTwoFactorState);
+  });
+
+import { onMounted, onUnmounted, ref, computed, useCssModule } from "vue";
 import { THEME_EVENT, isGaboroneTheme } from "../components/themes";
 import Main from "../components/Main.vue";
 import ChatWithAgent from "../components/ChatWithAgent.vue";
@@ -571,6 +645,41 @@ function openPasswordModal() {
 function closePasswordModal() {
   showPasswordModal.value = false;
   passwordSuccess.value = false;
+}
+
+/* ── Two-factor auth state ── */
+const twoFactorEnabled = ref(sessionStorage.getItem("sarka-2fa-enabled") === "1");
+
+function syncTwoFactorState() {
+  twoFactorEnabled.value = sessionStorage.getItem("sarka-2fa-enabled") === "1";
+}
+
+function openTwoFactorSetup() {
+  window.dispatchEvent(new CustomEvent("open-two-factor-setup"));
+}
+
+/* ── Delete account ── */
+const accountEmail = "m.lucas@ceda.co.bw";
+const showDeleteModal = ref(false);
+const deleteEmail = ref("");
+
+const emailMatches = computed(
+  () => deleteEmail.value.trim().toLowerCase() === accountEmail.toLowerCase(),
+);
+
+function openDeleteModal() {
+  deleteEmail.value = "";
+  showDeleteModal.value = true;
+}
+
+function closeDeleteModal() {
+  showDeleteModal.value = false;
+  deleteEmail.value = "";
+}
+
+function confirmDeleteAccount() {
+  if (!emailMatches.value) return;
+  closeDeleteModal();
 }
 
 function submitPasswordChange() {
@@ -1104,6 +1213,26 @@ function getActionClass(type: string) {
   color: #2b9c6e;
 }
 
+.enableTwoFactorBtn {
+  align-self: flex-start;
+  margin-top: 2px;
+  padding: 5px 14px;
+  border: 1px solid #dc2626;
+  border-radius: 8px;
+  background-color: #dc2626;
+  color: #ffffff;
+  font-family: var(--font-inter);
+  font-size: 12.5px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.enableTwoFactorBtn:hover {
+  background-color: #b91c1c;
+  border-color: #b91c1c;
+}
+
 .fieldValueMuted {
   font-size: 14px;
   font-weight: 600;
@@ -1128,6 +1257,96 @@ function getActionClass(type: string) {
 .changePassBtn:hover {
   background-color: var(--color-darkslategray-600);
   color: #ffffff;
+}
+
+.securityActions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 4px;
+}
+
+.securityActions .changePassBtn {
+  margin-top: 0;
+  align-self: center;
+}
+
+.deleteAccountBtn {
+  padding: 8px 20px;
+  border: 1px solid #dc2626;
+  border-radius: 10px;
+  background-color: #dc2626;
+  color: #ffffff;
+  font-family: var(--font-inter);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.deleteAccountBtn:hover {
+  background-color: #b91c1c;
+  border-color: #b91c1c;
+}
+
+.deleteModalCard {
+  max-width: 460px;
+}
+
+.deleteInput {
+  width: 100%;
+  padding: 11px 14px;
+  border: 1px solid #d1d5db;
+  border-radius: 10px;
+  background-color: #ffffff;
+  color: #111827;
+  font-family: var(--font-inter);
+  font-size: 14px;
+  box-sizing: border-box;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.deleteInput:focus {
+  outline: none;
+  border-color: #dc2626;
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.14);
+}
+
+.deleteBackupNote {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: #4b5563;
+}
+
+.deleteWarning {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 800;
+  color: #dc2626;
+}
+
+.deleteConfirmBtn {
+  padding: 10px 24px;
+  border: none;
+  border-radius: 10px;
+  background-color: #dc2626;
+  color: #ffffff;
+  font-family: var(--font-inter);
+  font-size: 13.5px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.deleteConfirmBtn:hover:not(:disabled) {
+  background-color: #b91c1c;
+}
+
+.deleteConfirmBtn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
 }
 
 /* ── Combined Security & Permissions Card ── */

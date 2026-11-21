@@ -174,87 +174,67 @@
         <!-- Folder View Grid -->
         <div v-if="folderView" :class="$style.folderViewWrapper">
           <div
-            :class="$style.folderViewBtn"
             v-for="app in applicationsData"
             :key="app.applicationId"
-            @mouseenter="showFolderActions(app, true)"
-            @mouseleave="showFolderActions(app, false)"
+            :class="$style.folderCard"
+            @mouseenter="hoveredFolder = app.applicationId"
+            @mouseleave="hoveredFolder = (hoveredFolder === app.applicationId) ? null : hoveredFolder"
           >
-            <!-- Folder icon (default) -->
-            <svg
-              v-if="!folderOpen[app.applicationId]"
-              :class="$style.folderIcon"
-              xmlns="http://www.w3.org/2000/svg"
-              width="48"
-              height="48"
-              viewBox="0 0 24 24"
-            >
-              <path d="M0 0h24v24H0z" fill="none" />
-              <g fill="none">
-                <path
-                  fill="currentColor"
-                  d="M22.24 14.2c0 2.83 0 4.24-.88 5.12s-2.3.88-5.12.88H7.76c-2.83 0-4.24 0-5.12-.88s-.88-2.29-.88-5.12V7.5c0-.65 0-.98.05-1.25a3 3 0 0 1 2.4-2.4c.27-.05.6-.05 1.25-.05H6.5c1.1 0 1.64 0 2.14.18c.5.19.92.54 1.75 1.25l.39.33c.83.71 1.25 1.06 1.75 1.25s1.05.18 2.14.18h1.56c2.83 0 4.24 0 5.12.88s.88 2.3.88 5.12z"
-                  opacity=".2"
-                />
-                <path
-                  stroke="currentColor"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="1.5"
-                  d="M4.32 3.93H6.5c.65 0 .97 0 1.28.05a4 4 0 0 1 1.61.63c.26.17.5.4.97.83c.47.44.7.66.97.84a4 4 0 0 0 1.61.63c.3.05.63.05 1.28.05h1.39c2.45 0 3.67 0 4.59.52a4 4 0 0 1 1.51 1.51c.52.92.52 2.14.52 4.6c0 2.44 0 3.66-.52 4.58a4 4 0 0 1-1.51 1.51c-.92.52-2.14.52-4.59.52H9.76c-3.77 0-5.66 0-6.83-1.17s-1.17-3.06-1.17-6.83V6.5a2.56 2.56 0 0 1 2.56-2.56m4.38 9.64h6.6M12 16.89v-6.6"
-                />
-              </g>
-            </svg>
-            <!-- Open folder icon (hover) -->
-            <svg
-              v-else
-              :class="$style.folderIconOpen"
-              xmlns="http://www.w3.org/2000/svg"
-              width="48"
-              height="48"
-              viewBox="0 0 24 24"
-            >
-              <path d="M0 0h24v24H0z" fill="none" />
-              <g fill="none">
-                <path
-                  fill="currentColor"
-                  d="M19.99 8.46c.24.53.36.8.36 1.01a1 1 0 0 1-.6.91c-.19.1-.48.1-1.06.1H6.42c-.62 0-.92 0-1.17.15s-.37.43-.64.98L1.7 17.77l.38-11.31c.02-.82.04-1.23.29-1.5s.65-.32 1.46-.42l1.33-.16h2.33c.36 0 .54 0 .71.06s.3.18.58.41l2.43 2.06c.27.22.4.33.55.4c.16.05.33.06.67.07l6.32.24c.26.01.38.02.5.05a1 1 0 0 1 .52.35c.07.1.12.21.23.44"
-                  opacity=".2"
-                />
-                <path
-                  stroke="currentColor"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="1.5"
-                  d="M11.29 19.59h-3.6c-2.83 0-4.25 0-5.13-.88s-.87-2.3-.87-5.12V6.9a2.4 2.4 0 0 1 2.4-2.4h2.06c.51 0 .77 0 1.02.03a4 4 0 0 1 1.82.71c.2.15.4.32.77.66c.38.35.56.52.77.67a4 4 0 0 0 1.82.7c.25.04.5.04 1.02.04h4.45c1.7 0 3.07 1.37 3.07 3.07"
-                />
-                <path
-                  stroke="currentColor"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="1.5"
-                  d="M10.8 10.42h6.87c2.67 0 4 0 4.6.87c.6.88.1 2.12-.89 4.6l-.46 1.17c-.49 1.23-.73 1.84-1.24 2.18c-.5.35-1.16.35-2.48.35H7.38c-2.59 0-3.88 0-4.48-.85c-.6-.86-.16-2.07.72-4.51l.42-1.17c.47-1.28.7-1.92 1.21-2.28c.52-.36 1.2-.36 2.56-.36z"
-                />
-              </g>
-            </svg>
-            <div :class="$style.folderIconName">{{ app.name }}</div>
+            <FolderReveal
+              :color="folderColor(app.name)"
+              :items="folderItems"
+              :label="app.name"
+              :size="150"
+              :open="hoveredFolder === app.applicationId"
+            />
+            <div :class="$style.folderIconActions">
+              <button :class="$style.folderIconBtn" type="button" title="Rename folder" @click="openRenamePopup(app)">
+                <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24">
+                  <path d="M0 0h24v24H0z" fill="none" />
+                  <g fill="none" stroke="currentColor" stroke-linecap="square" stroke-miterlimit="3.5" stroke-width="1.5">
+                    <path d="M4 4.5C4 3.67 4.67 3 5.5 3H13l5 5v4.5" />
+                    <path d="M13 3v5h5m-7.5 13h-5c-.83 0-1.5-.67-1.5-1.5v-15M14.75 22l.5-2.5L20 14.75l2 2l-4.75 4.75Z" />
+                  </g>
+                </svg>
+              </button>
+              <button :class="$style.folderIconBtn" type="button" title="Open" @click="doOpen(app)">
+                <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24">
+                  <path d="M0 0h24v24H0z" fill="none" />
+                  <g fill="none">
+                    <path fill="currentColor" d="M19.99 8.46c.24.53.36.8.36 1.01a1 1 0 0 1-.6.91c-.19.1-.48.1-1.06.1H6.42c-.62 0-.92 0-1.17.15s-.37.43-.64.98L1.7 17.77l.38-11.31c.02-.82.04-1.23.29-1.5s.65-.32 1.46-.42l1.33-.16h2.33c.36 0 .54 0 .71.06s.3.18.58.41l2.43 2.06c.27.22.4.33.55.4c.16.05.33.06.67.07l6.32.24c.26.01.38.02.5.05a1 1 0 0 1 .52.35c.07.1.12.21.23.44" opacity=".2" />
+                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M11.29 19.59h-3.6c-2.83 0-4.25 0-5.13-.88s-.87-2.3-.87-5.12V6.9a2.4 2.4 0 0 1 2.4-2.4h2.06c.51 0 .77 0 1.02.03a4 4 0 0 1 1.82.71c.2.15.4.32.77.66c.38.35.56.52.77.67a4 4 0 0 0 1.82.7c.25.04.5.04 1.02.04h4.45c1.7 0 3.07 1.37 3.07 3.07" />
+                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M10.8 10.42h6.87c2.67 0 4 0 4.6.87c.6.88.1 2.12-.89 4.6l-.46 1.17c-.49 1.23-.73 1.84-1.24 2.18c-.5.35-1.16.35-2.48.35H7.38c-2.59 0-3.88 0-4.48-.85c-.6-.86-.16-2.07.72-4.51l.42-1.17c.47-1.28.7-1.92 1.21-2.28c.52-.36 1.2-.36 2.56-.36z" />
+                  </g>
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
 
-            <!-- Floating actions on hover -->
-            <Transition name="folderFade">
-              <div v-if="folderOpen[app.applicationId]" :class="$style.folderActions">
-                <button :class="$style.folderActionBtn" type="button" @click.stop="renameFolder(app)">
-                  Rename folder
-                </button>
-                <button :class="$style.folderActionBtn" type="button" @click.stop="openApplication(app)">
-                  Open
-                </button>
-              </div>
-            </Transition>
+        <!-- Rename folder popup -->
+        <div v-if="renamePopupApp" :class="$style.renameOverlay" @click.self="closeRenamePopup">
+          <div :class="$style.renamePopup">
+            <h3 :class="$style.renameTitle">Rename folder</h3>
+            <input
+              v-model="renameDraft"
+              :class="$style.renameInput"
+              type="text"
+              placeholder="Folder name"
+              @keydown.enter="saveRenamePopup"
+              @keydown.escape="closeRenamePopup"
+            />
+            <p :class="$style.renameNote">
+              This will only rename the folder and will not affect the name of the application file.
+            </p>
+            <div :class="$style.renameActions">
+              <button :class="$style.renameCancelBtn" type="button" @click="closeRenamePopup">Cancel</button>
+              <button :class="$style.renameSaveBtn" type="button" @click="saveRenamePopup">Save</button>
+            </div>
           </div>
         </div>
 
         <!-- Loans Table (List View) -->
-        <div v-else :class="$style.tableSection">
+        <div v-if="!folderView" :class="$style.tableSection">
           <div :class="$style.tableHeadingRow">
             <h2 :class="$style.tableHeading">Applications</h2>
             <button
@@ -322,6 +302,7 @@
           </div>
         </div>
       </section>
+
     </main>
     <ChatWithAgent />
   </div>
@@ -342,13 +323,49 @@ import { THEME_EVENT, isGaboroneTheme } from "../components/themes";
 import { useRouter } from "vue-router";
 import Main from "../components/Main.vue";
 import ChatWithAgent from "../components/ChatWithAgent.vue";
+import FolderReveal from "../components/ui/FolderReveal.vue";
 
 const router = useRouter();
 const activeFilter = ref("all");
 const activeView = ref<"all" | "awaiting">("all");
 const searchQuery = ref("");
 const folderView = ref(false);
-const folderOpen = ref<Record<string, boolean>>({});
+const hoveredFolder = ref<string | null>(null);
+const renamePopupApp = ref<ApplicationRecord | null>(null);
+const renameDraft = ref("");
+
+function openRenamePopup(app: ApplicationRecord) {
+  renamePopupApp.value = app;
+  renameDraft.value = app.name;
+}
+function closeRenamePopup() {
+  renamePopupApp.value = null;
+}
+function saveRenamePopup() {
+  const app = renamePopupApp.value;
+  const v = renameDraft.value.trim();
+  if (app && v) app.name = v;
+  closeRenamePopup();
+}
+
+const docCard = (title: string, size: string, bg = "#f4f4f5") => `
+<div style="display:flex;flex-direction:column;height:100%;">
+  <div style="flex:1;padding:6px;display:flex;flex-direction:column;gap:3px;background:${bg};">
+    <div style="height:2px;border-radius:9999px;background:rgba(0,0,0,0.15);width:88%;"></div>
+    <div style="height:2px;border-radius:9999px;background:rgba(0,0,0,0.15);width:70%;"></div>
+    <div style="height:2px;border-radius:9999px;background:rgba(0,0,0,0.15);width:78%;"></div>
+  </div>
+  <div style="border-top:1px solid rgba(0,0,0,0.1);padding:2px 4px;background:#ffffff;">
+    <p style="font-size:8px;font-weight:600;margin:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#1a202c;">${title}</p>
+    <p style="font-size:6px;color:#718096;margin:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${size}</p>
+  </div>
+</div>`;
+
+const folderItems = [
+  { id: "doc-1", content: docCard("Business Plan.pdf", "PDF • 2.1 MB") },
+  { id: "doc-2", content: docCard("Prototype Photos.docx", "DOCX • 8.4 MB", "oklch(0.975 0.014 150)") },
+  { id: "doc-3", content: docCard("Budget Breakdown.xlsx", "XLSX • 340 KB") },
+];
 
 type ApplicationStatus =
   | "UNDER REVIEW"
@@ -460,12 +477,18 @@ const filteredApplications = computed(() => {
 
 const style = useCssModule();
 
-function showFolderActions(app: ApplicationRecord, show: boolean) {
-  folderOpen.value[app.applicationId] = show;
+function folderColor(name: string): "manila" | "brand" | "blue" | "green" | "slate" {
+  const map: Record<string, "manila" | "brand" | "blue" | "green" | "slate"> = {
+    "Irrigation Kit": "green",
+    "Solar Dryer": "blue",
+    "Edu App": "brand",
+    "Agri Drone": "slate",
+  };
+  return map[name] ?? "manila";
 }
 
-function renameFolder(app: ApplicationRecord) {
-  alert(`Rename folder for ${app.name} — ${app.applicationId}`);
+function doOpen(app: ApplicationRecord) {
+  openApplication(app);
 }
 
 const getStatusClass = (status: string) => {
@@ -1158,10 +1181,16 @@ const getStatusClass = (status: string) => {
 /* Folder View */
 .folderViewWrapper {
   display: flex;
-  gap: 20px;
-  padding: 0 28px 24px;
+  gap: 28px;
+  padding: 40px 28px;
   flex-wrap: wrap;
   justify-content: center;
+  align-items: flex-start;
+  background: #ffffff;
+  border: 1px solid #ede9e1;
+  border-radius: 16px;
+  margin: 0 28px 24px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
 }
 
 .folderViewBtn {
@@ -1384,4 +1413,205 @@ const getStatusClass = (status: string) => {
 .isGaborone .marionLucas {
   color: var(--color-darkslategray-500);
 }
+
+/* FolderReveal folder cards */
+.folderCard {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  min-height: 0;
+  min-width: 0;
+}
+
+/* icon actions revealed on hover, bottom-right of folder (no container) */
+.folderIconActions {
+  position: absolute;
+  bottom: 30px;
+  right: 8px;
+  display: flex;
+  flex-direction: row;
+  gap: 4px;
+  padding: 0;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s ease;
+  z-index: 20;
+}
+
+.folderCard:hover .folderIconActions {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.folderIconBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: #ffffff;
+  font-size: 20px;
+  cursor: pointer;
+  transition: opacity 0.15s ease;
+}
+
+.folderIconBtn:hover {
+  opacity: 0.75;
+}
+
+/* Rename folder popup */
+.renameOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.renamePopup {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 20px;
+  width: 320px;
+  max-width: 90vw;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.renameTitle {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--color-darkslategray-600);
+}
+
+.renameInput {
+  padding: 8px 10px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 14px;
+  font-family: var(--font-inter);
+  outline: none;
+}
+
+.renameInput:focus {
+  border-color: var(--color-darkslategray-600);
+}
+
+.renameNote {
+  margin: 0;
+  font-size: 12px;
+  color: #6b7280;
+  line-height: 1.4;
+}
+
+.renameActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.renameCancelBtn {
+  padding: 6px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #374151;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.renameSaveBtn {
+  padding: 6px 12px;
+  border: none;
+  border-radius: 8px;
+  background: var(--color-darkslategray-600);
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.renameSaveBtn:hover {
+  background: var(--color-darkslategray-500);
+}
+
+/* small popup container */
+.popup {
+  position: fixed;
+  z-index: 50;
+  background: #ffffff;
+  color: var(--color-darkslategray-600);
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 180px;
+}
+
+.popupTitle {
+  font-weight: 600;
+  margin: 0 0 4px;
+  font-size: 14px;
+}
+
+.popupBtn {
+  padding: 8px 12px;
+  border: none;
+  border-radius: 8px;
+  background: var(--color-darkslategray-600);
+  color: #ffffff;
+  font-size: 13px;
+  cursor: pointer;
+  text-align: left;
+  font-family: var(--font-inter);
+}
+
+.popupBtn:hover {
+  opacity: 0.9;
+}
+
+.popupClose {
+  position: absolute;
+  top: 6px;
+  right: 8px;
+  border: none;
+  background: transparent;
+  font-size: 18px;
+  cursor: pointer;
+  color: #737373;
+}
+
+.pop-enter-active,
+.pop-leave-active {
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+.pop-enter-from,
+.pop-leave-to {
+  opacity: 0;
+  transform: translate(-50%, -48%) scale(0.96);
+}
+
 </style>

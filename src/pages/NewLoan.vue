@@ -447,7 +447,14 @@
                     {{ selectedIdea || "Untitled idea" }}, {{ selectedSector }}
                   </div>
                 </div>
-                <GhostBuddy :step="currentStep" :confirmed="ideaAuthorization" />
+                <div :class="$style.summaryOrb">
+                  <AIOrbFace
+                    :size="80"
+                    :state="stepOrbState(currentStep)"
+                    :expression="STEP_CHARACTERS[currentStep - 1]"
+                  />
+                  <div :class="$style.summaryOrbBubble">{{ stepMessage(currentStep, ideaAuthorization) }}</div>
+                </div>
               </div>
               <div :class="$style.summaryDivider"></div>
               <div :class="$style.summaryRows">
@@ -503,10 +510,39 @@ import { onMounted, ref, computed } from "vue";
 import { THEME_EVENT, isGaboroneTheme } from "../components/themes";
 
 import Main from "../components/Main.vue";
-import GhostBuddy from "../components/GhostBuddy.vue";
+import AIOrbFace, { type AIState, type ExpressionName } from "../components/ui/AIOrbFace.vue";
 
 const steps = ["Idea overview", "Innovator details", "Contact & address", "Field / Industry", "Supporting documents", "Submission"];
 const currentStep = ref(1);
+
+const STEP_CHARACTERS: ExpressionName[] = [
+  "neutral",
+  "alert",
+  "doubtful",
+  "focused",
+  "content",
+  "wink",
+];
+
+function stepOrbState(stepNumber: number): AIState {
+  if (ideaAuthorization.value) return "done";
+  if (stepNumber < currentStep.value) return "done";
+  if (stepNumber === currentStep.value) return "listening";
+  return "idle";
+}
+
+function stepMessage(stepNumber: number, confirmed: boolean): string {
+  if (confirmed) return "You made it!";
+  const messages = [
+    "Let's shape your idea.",
+    "Nice one, keep it coming.",
+    "Your idea is taking shape.",
+    "Look at you go.",
+    "Almost there, stay with me.",
+    "Ready to submit.",
+  ];
+  return messages[Math.min(Math.max(stepNumber - 1, 0), messages.length - 1)] ?? "";
+}
 
 const selectedIdea = ref("");
 const selectedSector = ref("Agriculture");
@@ -1500,6 +1536,30 @@ function resetForm() {
 .summaryTopText {
   flex: 1;
   min-width: 0;
+}
+
+.summaryOrb {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+  width: 104px;
+}
+
+.summaryOrbBubble {
+  min-height: 26px;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 4px 6px;
+  border-radius: 8px;
+  background-color: #ffffff;
+  border: 1px solid #ede9e1;
+  color: #0f2e24;
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 1.2;
+  text-align: center;
 }
 
 .summaryLabel {

@@ -233,7 +233,7 @@ function viewDrafts() {
     box-sizing: border-box;
     min-width: 57px;
     z-index: 2;
-    margin-left: -7.9px;
+    margin-left: 2px;
     position: relative;
     font-size: 35.2px;
     color: var(--color-goldenrod-200);

@@ -77,25 +77,7 @@
             </div>
           </section>
 
-          <article v-for="(entry, index) in faqs" :key="entry.question" :class="$style.entry">
-            <button type="button" :class="$style.entryToggle" @click="toggle(index)" :aria-expanded="opened[index]">
-              <div :class="$style.entryHead">
-                <span :class="$style.entryIndex">
-                  Question {{ String(index + 1).padStart(2, "0") }}
-                </span>
-                <h3 :class="$style.question">{{ entry.question }}</h3>
-              </div>
-              <span :class="[$style.chevron, opened[index] ? $style.chevronOpen : '']" aria-hidden="true">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
-              </span>
-            </button>
-            <div v-show="opened[index]" :class="$style.answer">
-              <span :class="$style.answerLabel">Answer</span>
-              <p v-for="paragraph in entry.answer" :key="paragraph" :class="$style.answerText">
-                {{ paragraph }}
-              </p>
-            </div>
-          </article>
+          <FaqCategorized />
 
           <div :class="$style.helpCard">
             <div :class="$style.helpText">
@@ -122,7 +104,8 @@
   import { useRoute } from "vue-router";
   import Main from "../components/Main.vue";
   import { usePageTheme } from "../composables/usePageTheme";
-import { THEME_EVENT, isGaboroneTheme } from "../components/themes"
+import { THEME_EVENT, isGaboroneTheme } from "../components/themes";
+import FaqCategorized from "../components/ui/FaqCategorized.vue";
 
   const pageBackground = usePageTheme();
   const isGaborone = ref(isGaboroneTheme());
@@ -254,10 +237,6 @@ const faqs: FaqEntry[] = [
   },
 ];
 
-const opened = ref<boolean[]>(faqs.map(() => false));
-function toggle(index: number) {
-  opened.value[index] = !opened.value[index];
-}
 </script>
 
 <style module>

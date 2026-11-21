@@ -1,7 +1,8 @@
 <template>
   <div :class="[$style.dashboardSample, isGaborone ? $style.isGaborone : '']" :style="dashboardBackground">
-    <Main />
+    <Main :active-page="'dashboard'" role="innovator" />
     <main :class="$style.mainContent">
+      <MaintenanceAnnouncement />
       <header :class="$style.div">
         <div :class="$style.div2">
           <div :class="$style.h2actH">
@@ -253,15 +254,20 @@
             </div>
 
             <div :class="$style.feedbackCallout">
-              <div :class="$style.feedbackCalloutTitle">
-                Demo feedback on “Feedback Required”
+              <div :class="$style.feedbackCalloutMascot">
+                <GhostBuddy :step="2" :show-bubble="false" />
               </div>
-              <div :class="$style.feedbackCalloutText">
-                “Clarify revenue model &amp; add CIPA reg. number”
+              <div :class="$style.feedbackCalloutBody">
+                <div :class="$style.feedbackCalloutTitle">
+                  Demo feedback on “Feedback Required”
+                </div>
+                <div :class="$style.feedbackCalloutText">
+                  “Clarify revenue model &amp; add CIPA reg. number”
+                </div>
+                <button :class="$style.actionButton" type="button" @click="handleRespondToFeedback">
+                  Respond to feedback
+                </button>
               </div>
-              <button :class="$style.actionButton" type="button" @click="handleRespondToFeedback">
-                Respond to feedback
-              </button>
             </div>
           </div>
         </section>
@@ -274,9 +280,11 @@
   import { computed, onBeforeUnmount, onMounted, ref } from "vue"
   import { useRouter } from "vue-router"
   import Main from "../components/Main.vue"
+  import MaintenanceAnnouncement from "../components/ui/maintenance-announcement.vue"
   import ChatWithAgent from "../components/ChatWithAgent.vue"
   import ActiveLoan from "../components/ActiveLoan.vue"
   import AccountSummary from "../components/AccountSummary.vue"
+  import GhostBuddy from "../components/GhostBuddy.vue"
   import Section from "../components/Section.vue"
   import Li from "../components/Li.vue"
   import PointerHighlight from "../components/ui/pointer-highlight.vue"
@@ -766,6 +774,23 @@
     color: var(--color-darkslategray-500);
     cursor: pointer;
     white-space: nowrap;
+    transition: transform 0.22s ease, box-shadow 0.22s ease, background-color 0.22s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  }
+  .agold:hover {
+    transform: translateY(-2px);
+    background-color: var(--color-goldenrod-300, #f0c84a);
+    box-shadow: 0 8px 18px rgba(238, 194, 75, 0.45);
+  }
+  .agold:active {
+    transform: translateY(0) scale(0.97);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+  }
+  .agold .frameIcon3 {
+    transition: transform 0.22s ease;
+  }
+  .agold:hover .frameIcon3 {
+    transform: translateX(4px);
   }
   .frameIcon3 {
     height: var(--height-16);
@@ -1324,6 +1349,22 @@
     color: var(--color-darkslategray-500);
     cursor: pointer;
     white-space: nowrap;
+    transition: transform 0.22s ease, box-shadow 0.22s ease, background-color 0.22s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
+  }
+  .agold2:hover {
+    transform: translateY(-2px);
+    background-color: var(--color-goldenrod-300, #f0c84a);
+    box-shadow: 0 10px 22px rgba(238, 194, 75, 0.5);
+  }
+  .agold2:active {
+    transform: translateY(0) scale(0.97);
+  }
+  .agold2 .frameIcon4 {
+    transition: transform 0.22s ease;
+  }
+  .agold2:hover .frameIcon4 {
+    transform: translateX(4px);
   }
   .applyFor {
     position: relative;
@@ -1684,6 +1725,25 @@
     background-color: var(--color-blanchedalmond);
     border: 1px solid var(--color-goldenrod-200);
     display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 12px;
+  }
+  .feedbackCalloutMascot {
+    flex-shrink: 0;
+    width: 60px;
+    height: 42px;
+    overflow: visible;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transform: scale(0.6);
+    transform-origin: left center;
+  }
+  .feedbackCalloutBody {
+    flex: 1;
+    min-width: 0;
+    display: flex;
     flex-direction: column;
     align-items: flex-start;
     gap: 6px;
@@ -1850,6 +1910,26 @@
     border-radius: 50%;
     background-color: var(--color-goldenrod-200);
     flex-shrink: 0;
+  }
+
+  @keyframes submitGlow {
+    0%,
+    100% {
+      box-shadow: 0 2px 8px rgba(238, 194, 75, 0.25);
+    }
+    50% {
+      box-shadow: 0 6px 16px rgba(238, 194, 75, 0.55);
+    }
+  }
+  .agold,
+  .agold2 {
+    animation: submitGlow 2.4s ease-in-out infinite;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .agold,
+    .agold2 {
+      animation: none;
+    }
   }
 
   @media screen and (max-width: 1200px) {

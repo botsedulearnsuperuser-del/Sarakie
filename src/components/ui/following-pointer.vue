@@ -36,7 +36,7 @@
     },
   )
 
-  const EXIT_MS = 150
+  const EXIT_MS = 50
 
   const cardRef = ref<HTMLDivElement | null>(null)
   const x = ref(0)
@@ -80,6 +80,5 @@
 <style module>
   .card {
     position: relative;
-    cursor: none;
   }
 </style>

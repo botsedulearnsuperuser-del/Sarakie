@@ -1,7 +1,8 @@
 <template>
   <div :class="[$style.evaluatorDashboard, isGaborone ? $style.isGaborone : '']" :style="dashboardBackground">
-    <Main :active-page="'evaluator'" />
+    <Main :active-page="'evaluator'" role="evaluator" />
     <main :class="$style.mainContent">
+      <MaintenanceAnnouncement />
       <header :class="$style.div">
         <div :class="$style.div2">
           <div :class="$style.h2actH">
@@ -247,6 +248,7 @@
   import { computed, onBeforeUnmount, onMounted, ref } from "vue"
   import { useRouter } from "vue-router"
   import Main from "../components/Main.vue"
+  import MaintenanceAnnouncement from "../components/ui/maintenance-announcement.vue"
   import ChatWithAgent from "../components/ChatWithAgent.vue"
   import PointerHighlight from "../components/ui/pointer-highlight.vue"
   import NotificationsPanel from "../components/NotificationsPanel.vue"
@@ -823,6 +825,7 @@
     min-width: 0;
     border-radius: var(--br-26);
     background-color: var(--color-white);
+    font-family: var(--font-inter);
     border: var(--border-2);
     box-sizing: border-box;
     overflow: hidden;
@@ -873,6 +876,7 @@
   .rubricPromoFooter {
     flex: 0 0 auto;
     position: relative;
+    font-family: var(--font-inter);
     z-index: 3;
     background-color: var(--color-darkslategray-600);
     display: flex;
@@ -891,15 +895,18 @@
     font-weight: 800;
     font-size: 18.9px;
     color: var(--color-white);
+    font-family: var(--font-inter);
   }
   .rubricPromoSub {
     margin-top: 4px;
     font-size: var(--fs-13);
     color: var(--color-gainsboro);
+    font-family: var(--font-inter);
   }
   .rubricPromoBtn {
     height: 44px;
     flex-shrink: 0;
+    font-family: var(--font-inter);
     border-radius: var(--br-12);
     background-color: var(--color-goldenrod-200);
     display: flex;

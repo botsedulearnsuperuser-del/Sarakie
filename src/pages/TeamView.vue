@@ -1,7 +1,7 @@
 <template>
   <div :class="[$style.page, isGaborone ? $style.isGaborone : '']" :style="pageBackground">
     <!-- Reusable Stationary Sidebar -->
-    <Main />
+    <Main :active-page="'team'" />
 
     <!-- Main Scrollable Content -->
     <main :class="$style.mainContent">
@@ -30,6 +30,28 @@
           </router-link>
         </div>
       </header>
+
+      <!-- Quick links sitting under the signed-in user chip -->
+      <div :class="$style.quickNav">
+        <router-link
+          to="/team"
+          :class="$style.quickNavItem"
+          :active-class="$style.quickNavItemActive"
+          >Team</router-link
+        >
+        <router-link
+          to="/ideas"
+          :class="$style.quickNavItem"
+          :active-class="$style.quickNavItemActive"
+          >Ideas</router-link
+        >
+        <router-link
+          to="/deadlines"
+          :class="$style.quickNavItem"
+          :active-class="$style.quickNavItemActive"
+          >Deadline</router-link
+        >
+      </div>
 
       <!-- Team Section -->
       <section :class="$style.cardContainer">
@@ -273,6 +295,10 @@
         </div>
       </section>
     </main>
+    <div :class="$style.taskWidgetDock">
+      <TaskWidget :data="teamTask" />
+      <VoiceChatDisclosure />
+    </div>
     <ChatWithAgent />
   </div>
 </template>
@@ -290,9 +316,31 @@ import { onMounted, ref } from "vue";
 import { THEME_EVENT, isGaboroneTheme } from "../components/themes";
 import Main from "../components/Main.vue";
 import ChatWithAgent from "../components/ChatWithAgent.vue";
+import TaskWidget from "../components/ui/task-widget.vue";
+import VoiceChatDisclosure from "../components/ui/voice-chat-disclosure.vue";
 
 // activePage not passed to Main since Team is no longer in the sidebar nav
 // Main defaults to "dashboard" when no matching page is found
+
+const teamTask = {
+  title: "Design System",
+  progress: 75,
+  completedCount: 3,
+  totalCount: 4,
+  priority: "Urgent",
+  status: "In Progress",
+  subtasks: [
+    { id: "1", title: "Design Tokens", completed: true },
+    { id: "2", title: "Color System", completed: true },
+    { id: "3", title: "Type System", completed: true },
+    { id: "4", title: "Documentation", completed: false },
+  ],
+  assignees: [
+    { name: "Chloe", avatar: "/hero-woman.webp", color: "bg-white" },
+    { name: "Anna", avatar: "/hero-client.webp", color: "bg-white" },
+    { name: "Ramesh", avatar: "/innovator-man.webp", color: "bg-white" },
+  ],
+};
 
 const teamMembers = ref<Array<{ id: number; name: string; email: string; role: string; avatar?: string }>>([]);
 
@@ -537,12 +585,50 @@ function removeMember(id: number) {
   color: var(--color-darkslategray-500);
 }
 
+/* Quick links under the user chip */
+.quickNav {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  width: max-content;
+  max-width: 100%;
+  margin: 0 0 18px auto;
+  padding: 6px;
+  border: 1px solid var(--color-lightgray-100);
+  border-radius: 14px;
+  background-color: var(--color-white);
+  box-shadow: 0 2px 8px rgba(15, 46, 36, 0.06);
+  box-sizing: border-box;
+}
+
+.quickNavItem {
+  padding: 6px 14px;
+  border-radius: 9px;
+  font-size: var(--fs-13);
+  font-weight: 600;
+  color: var(--color-darkslategray-500);
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color 0.18s ease;
+}
+
+.quickNavItem:hover {
+  background-color: #f4efe6;
+}
+
+.quickNavItemActive {
+  background-color: #f4efe6;
+  color: #013525;
+}
+
 .cardContainer {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 32px;
 }
+
 
 /* Empty State */
 .emptyState {
@@ -1081,5 +1167,67 @@ function removeMember(id: number) {
 }
 .isGaborone .marionLucas {
   color: var(--color-darkslategray-500);
+}
+
+/* Task widget sits above the floating Chat with agent button. */
+  .taskWidgetDock {
+    position: fixed;
+    right: 28px;
+    bottom: 92px;
+    z-index: 59;
+    width: 440px;
+    max-width: calc(100vw - 56px);
+    /* Never let the stack climb out of the viewport. */
+    max-height: calc(100dvh - 112px);
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    justify-content: flex-end;
+    gap: 20px;
+    /* Height budget the voice panel may use; its user grid scrolls beyond it. */
+    --voice-panel-max: calc(100dvh - 132px);
+    font-family: var(--font-inter, Inter, Arial, sans-serif);
+  }
+
+  /* Both panels share the dock's height and scroll internally, so the stack
+     always fits and neither panel becomes unreachable on short windows. */
+  .taskWidgetDock > :first-child {
+    flex: 0 1000 auto;
+    min-height: 0;
+  }
+
+  /* Keep the opened task panel tall enough to read before the voice panel gives way. */
+  .taskWidgetDock > :first-child[aria-expanded="true"] {
+    min-height: 180px;
+  }
+
+  .taskWidgetDock > :last-child {
+    flex: 0 0 auto;
+  }
+
+  @media screen and (min-width: 751px) {
+    /* Leave the opened task panel room to stay readable above the voice panel. */
+    .taskWidgetDock:has(> :first-child[aria-expanded="true"]) {
+      --voice-panel-max: calc(100dvh - 312px);
+    }
+  }
+
+@media screen and (max-width: 750px) {
+  .taskWidgetDock {
+    left: 14px;
+    right: 14px;
+    bottom: 76px;
+    width: auto;
+    max-width: 440px;
+    margin-left: auto;
+    gap: 18px;
+    max-height: calc(100dvh - 96px);
+    --voice-panel-max: calc(100dvh - 96px);
+  }
+
+  /* Keep the expanded voice panel clear of the mobile header. */
+  .taskWidgetDock:has([aria-label="Close voice chat"]) > :first-child {
+    display: none;
+  }
 }
 </style>
