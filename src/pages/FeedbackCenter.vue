@@ -1,7 +1,7 @@
 <template>
   <div :class="[$style.page, isGaborone ? $style.isGaborone : '']" :style="pageBackground">
     <!-- Reusable Stationary Sidebar -->
-    <Main :active-page="'customers'" />
+    <Main :active-page="'feedback-center'" />
 
     <!-- Main Scrollable Content -->
     <main :class="$style.mainContent">
@@ -24,7 +24,7 @@
             src="/Notifications-2-new.svg"
           />
           <img :class="$style.notifications2New" alt="" src="/Help.svg" />
-          <router-link to="/admin-profile" :class="$style.userA" style="text-decoration: none;">
+          <router-link to="/profile" :class="$style.userA" style="text-decoration: none;">
             <img :class="$style.userAvatarImg" src="/innovator-man.webp" alt="Marion Lucas" />
             <div :class="$style.span3">
               <div :class="$style.marionLucas">Marion Lucas</div>
@@ -39,7 +39,7 @@
           <div v-if="showPopup" :class="$style.popupOverlay" @click.self="closePopup">
             <div :class="$style.popupCard">
               <div :class="$style.popupSidebar">
-                <Main :active-page="'customers'" />
+                <Main :active-page="'feedback-center'" />
               </div>
 
               <div :class="$style.popupContent">
@@ -126,7 +126,7 @@
           <div v-if="showPopup" :class="$style.popupOverlay" @click.self="closePopup">
             <div :class="$style.popupCard">
               <div :class="$style.popupSidebar">
-                <Main :active-page="'customers'" />
+                <Main :active-page="'feedback-center'" />
               </div>
 
               <div :class="$style.popupContent">
@@ -555,7 +555,7 @@ function resubmitIdea(ideaId: string) {
   const ideaName = names[ideaId] || ideaId;
   const comment = feedbackData.find((c) => c.ideaId === ideaId);
   const target: Partial<RouteLocationRaw> = {
-    name: "IdeaView",
+    name: "ApplicationView",
     query: { name: ideaName },
   };
   if (comment?.hasCorrections) {
@@ -565,7 +565,7 @@ function resubmitIdea(ideaId: string) {
 }
 
 function openIdea(comment: FeedbackRecord) {
-  router.push({ name: "IdeaView", query: { name: comment.ideaName } });
+  router.push({ name: "ApplicationView", query: { name: comment.ideaName } });
 }
 </script>
 

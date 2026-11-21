@@ -26,7 +26,7 @@
         <div :class="$style.div3">
           <img :class="$style.notifications2New" alt="" src="/Notifications-2-new.svg" />
           <img :class="$style.notifications2New" alt="" src="/Help.svg" />
-          <router-link to="/admin-profile" :class="$style.userA" style="text-decoration: none;">
+          <router-link to="/profile" :class="$style.userA" style="text-decoration: none;">
             <img :class="$style.userAvatarImg" src="/innovator-man.webp" alt="Kago Molefe" />
             <div :class="$style.span3">
               <div :class="$style.marionLucas">Kago Molefe</div>

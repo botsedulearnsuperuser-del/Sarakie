@@ -81,15 +81,15 @@ import { useRouter } from "vue-router";
 const router = useRouter();
 
 function reviewNow() {
-  router.push({ name: "IdeaView", query: { name: "Irrigation Kit" } });
+  router.push({ name: "ApplicationView", query: { name: "Irrigation Kit" } });
 }
 
 function viewProposal() {
-  router.push({ name: "IdeaView", query: { name: "Irrigation Kit" } });
+  router.push({ name: "ApplicationView", query: { name: "Irrigation Kit" } });
 }
 
 function viewDrafts() {
-  router.push({ name: "IdeaView", query: { name: "Irrigation Kit Draft" } });
+  router.push({ name: "ApplicationView", query: { name: "Irrigation Kit Draft" } });
 }
 </script>
 <style module>

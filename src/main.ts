@@ -1,5 +1,5 @@
 import { createApp } from "vue";
-import { createRouter, createWebHistory, type RouteRecordRaw } from "vue-router";
+import { createRouter, createWebHistory, type RouteLocation, type RouteRecordRaw } from "vue-router";
 import App from "./App.vue";
 
 import LandingPage from "./pages/LandingPage.vue";
@@ -12,8 +12,8 @@ import AdminSignUp from "./pages/AdminSignUp.vue";
 import ForgotPassword from "./pages/ForgotPassword.vue";
 import MyApplications from "./pages/MyApplications.vue";
 import ReviewQueue from "./pages/ReviewQueue.vue";
-import Customers from "./pages/Customers.vue";
-import AdminProfile from "./pages/AdminProfile.vue";
+import FeedbackCenter from "./pages/FeedbackCenter.vue";
+import ProfileView from "./pages/ProfileView.vue";
 import TeamView from "./pages/TeamView.vue";
 import IdeasView from "./pages/IdeasView.vue";
 import LoginPage from "./pages/LoginPage.vue";
@@ -23,7 +23,7 @@ import ArticlePage from "./pages/ArticlePage.vue";
 import DeadlinesView from "./pages/DeadlinesView.vue";
 import NewIdea from "./pages/NewIdea.vue";
 import LoanView from "./pages/LoanView.vue";
-import IdeaView from "./pages/IdeaView.vue";
+import ApplicationView from "./pages/ApplicationView.vue";
 import CloudShaderHero from "./pages/CloudShaderHero.vue";
 import FaqPage from "./pages/FaqPage.vue";
 import ParallaxLayersDemo from "./pages/ParallaxLayersDemo.vue";
@@ -75,9 +75,9 @@ const routes: RouteRecordRaw[] = [
     component: MyApplications,
   },
   {
-    path: "/customers",
-    name: "Customers",
-    component: Customers,
+    path: "/feedback-center",
+    name: "FeedbackCenter",
+    component: FeedbackCenter,
   },
   {
     path: "/loan-view",
@@ -90,19 +90,19 @@ const routes: RouteRecordRaw[] = [
     component: LoanView,
   },
   {
-    path: "/idea-view",
-    name: "IdeaView",
-    component: IdeaView,
+    path: "/application",
+    name: "ApplicationView",
+    component: ApplicationView,
   },
   {
-    path: "/idea-view/:id",
-    name: "IdeaViewWithId",
-    component: IdeaView,
+    path: "/application/:id",
+    name: "ApplicationViewWithId",
+    component: ApplicationView,
   },
   {
-    path: "/admin-profile",
-    name: "AdminProfile",
-    component: AdminProfile,
+    path: "/profile",
+    name: "ProfileView",
+    component: ProfileView,
   },
   {
     path: "/team",
@@ -198,6 +198,10 @@ const routes: RouteRecordRaw[] = [
   },
   // Older URLs kept working for bookmarks and shared links.
   { path: "/dashboard-sample", redirect: "/innovator-dashboard" },
+  { path: "/customers", redirect: "/feedback-center" },
+  { path: "/admin-profile", redirect: "/profile" },
+  { path: "/idea-view", redirect: "/application" },
+  { path: "/idea-view/:id", redirect: (to: RouteLocation) => `/application/${to.params.id}` },
   { path: "/loans-sheet", redirect: "/my-applications" },
   { path: "/loans", redirect: "/my-applications" },
   { path: "/new-loan", redirect: "/new-idea" },

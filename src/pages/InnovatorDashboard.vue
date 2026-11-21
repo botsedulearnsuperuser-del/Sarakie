@@ -48,7 +48,7 @@
               <img :class="$style.notifications2New" alt="" src="/Help.svg" />
             </button>
           </div>
-          <router-link to="/admin-profile" :class="$style.a" style="text-decoration: none;">
+          <router-link to="/profile" :class="$style.a" style="text-decoration: none;">
             <img :class="$style.userAvatarImg" src="/innovator-man.webp" alt="Kago Molefe" />
             <div :class="$style.span3">
               <div :class="$style.marionLucas">Kago Molefe</div>
@@ -457,11 +457,11 @@
   }
 
   const handleViewIdea = (name: string) => {
-    router.push({ name: "IdeaView", query: { name } })
+    router.push({ name: "ApplicationView", query: { name } })
   }
 
   const handleRespondToFeedback = () => {
-    router.push({ name: "IdeaView", query: { name: "Edu App" }, hash: "#corrections" })
+    router.push({ name: "ApplicationView", query: { name: "Edu App" }, hash: "#corrections" })
   }
 </script>
 <style module>

@@ -166,8 +166,8 @@
     | "admin"
     | "ai-agent"
     | "my-applications"
-    | "customers"
-    | "admin-profile"
+    | "feedback-center"
+    | "profile"
     | "ideas"
     | "deadlines"
     | "team";
@@ -230,8 +230,8 @@
   const innovatorNav: NavItem[] = [
     { id: "dashboard", label: "Dashboard", page: "dashboard", route: "InnovatorDashboard", icon: ICONS.home },
     { id: "applications", label: "My Applications", page: "my-applications", route: "MyApplications", icon: ICONS.applications },
-    { id: "feedback", label: "Feedback Center", page: "customers", route: "Customers", icon: ICONS.feedback },
-    { id: "profile", label: "My Profile", page: "admin-profile", route: "AdminProfile", icon: ICONS.person },
+    { id: "feedback", label: "Feedback Center", page: "feedback-center", route: "FeedbackCenter", icon: ICONS.feedback },
+    { id: "profile", label: "My Profile", page: "profile", route: "ProfileView", icon: ICONS.person },
     { id: "ai", label: "AI Agent", action: "ai", icon: ICONS.aiAgent },
   ];
 
@@ -240,15 +240,15 @@
     { id: "overview", label: "Evaluator overview", page: "evaluator", route: "EvaluatorDashboard", icon: ICONS.evaluatorOverview },
     { id: "queue", label: "Review queue", page: "my-applications", route: "ReviewQueue", icon: ICONS.document },
     { id: "innovator-ideas", label: "Innovator ideas", page: "ideas", route: "IdeasView", icon: ICONS.innovatorIdeas },
-    { id: "innovators", label: "Innovators", page: "customers", route: "Customers", icon: ICONS.users },
+    { id: "feedback", label: "Feedback Centre", page: "feedback-center", route: "FeedbackCenter", icon: ICONS.feedback },
     { id: "team", label: "Evaluation team", page: "team", route: "TeamView", icon: ICONS.person },
-    { id: "profile", label: "Evaluator profile", page: "admin-profile", route: "AdminProfile", icon: ICONS.evaluatorProfile },
+    { id: "profile", label: "Evaluator profile", page: "profile", route: "ProfileView", icon: ICONS.evaluatorProfile },
   ];
 
   const adminNav: NavItem[] = [
     { id: "overview", label: "Admin overview", page: "admin", route: "AdminDashboard", icon: ICONS.home },
     { id: "applications", label: "All applications", page: "my-applications", route: "AllApplications", icon: ICONS.document },
-    { id: "innovators", label: "Innovators", page: "customers", route: "Customers", icon: ICONS.users },
+    { id: "feedback", label: "Feedback Centre", page: "feedback-center", route: "FeedbackCenter", icon: ICONS.feedback },
     { id: "ideas", label: "Idea repository", page: "ideas", route: "IdeasView", icon: ICONS.chat },
     { id: "deadlines", label: "Deadlines", page: "deadlines", route: "DeadlinesView", icon: ICONS.calendar },
     { id: "team", label: "Team & roles", page: "team", route: "TeamView", icon: ICONS.person },

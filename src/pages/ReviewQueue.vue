@@ -24,7 +24,7 @@
             src="/Notifications-2-new.svg"
           />
           <img :class="$style.notifications2New" alt="" src="/Help.svg" />
-          <router-link to="/admin-profile" :class="$style.a" style="text-decoration: none;">
+          <router-link to="/profile" :class="$style.a" style="text-decoration: none;">
             <img :class="$style.userAvatarImg" src="/innovator-man.webp" alt="Marion Lucas" />
             <div :class="$style.span3">
               <div :class="$style.marionLucas">Marion Lucas</div>
@@ -427,8 +427,8 @@ const filterOptions = computed(() => {
 
 function openApplication(application: ApplicationRecord) {
   const target = application.status === "FEEDBACK"
-    ? { name: "IdeaView", query: { name: application.name }, hash: "#corrections" }
-    : { name: "IdeaView", query: { name: application.name } };
+    ? { name: "ApplicationView", query: { name: application.name }, hash: "#corrections" }
+    : { name: "ApplicationView", query: { name: application.name } };
   router.push(target);
 }
 

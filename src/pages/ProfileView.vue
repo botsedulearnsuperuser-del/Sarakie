@@ -1,7 +1,7 @@
 <template>
   <div :class="[$style.page, isGaborone ? $style.isGaborone : '']" :style="pageBackground">
     <!-- Reusable Stationary Sidebar -->
-    <Main :active-page="'admin-profile'" />
+    <Main :active-page="'profile'" />
 
     <!-- Main Scrollable Content -->
     <main :class="$style.mainContent">

@@ -14,7 +14,7 @@
         <div :class="$style.topBarRight">
           <img :class="$style.iconBtn" alt="" src="/Notifications-2-new.svg" />
           <img :class="$style.iconBtn" alt="" src="/Help.svg" />
-          <router-link to="/admin-profile" :class="$style.userA" style="text-decoration: none;">
+          <router-link to="/profile" :class="$style.userA" style="text-decoration: none;">
             <img :class="$style.userAvatarImg" src="/innovator-man.webp" alt="Marion Lucas" />
             <div :class="$style.userName">Marion Lucas</div>
           </router-link>

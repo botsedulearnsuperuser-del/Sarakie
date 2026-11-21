@@ -1,11 +1,11 @@
 <template>
   <div :class="[$style.page, isGaborone ? $style.isGaborone : '']" :style="pageBackground">
     <!-- Reusable Stationary Sidebar (Pinned, never scrolls) -->
-    <Main :active-page="'customers'" />
+    <Main :active-page="'feedback-center'" />
 
     <!-- Main Scrollable Content -->
     <main :class="$style.mainContent">
-      <!-- Top Bar Header matching InnovatorDashboard & Customers -->
+      <!-- Top Bar Header matching InnovatorDashboard & FeedbackCenter -->
       <header :class="$style.div">
         <div :class="$style.div2">
           <div :class="$style.h2actH">
@@ -30,7 +30,7 @@
             src="/Notifications-2-new.svg"
           />
           <img :class="$style.notifications2New" alt="" src="/Help.svg" />
-          <router-link to="/admin-profile" :class="$style.userA" style="text-decoration: none;">
+          <router-link to="/profile" :class="$style.userA" style="text-decoration: none;">
             <img :class="$style.userAvatarImg" src="/innovator-man.webp" alt="Marion Lucas" />
             <div :class="$style.span3">
               <div :class="$style.marionLucas">Marion Lucas</div>
@@ -42,12 +42,12 @@
       <!-- Action & Navigation Bar -->
       <div :class="$style.actionBar">
         <div :class="$style.navRow">
-          <router-link to="/customers" :class="$style.backLink">
+          <router-link to="/feedback-center" :class="$style.backLink">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
               <line x1="19" y1="12" x2="5" y2="12"></line>
               <polyline points="12 19 5 12 12 5"></polyline>
             </svg>
-            <span>Back to Customers</span>
+            <span>Back to FeedbackCenter</span>
           </router-link>
           <span :class="$style.navDivider">/</span>
           <span :class="$style.navCurrent">{{ currentLoan.loanId }}</span>
@@ -74,7 +74,7 @@
         </div>
       </div>
 
-      <!-- Main White Card Container matching Customers & MyApplications -->
+      <!-- Main White Card Container matching FeedbackCenter & MyApplications -->
       <section :class="$style.cardContainer">
         <!-- Top Dark Green Hero Banner with Botswana Chevron Watermark -->
         <div :class="$style.balanceBanner">
@@ -229,7 +229,7 @@
           </div>
         </div>
 
-        <!-- Filter Tab Pills matching Customers & MyApplications -->
+        <!-- Filter Tab Pills matching FeedbackCenter & MyApplications -->
         <div :class="$style.tabsRow">
           <button
             :class="[
@@ -816,7 +816,7 @@ function mockPreviewDoc(docName: string) {
   box-sizing: border-box;
 }
 
-/* ── Top Header matching InnovatorDashboard & Customers ── */
+/* ── Top Header matching InnovatorDashboard & FeedbackCenter ── */
 .div {
   align-self: stretch;
   display: flex;
@@ -1049,7 +1049,7 @@ function mockPreviewDoc(docName: string) {
   background-color: #081d16;
 }
 
-/* ── Main White Card Container (matching Customers & MyApplications) ── */
+/* ── Main White Card Container (matching FeedbackCenter & MyApplications) ── */
 .cardContainer {
   background-color: #ffffff;
   border-radius: 20px;
@@ -1059,7 +1059,7 @@ function mockPreviewDoc(docName: string) {
   padding-bottom: 28px;
 }
 
-/* ── Top Dark Green Banner matching Customers.vue ── */
+/* ── Top Dark Green Banner matching FeedbackCenter.vue ── */
 .balanceBanner {
   position: relative;
   background-color: var(--color-darkslategray-600, #013525);
@@ -1280,7 +1280,7 @@ function mockPreviewDoc(docName: string) {
   border: 1px solid #a7f3d0;
 }
 
-/* ── Filter / Tab Pills Row (matching Customers.vue filtersRow) ── */
+/* ── Filter / Tab Pills Row (matching FeedbackCenter.vue filtersRow) ── */
 .tabsRow {
   display: flex;
   align-items: center;
@@ -1437,7 +1437,7 @@ function mockPreviewDoc(docName: string) {
   font-size: 14px;
 }
 
-/* ── Status Badges matching Customers.vue ── */
+/* ── Status Badges matching FeedbackCenter.vue ── */
 .statusActive {
   display: inline-block;
   background-color: #00b67a;
