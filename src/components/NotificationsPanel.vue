@@ -141,7 +141,7 @@ function markAllRead() {
 
 function openApplication() {
   emit("close");
-  router.push("/loans-sheet");
+  router.push("/my-applications");
 }
 </script>
 

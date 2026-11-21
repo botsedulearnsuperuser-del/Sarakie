@@ -154,7 +154,7 @@
               <div :class="$style.pillLinks">
                 <router-link
                   :class="$style.pillLink"
-                  to="/new-loan"
+                  to="/new-idea"
                   @click="closeMenu"
                 >
                   <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -288,7 +288,7 @@
               <h4 :class="$style.columnLabel">Featured</h4>
               <router-link
                 :class="$style.featureCard"
-                to="/new-loan"
+                to="/new-idea"
                 @click="closeMenu"
               >
                 <span :class="$style.featureBadge">Innovation Hub</span>
@@ -317,7 +317,7 @@
           <div :class="$style.mobileCta">
             <router-link
               :class="$style.mobileCtaButton"
-              to="/new-loan"
+              to="/new-idea"
               @click="closeMenu"
             >
               Get started

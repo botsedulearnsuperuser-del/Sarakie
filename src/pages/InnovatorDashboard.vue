@@ -81,7 +81,7 @@
                   </div>
                 </div>
               </div>
-              <router-link to="/new-loan" :class="$style.agold" style="text-decoration:none;">
+              <router-link to="/new-idea" :class="$style.agold" style="text-decoration:none;">
                 <b :class="$style.ml">Start submission</b>
                 <img :class="$style.frameIcon3" alt="" src="/Frame7.svg" />
               </router-link>
@@ -180,7 +180,7 @@
               </div>
             </div>
             <router-link
-              to="/new-loan"
+              to="/new-idea"
               :class="$style.agold2"
               style="text-decoration: none"
             >

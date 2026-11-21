@@ -155,7 +155,7 @@ const password = ref("");
 
 const handleLogin = () => {
   // Navigate to Dashboard upon successful login
-  router.push({ name: "DashboardSample" });
+  router.push({ name: "InnovatorDashboard" });
 };
 </script>
 

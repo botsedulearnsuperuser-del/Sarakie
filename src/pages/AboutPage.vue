@@ -12,7 +12,7 @@
           journey into one clear, trackable place.
         </p>
         <div :class="$style.heroActions">
-          <router-link :class="$style.primaryButton" to="/new-loan">
+          <router-link :class="$style.primaryButton" to="/new-idea">
             Start a submission
           </router-link>
           <router-link :class="$style.secondaryButton" to="/faq">

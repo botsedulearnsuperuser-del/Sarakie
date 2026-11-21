@@ -23,7 +23,7 @@
 import { useRouter } from "vue-router";
 
 const router = useRouter();
-const goToDashboard = () => router.push({ name: "DashboardSample" });
+const goToDashboard = () => router.push({ name: "InnovatorDashboard" });
 </script>
 <style module>
 .section {

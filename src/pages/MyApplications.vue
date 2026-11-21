@@ -1,11 +1,11 @@
 <template>
   <div :class="[$style.page, isGaborone ? $style.isGaborone : '']" :style="pageBackground">
     <!-- Reusable Stationary Sidebar -->
-    <Main :active-page="'loans-sheet'" />
+    <Main :active-page="'my-applications'" />
 
     <!-- Main Scrollable Content -->
     <main :class="$style.mainContent">
-      <!-- Top Bar Header matching DashboardSample -->
+      <!-- Top Bar Header matching InnovatorDashboard -->
       <header :class="$style.div">
         <div :class="$style.div2">
           <div :class="$style.h2actH">
@@ -106,7 +106,7 @@
             </div>
           </div>
 
-          <router-link to="/new-loan" :class="$style.newApplicationBtn" style="text-decoration: none;">
+          <router-link to="/new-idea" :class="$style.newApplicationBtn" style="text-decoration: none;">
             <svg
               width="15"
               height="15"
@@ -527,7 +527,7 @@ const getStatusClass = (status: string) => {
   box-sizing: border-box;
 }
 
-/* Header matching DashboardSample */
+/* Header matching InnovatorDashboard */
 .div {
   align-self: stretch;
   display: flex;

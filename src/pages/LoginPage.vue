@@ -104,7 +104,7 @@
   }
 
   function continueToPortal() {
-    router.push({ name: "DashboardSample" });
+    router.push({ name: "InnovatorDashboard" });
   }
 </script>
 

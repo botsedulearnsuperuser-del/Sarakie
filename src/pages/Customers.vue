@@ -5,7 +5,7 @@
 
     <!-- Main Scrollable Content -->
     <main :class="$style.mainContent">
-      <!-- Top Bar Header matching DashboardSample -->
+      <!-- Top Bar Header matching InnovatorDashboard -->
       <header :class="$style.div">
         <div :class="$style.div2">
           <div :class="$style.h2actH">

@@ -1,8 +1,13 @@
 # Legacy "My Applications" folder view (pre-FolderReveal) — reference for reverting
 
 **Saved:** 21 Nov 2026
-**File it lives in:** `src/pages/LoansSheet.vue` (route `/loans-sheet`, "Folder view" mode)
+**File it lived in:** `src/pages/LoansSheet.vue` (route `/loans-sheet`, "Folder view" mode)
 **Last known-good commit:** `92994e7` — *Move Gaborone theme overrides out of the mobile media query*
+
+> **Renamed since:** the page file is now `src/pages/MyApplications.vue` and its URL is
+> `/my-applications` (`/loans-sheet` redirects there). When restoring the old file, put the
+> contents back into `src/pages/MyApplications.vue` — or restore the old file name too and
+> the old `/loans-sheet` URL will still resolve, because that path is kept as a redirect.
 
 This document exists so the **old folder grid** can be restored later. It describes only the
 folder cards (Irrigation Kit, Solar Dryer, Edu App, Agri Drone), their hover icon swap,

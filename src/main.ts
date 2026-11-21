@@ -1,16 +1,16 @@
 import { createApp } from "vue";
-import { createRouter, createWebHistory } from "vue-router";
+import { createRouter, createWebHistory, type RouteRecordRaw } from "vue-router";
 import App from "./App.vue";
 
 import LandingPage from "./pages/LandingPage.vue";
 import AboutPage from "./pages/AboutPage.vue";
-import DashboardSample from "./pages/DashboardSample.vue";
+import InnovatorDashboard from "./pages/InnovatorDashboard.vue";
 import EvaluatorDashboard from "./pages/EvaluatorDashboard.vue";
 import AiAgent from "./pages/AiAgent.vue";
 import AdminLogin from "./pages/AdminLogin.vue";
 import AdminSignUp from "./pages/AdminSignUp.vue";
 import ForgotPassword from "./pages/ForgotPassword.vue";
-import LoansSheet from "./pages/LoansSheet.vue";
+import MyApplications from "./pages/MyApplications.vue";
 import ReviewQueue from "./pages/ReviewQueue.vue";
 import Customers from "./pages/Customers.vue";
 import AdminProfile from "./pages/AdminProfile.vue";
@@ -21,7 +21,7 @@ import AdminDashboard from "./pages/AdminDashboard.vue";
 import BlogPage from "./pages/BlogPage.vue";
 import ArticlePage from "./pages/ArticlePage.vue";
 import DeadlinesView from "./pages/DeadlinesView.vue";
-import NewLoan from "./pages/NewLoan.vue";
+import NewIdea from "./pages/NewIdea.vue";
 import LoanView from "./pages/LoanView.vue";
 import IdeaView from "./pages/IdeaView.vue";
 import CloudShaderHero from "./pages/CloudShaderHero.vue";
@@ -32,14 +32,7 @@ import LegalPage from "./pages/LegalPage.vue";
 import NotFoundPage from "./pages/NotFoundPage.vue";
 import "./global.css";
 
-interface Route {
-  path: string;
-  name: string;
-  component: any;
-  meta?: Record<string, unknown>;
-}
-
-const routes: Route[] = [
+const routes: RouteRecordRaw[] = [
   {
     path: "/",
     name: "LandingPage",
@@ -52,9 +45,9 @@ const routes: Route[] = [
     meta: { title: "About CEDA — CEDA Innovation Portal" },
   },
   {
-    path: "/dashboard-sample",
-    name: "DashboardSample",
-    component: DashboardSample,
+    path: "/innovator-dashboard",
+    name: "InnovatorDashboard",
+    component: InnovatorDashboard,
   },
   {
     path: "/evaluator-dashboard",
@@ -67,9 +60,9 @@ const routes: Route[] = [
     component: AiAgent,
   },
   {
-    path: "/loans-sheet",
-    name: "LoansSheet",
-    component: LoansSheet,
+    path: "/my-applications",
+    name: "MyApplications",
+    component: MyApplications,
   },
   {
     path: "/review-queue",
@@ -77,9 +70,9 @@ const routes: Route[] = [
     component: ReviewQueue,
   },
   {
-    path: "/loans",
-    name: "Loans",
-    component: LoansSheet,
+    path: "/all-applications",
+    name: "AllApplications",
+    component: MyApplications,
   },
   {
     path: "/customers",
@@ -162,9 +155,9 @@ const routes: Route[] = [
     component: FolderRevealDemo,
   },
   {
-    path: "/new-loan",
-    name: "NewLoan",
-    component: NewLoan,
+    path: "/new-idea",
+    name: "NewIdea",
+    component: NewIdea,
   },
   {
     path: "/admin-login",
@@ -203,6 +196,11 @@ const routes: Route[] = [
     component: LegalPage,
     meta: { legal: "terms" },
   },
+  // Older URLs kept working for bookmarks and shared links.
+  { path: "/dashboard-sample", redirect: "/innovator-dashboard" },
+  { path: "/loans-sheet", redirect: "/my-applications" },
+  { path: "/loans", redirect: "/my-applications" },
+  { path: "/new-loan", redirect: "/new-idea" },
   {
     path: "/404",
     name: "NotFound",

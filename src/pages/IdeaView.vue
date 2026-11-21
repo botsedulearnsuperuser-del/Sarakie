@@ -5,7 +5,7 @@
 
     <!-- Main Scrollable Content -->
     <main :class="$style.mainContent">
-      <!-- Top Bar Header matching DashboardSample & LoanView -->
+      <!-- Top Bar Header matching InnovatorDashboard & LoanView -->
       <header :class="$style.div">
         <div :class="$style.div2">
           <div :class="$style.h2actH">
@@ -38,7 +38,7 @@
       <!-- Action & Navigation Bar -->
       <div :class="$style.actionBar">
         <div :class="$style.navRow">
-          <router-link to="/dashboard-sample" :class="$style.backLink">
+          <router-link to="/innovator-dashboard" :class="$style.backLink">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
               <line x1="19" y1="12" x2="5" y2="12"></line>
               <polyline points="12 19 5 12 12 5"></polyline>

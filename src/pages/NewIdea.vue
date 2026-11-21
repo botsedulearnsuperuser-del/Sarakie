@@ -73,7 +73,7 @@
               </div>
             </div>
             <div :class="$style.successActions">
-              <router-link to="/dashboard-sample" :class="$style.successBtn">Return to Dashboard</router-link>
+              <router-link to="/innovator-dashboard" :class="$style.successBtn">Return to Dashboard</router-link>
               <button :class="$style.newAppBtn" type="button" @click="resetForm">Record another idea</button>
             </div>
           </div>
@@ -392,7 +392,7 @@
             <div :class="$style.formActions">
               <div :class="$style.actionsLeft">
                 <button v-if="currentStep > 1" :class="$style.prevBtn" type="button" @click="prevStep">Back</button>
-                <router-link to="/dashboard-sample" :class="$style.cancelLink">Cancel</router-link>
+                <router-link to="/innovator-dashboard" :class="$style.cancelLink">Cancel</router-link>
               </div>
 
               <!-- Next Button for Steps 1 through 5 -->

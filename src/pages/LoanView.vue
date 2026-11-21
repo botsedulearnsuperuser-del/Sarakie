@@ -5,7 +5,7 @@
 
     <!-- Main Scrollable Content -->
     <main :class="$style.mainContent">
-      <!-- Top Bar Header matching DashboardSample & Customers -->
+      <!-- Top Bar Header matching InnovatorDashboard & Customers -->
       <header :class="$style.div">
         <div :class="$style.div2">
           <div :class="$style.h2actH">
@@ -74,7 +74,7 @@
         </div>
       </div>
 
-      <!-- Main White Card Container matching Customers & LoansSheet -->
+      <!-- Main White Card Container matching Customers & MyApplications -->
       <section :class="$style.cardContainer">
         <!-- Top Dark Green Hero Banner with Botswana Chevron Watermark -->
         <div :class="$style.balanceBanner">
@@ -229,7 +229,7 @@
           </div>
         </div>
 
-        <!-- Filter Tab Pills matching Customers & LoansSheet -->
+        <!-- Filter Tab Pills matching Customers & MyApplications -->
         <div :class="$style.tabsRow">
           <button
             :class="[
@@ -275,7 +275,7 @@
           </button>
         </div>
 
-        <!-- Tab Content 1: Repayment Schedule Table matching LoansSheet style -->
+        <!-- Tab Content 1: Repayment Schedule Table matching MyApplications style -->
         <div v-if="activeTab === 'schedule'" :class="$style.tableSection">
           <div :class="$style.sectionHeader">
             <div>
@@ -816,7 +816,7 @@ function mockPreviewDoc(docName: string) {
   box-sizing: border-box;
 }
 
-/* ── Top Header matching DashboardSample & Customers ── */
+/* ── Top Header matching InnovatorDashboard & Customers ── */
 .div {
   align-self: stretch;
   display: flex;
@@ -1049,7 +1049,7 @@ function mockPreviewDoc(docName: string) {
   background-color: #081d16;
 }
 
-/* ── Main White Card Container (matching Customers & LoansSheet) ── */
+/* ── Main White Card Container (matching Customers & MyApplications) ── */
 .cardContainer {
   background-color: #ffffff;
   border-radius: 20px;

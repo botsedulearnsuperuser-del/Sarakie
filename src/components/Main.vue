@@ -165,7 +165,7 @@
     | "evaluator"
     | "admin"
     | "ai-agent"
-    | "loans-sheet"
+    | "my-applications"
     | "customers"
     | "admin-profile"
     | "ideas"
@@ -228,8 +228,8 @@
   };
 
   const innovatorNav: NavItem[] = [
-    { id: "dashboard", label: "Dashboard", page: "dashboard", route: "DashboardSample", icon: ICONS.home },
-    { id: "applications", label: "My Applications", page: "loans-sheet", route: "LoansSheet", icon: ICONS.applications },
+    { id: "dashboard", label: "Dashboard", page: "dashboard", route: "InnovatorDashboard", icon: ICONS.home },
+    { id: "applications", label: "My Applications", page: "my-applications", route: "MyApplications", icon: ICONS.applications },
     { id: "feedback", label: "Feedback Center", page: "customers", route: "Customers", icon: ICONS.feedback },
     { id: "profile", label: "My Profile", page: "admin-profile", route: "AdminProfile", icon: ICONS.person },
     { id: "ai", label: "AI Agent", action: "ai", icon: ICONS.aiAgent },
@@ -238,7 +238,7 @@
   /* Evaluators work on other people's submissions, so their nav is about the innovator. */
   const evaluatorNav: NavItem[] = [
     { id: "overview", label: "Evaluator overview", page: "evaluator", route: "EvaluatorDashboard", icon: ICONS.evaluatorOverview },
-    { id: "queue", label: "Review queue", page: "loans-sheet", route: "ReviewQueue", icon: ICONS.document },
+    { id: "queue", label: "Review queue", page: "my-applications", route: "ReviewQueue", icon: ICONS.document },
     { id: "innovator-ideas", label: "Innovator ideas", page: "ideas", route: "IdeasView", icon: ICONS.innovatorIdeas },
     { id: "innovators", label: "Innovators", page: "customers", route: "Customers", icon: ICONS.users },
     { id: "team", label: "Evaluation team", page: "team", route: "TeamView", icon: ICONS.person },
@@ -247,7 +247,7 @@
 
   const adminNav: NavItem[] = [
     { id: "overview", label: "Admin overview", page: "admin", route: "AdminDashboard", icon: ICONS.home },
-    { id: "applications", label: "All applications", page: "loans-sheet", route: "LoansSheet", icon: ICONS.document },
+    { id: "applications", label: "All applications", page: "my-applications", route: "AllApplications", icon: ICONS.document },
     { id: "innovators", label: "Innovators", page: "customers", route: "Customers", icon: ICONS.users },
     { id: "ideas", label: "Idea repository", page: "ideas", route: "IdeasView", icon: ICONS.chat },
     { id: "deadlines", label: "Deadlines", page: "deadlines", route: "DeadlinesView", icon: ICONS.calendar },

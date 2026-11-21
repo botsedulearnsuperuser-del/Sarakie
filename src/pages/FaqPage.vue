@@ -15,7 +15,7 @@
           </div>
         </div>
         <div :class="$style.div3">
-          <router-link to="/dashboard-sample" :class="$style.backBtn">
+          <router-link to="/innovator-dashboard" :class="$style.backBtn">
             Back to dashboard
           </router-link>
         </div>
@@ -90,7 +90,7 @@
             </div>
             <div :class="$style.helpActions">
               <a :class="$style.primaryBtn" href="tel:+26777663331">Contact support</a>
-              <router-link :class="$style.linkBtn" to="/loans-sheet">My applications</router-link>
+              <router-link :class="$style.linkBtn" to="/my-applications">My applications</router-link>
             </div>
           </div>
         </div>

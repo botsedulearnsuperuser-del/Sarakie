@@ -5,7 +5,7 @@
 
     <!-- Main Scrollable Content -->
     <main :class="$style.mainContent">
-      <!-- Top Bar Header matching DashboardSample & LoansSheet -->
+      <!-- Top Bar Header matching InnovatorDashboard & MyApplications -->
       <header :class="$style.div">
         <div :class="$style.div2">
           <div :class="$style.h2actH">
@@ -469,7 +469,7 @@ function removeMember(id: number) {
   box-sizing: border-box;
 }
 
-/* Header matching DashboardSample & LoansSheet */
+/* Header matching InnovatorDashboard & MyApplications */
 .div {
   align-self: stretch;
   display: flex;

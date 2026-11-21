@@ -34,7 +34,7 @@
       </p>
 
       <div :class="$style.actions">
-        <router-link :class="$style.primary" to="/dashboard-sample">
+        <router-link :class="$style.primary" to="/innovator-dashboard">
           Return to dashboard
         </router-link>
         <a :class="$style.secondary" :href="reportHref">Report this issue</a>
