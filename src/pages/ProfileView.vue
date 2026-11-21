@@ -1,15 +1,15 @@
 <template>
   <div :class="[$style.page, isGaborone ? $style.isGaborone : '']" :style="pageBackground">
     <!-- Reusable Stationary Sidebar -->
-    <Main :active-page="'profile'" />
+    <Main :active-page="'profile'" :role="role" />
 
     <!-- Main Scrollable Content -->
     <main :class="$style.mainContent">
       <!-- Top Bar Header -->
       <header :class="$style.topBar">
         <div :class="$style.topBarLeft">
-          <h2 :class="$style.pageTitle">Admin Profile</h2>
-          <p :class="$style.pageSub">Manage your administrator account and view system activity.</p>
+          <h2 :class="$style.pageTitle">{{ profileTitle }}</h2>
+          <p :class="$style.pageSub">{{ profileSubtitle }}</p>
         </div>
         <div :class="$style.topBarRight">
           <img :class="$style.iconBtn" alt="" src="/Notifications-2-new.svg" />
@@ -32,9 +32,9 @@
           <img :class="$style.avatarImg" src="/innovator-man.webp" alt="Marion Lucas" />
           <div :class="$style.bannerInfo">
             <h2 :class="$style.profileName">Marion Lucas</h2>
-            <p :class="$style.profileSub">Branch Administrator · Gaborone Main Branch</p>
+            <p :class="$style.profileSub">{{ roleLine }}</p>
             <div :class="$style.badgeRow">
-              <span :class="$style.roleBadge">Administrator</span>
+              <span :class="$style.roleBadge">{{ roleBadge }}</span>
               <span :class="$style.statusBadge">
                 <span :class="$style.statusDot"></span>
                 Active
@@ -80,7 +80,7 @@
             <div :class="$style.fieldRow">
               <div :class="$style.field">
                 <span :class="$style.fieldLabel">Role</span>
-                <span :class="$style.fieldValue">Branch Administrator</span>
+                <span :class="$style.fieldValue">{{ roleTitle }}</span>
               </div>
               <div :class="$style.field">
                 <span :class="$style.fieldLabel">Branch</span>
@@ -287,7 +287,7 @@
               </div>
               <div>
                 <h3 :class="$style.modalTitle">Change Password</h3>
-                <p :class="$style.modalSub">Ensure your administrator account stays protected with a strong password.</p>
+                <p :class="$style.modalSub">Ensure your {{ roleNoun }} account stays protected with a strong password.</p>
               </div>
             </div>
             <button
@@ -512,7 +512,7 @@
             <div>
               <h3 :class="$style.modalTitle">Delete account</h3>
               <p :class="$style.modalSub">
-                This permanently removes your administrator account and your access to the CEDA
+                This permanently removes your {{ roleNoun }} account and your access to the CEDA
                 Innovation Portal.
               </p>
             </div>
@@ -577,6 +577,34 @@ import { onMounted, onUnmounted, ref, computed, useCssModule } from "vue";
 import { THEME_EVENT, isGaboroneTheme } from "../components/themes";
 import Main from "../components/Main.vue";
 import ChatWithAgent from "../components/ChatWithAgent.vue";
+import { readDashboardRole } from "../components/dashboardRole";
+
+/* Shared by all three dashboards, so the profile copy follows the signed-in role. */
+const role = readDashboardRole();
+const profileTitle = computed(() =>
+  role === "admin" ? "Admin Profile" : role === "evaluator" ? "Evaluator Profile" : "My Profile",
+);
+const profileSubtitle = computed(() =>
+  role === "admin"
+    ? "Manage your administrator account and view system activity."
+    : role === "evaluator"
+      ? "Manage your evaluator account and review activity."
+      : "Manage your innovator account and follow your applications.",
+);
+const roleLine = computed(() =>
+  role === "admin"
+    ? "Branch Administrator · Gaborone Main Branch"
+    : role === "evaluator"
+      ? "Innovator Evaluator · Gaborone"
+      : "Innovator · Gaborone",
+);
+const roleBadge = computed(() =>
+  role === "admin" ? "Administrator" : role === "evaluator" ? "Evaluator" : "Innovator",
+);
+const roleTitle = computed(() =>
+  role === "admin" ? "Branch Administrator" : role === "evaluator" ? "Evaluator" : "Innovator",
+);
+const roleNoun = computed(() => (role === "admin" ? "administrator" : role));
 
 const auditFilter = ref("all");
 const lastChangedDate = ref("22 September 2026");

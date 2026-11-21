@@ -151,6 +151,7 @@
   import { ref, computed, onMounted, onUnmounted } from "vue";
   import { useRouter } from "vue-router";
   import TwoFactorSetup from "./TwoFactorSetup.vue";
+  import { ROLE_STORAGE_KEY, type DashboardRole } from "./dashboardRole";
   import ThemePicker from "./ThemePicker.vue";
   import {
     CUSTOM_IMAGE_STORAGE_KEY,
@@ -187,8 +188,7 @@
 
   /* Remembers which role's navigation the visitor is working in, so moving from an
      admin page to a shared page (ideas, deadlines) keeps the admin sidebar. */
-  const ROLE_STORAGE_KEY = "sarka-sidebar-role";
-  type Role = "innovator" | "evaluator" | "admin";
+  type Role = DashboardRole;
   const storedRole = ref<Role>(
     (sessionStorage.getItem(ROLE_STORAGE_KEY) as Role | null) ?? "innovator",
   );

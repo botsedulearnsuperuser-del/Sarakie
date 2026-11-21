@@ -1,7 +1,7 @@
 <template>
   <div :class="[$style.page, isGaborone ? $style.isGaborone : '']" :style="pageBackground">
     <!-- Reusable Stationary Sidebar -->
-    <Main :active-page="'feedback-center'" />
+    <Main :active-page="'feedback-center'" :role="role" />
 
     <!-- Main Scrollable Content -->
     <main :class="$style.mainContent">
@@ -13,7 +13,7 @@
           </div>
           <div :class="$style.pWrap">
             <div :class="$style.sunday4October">
-              View and respond to every evaluator comment across all your ideas
+              {{ feedbackSubtitle }}
             </div>
           </div>
         </div>
@@ -39,7 +39,7 @@
           <div v-if="showPopup" :class="$style.popupOverlay" @click.self="closePopup">
             <div :class="$style.popupCard">
               <div :class="$style.popupSidebar">
-                <Main :active-page="'feedback-center'" />
+                <Main :active-page="'feedback-center'" :role="role" />
               </div>
 
               <div :class="$style.popupContent">
@@ -126,7 +126,7 @@
           <div v-if="showPopup" :class="$style.popupOverlay" @click.self="closePopup">
             <div :class="$style.popupCard">
               <div :class="$style.popupSidebar">
-                <Main :active-page="'feedback-center'" />
+                <Main :active-page="'feedback-center'" :role="role" />
               </div>
 
               <div :class="$style.popupContent">
@@ -377,12 +377,25 @@ import { onMounted, ref, computed } from "vue";
 import { THEME_EVENT, isGaboroneTheme } from "../components/themes";
 import { useRouter, type RouteLocationRaw } from "vue-router";
 import Main from "../components/Main.vue";
+import { readDashboardRole } from "../components/dashboardRole";
 import ChatWithAgent from "../components/ChatWithAgent.vue";
 
 const router = useRouter();
 
 const activeFilter = ref<"all" | "unread" | "answered">("all" as const);
 const searchQuery = ref("");
+
+/* The page is shared by all three dashboards, so the intro line follows the signed-in role. */
+const role = readDashboardRole();
+const feedbackSubtitle = computed(() => {
+  if (role === "admin") {
+    return "Review the feedback exchanged between evaluators and innovators";
+  }
+  if (role === "evaluator") {
+    return "Read and reply to the feedback you have left on innovator ideas";
+  }
+  return "View and respond to every evaluator comment across all your ideas";
+});
 
 const filterOptions = [
   { key: "all", label: "All", count: 5 },
