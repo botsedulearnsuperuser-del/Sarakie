@@ -57,7 +57,7 @@
             <div :class="$style.successCard">
               <div :class="$style.successRow">
                 <span>Idea reference</span>
-                <b>SRK-I-10850</b>
+                <b>{{ submittedReference || "Pending" }}</b>
               </div>
               <div :class="$style.successRow">
                 <span>Idea name</span>
@@ -70,6 +70,10 @@
               <div :class="$style.successRow">
                 <span>Recorded by</span>
                 <b>Marion Lucas (SRK-ADM-0042)</b>
+              </div>
+              <div v-if="assignedTeam.length" :class="$style.successRow">
+                <span>Team invited</span>
+                <b>{{ assignedTeam.map((member) => member.name).join(", ") }}</b>
               </div>
             </div>
             <div :class="$style.successActions">
@@ -433,6 +437,8 @@
               </div>
             </div>
 
+            <p v-if="submitError" :class="$style.submitError" role="alert">{{ submitError }}</p>
+
             <!-- Bottom Actions -->
             <div :class="$style.formActions">
               <div :class="$style.actionsLeft">
@@ -450,8 +456,8 @@
               </button>
 
               <!-- Final Submission Button only on Step 6 -->
-              <button v-else :class="[$style.submitBtn, $style.recordBtn]" type="button" :disabled="documents.length === 0 || !ideaAuthorization || (assignedTeam.length > 0 && !teamConsent)" @click="submitIdeaRecord">
-                Submit idea application
+              <button v-else :class="[$style.submitBtn, $style.recordBtn]" type="button" :disabled="submitting || documents.length === 0 || !ideaAuthorization || (assignedTeam.length > 0 && !teamConsent)" @click="submitIdeaRecord">
+                {{ submitting ? "Submitting…" : "Submit idea application" }}
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                   <polyline points="20 6 9 17 4 12"/>
                 </svg>
@@ -558,6 +564,7 @@ import Main from "../components/Main.vue";
 import AIOrbFace, { type AIState, type ExpressionName } from "../components/ui/AIOrbFace.vue";
 import Assignees from "../components/ui/Assignees.vue";
 import { useTeamMembers } from "../composables/useTeamMembers";
+import { submitApplication } from "../lib/application-submit";
 
 const steps = ["Idea overview", "Innovator details", "Contact & address", "Field / Industry", "Supporting documents", "Submission"];
 const currentStep = ref(1);
@@ -643,6 +650,7 @@ interface UploadedDocument {
   name: string;
   meta: string;
   preview: string;
+  file: File;
 }
 
 const MAX_DOCUMENTS = 10;
@@ -700,6 +708,9 @@ const docIcons = [
 ];
 
 const ideaSubmitted = ref(false);
+const submitting = ref(false);
+const submitError = ref("");
+const submittedReference = ref("");
 
 const totalUploaded = computed(() => documents.value.length);
 
@@ -746,6 +757,7 @@ function onDocumentsSelected(event: Event) {
       name: file.name,
       meta: `${ext} · ${formatDocumentSize(file.size)}`,
       preview: "",
+      file,
     };
     documents.value.push(doc);
 
@@ -790,13 +802,53 @@ function goToStep(step: number) {
   currentStep.value = step;
 }
 
-function submitIdeaRecord() {
-  ideaSubmitted.value = true;
+async function submitIdeaRecord() {
+  if (submitting.value) return;
+  submitError.value = "";
+  submitting.value = true;
+
+  try {
+    const result = await submitApplication({
+      title: selectedIdea.value,
+      sector: selectedSector.value,
+      innovationType: innovationType.value,
+      maturityLevel: maturityLevel.value,
+      fundingRequested: requestedAmount.value,
+      expectedImpact: expectedImpact.value,
+      targetMarket: targetMarket.value,
+      competitiveAdvantage: competitiveAdvantage.value,
+      projectedReach: projectedReach.value,
+      timelineToMarket: timelineToMarket.value,
+      regulatoryRequirements: regulatoryRequirements.value,
+      ipProtection: ipProtection.value,
+      documents: documents.value.map((doc) => doc.file),
+      collaborators: assignedTeam.value.map((member) => ({
+        name: member.name,
+        email: member.email,
+      })),
+    });
+
+    if (!result.ok) {
+      submitError.value = result.error ?? "Could not submit the application. Please try again.";
+      return;
+    }
+
+    submittedReference.value = result.reference ?? "";
+    ideaSubmitted.value = true;
+  } catch (error) {
+    submitError.value =
+      error instanceof Error ? error.message : "Could not submit the application. Please try again.";
+  } finally {
+    submitting.value = false;
+  }
 }
 
 function resetForm() {
   currentStep.value = 1;
   ideaSubmitted.value = false;
+  submitting.value = false;
+  submitError.value = "";
+  submittedReference.value = "";
   documents.value = [];
   uploadError.value = "";
   selectedIdea.value = "";
@@ -1204,6 +1256,17 @@ function resetForm() {
 .adminAuditNote b {
   color: #0f2e24;
   font-weight: 700;
+}
+
+.submitError {
+  margin: 18px 0 0;
+  padding: 12px 14px;
+  border: 1px solid #f0c2c2;
+  border-radius: 12px;
+  background-color: #fdf3f3;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: #b42318;
 }
 
 .amountLabel {
