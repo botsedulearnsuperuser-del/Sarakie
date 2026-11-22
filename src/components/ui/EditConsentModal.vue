@@ -184,11 +184,13 @@ watch(() => props.open, (o) => {
 .actions {
   display: flex;
   flex-direction: row;
+  justify-content: center;
   gap: 8px;
   margin-top: 4px;
 }
 .actions > button {
-  flex: 1;
+  flex: 0 0 auto;
+  min-width: 150px;
 }
 .primary {
   height: 40px;
