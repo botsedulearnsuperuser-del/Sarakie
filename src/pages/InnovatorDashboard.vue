@@ -647,6 +647,9 @@
     /* Room for the pointer highlight's arrow so it never sits on the subtitle */
     padding-bottom: 22px;
     position: relative;
+    /* Set only for a user-uploaded background; presets keep their own colours. */
+    color: var(--theme-hero-text, inherit);
+    text-shadow: var(--theme-hero-shadow, none);
     font-size: 36px;
     letter-spacing: -0.84px;
     font-weight: 800;
@@ -659,7 +662,8 @@
     align-items: flex-start;
     max-width: 100%;
     font-size: var(--fs-16);
-    color: var(--color-darkslategray-200);
+    color: var(--theme-hero-muted, var(--color-darkslategray-200));
+    text-shadow: var(--theme-hero-shadow, none);
   }
   .sunday4October {
     position: relative;
