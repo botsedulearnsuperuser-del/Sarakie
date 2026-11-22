@@ -158,12 +158,6 @@
             </div>
           </section>
 
-          <TaskList
-            v-if="editMode"
-            title="Edit mode tasks"
-            :tasks="editTasks"
-          />
-
           <div :class="$style.tipCard">
             <img :class="$style.tipPattern" alt="" src="/pattern-1.webp" />
             <div :class="$style.tipLabel">Review window</div>
@@ -200,13 +194,17 @@
   import AIResponse from "../components/ui/AIResponse.vue"
   import WebSearchTrail, { type WebSearchStep } from "../components/ui/WebSearchTrail.vue"
   import EditConsentModal from "../components/ui/EditConsentModal.vue"
-  import TaskList from "../components/ui/TaskList.vue"
   import AIReasoning from "../components/ui/AIReasoning.vue"
   import AIOrbFace, { type AIState } from "../components/ui/AIOrbFace.vue"
   import { usePageTheme } from "../composables/usePageTheme"
 import { THEME_EVENT, isGaboroneTheme } from "../components/themes"
 import { displayName, session } from "../lib/auth"
 import { supabase } from "../lib/supabase"
+import * as pdfjsLib from "pdfjs-dist"
+import pdfWorkerSrc from "pdfjs-dist/build/pdf.worker.min.mjs?url"
+import mammoth from "mammoth"
+
+pdfjsLib.GlobalWorkerOptions.workerSrc = pdfWorkerSrc
 import {
   countDocumentsByApplication,
   loadCorrections,
@@ -255,27 +253,72 @@ import {
 
   const READABLE_MIME = /^(text\/|application\/(json|csv|xml|javascript|x-www-form-urlencoded))/i
 
+  async function fetchSignedBuffer(path: string): Promise<{ url: string; buffer: ArrayBuffer } | { error: string }> {
+    if (!supabase) return { error: "no supabase" }
+    const { data: signed, error } = await supabase.storage
+      .from("application-documents")
+      .createSignedUrl(path, 120)
+    if (error || !signed?.signedUrl) return { error: error?.message || "no signed url" }
+    const res = await fetch(signed.signedUrl)
+    if (!res.ok) return { error: `fetch ${res.status}` }
+    const buffer = await res.arrayBuffer()
+    return { url: signed.signedUrl, buffer }
+  }
+
+  async function extractPdfText(buffer: ArrayBuffer): Promise<string> {
+    try {
+      const doc = await pdfjsLib.getDocument({ data: buffer }).promise
+      const pages: string[] = []
+      for (let i = 1; i <= doc.numPages; i++) {
+        const page = await doc.getPage(i)
+        const content = await page.getTextContent()
+        const text = content.items.map((it: any) => (typeof it.str === "string" ? it.str : "")).join(" ")
+        pages.push(text)
+      }
+      return pages.join("\n").trim()
+    } catch (e) {
+      return `(pdf parse error: ${(e as Error)?.message || "unknown"})`
+    }
+  }
+
+  async function extractDocxText(buffer: ArrayBuffer): Promise<string> {
+    try {
+      const result = await mammoth.extractRawText({ arrayBuffer: buffer })
+      return (result.value || "").trim()
+    } catch (e) {
+      return `(docx parse error: ${(e as Error)?.message || "unknown"})`
+    }
+  }
+
   async function readDocumentContent(doc: Record<string, any>): Promise<string> {
     if (!supabase) return ""
     const path = doc.storage_path
     if (!path) return "(no storage path)"
-    const mime = String(doc.mime_type || "")
-    if (!READABLE_MIME.test(mime)) {
+    const mime = String(doc.mime_type || "").toLowerCase()
+    const name = String(doc.file_name || "").toLowerCase()
+    const isPdf = mime.includes("pdf") || name.endsWith(".pdf")
+    const isDocx =
+      mime.includes("wordprocessingml") ||
+      mime.includes("msword") ||
+      name.endsWith(".docx") ||
+      name.endsWith(".doc")
+
+    const fetched = await fetchSignedBuffer(path)
+    if ("error" in fetched) return `(${fetched.error})`
+    const { buffer } = fetched
+
+    let text = ""
+    if (isPdf) {
+      text = await extractPdfText(buffer)
+    } else if (isDocx) {
+      text = await extractDocxText(buffer)
+    } else if (READABLE_MIME.test(mime) || name.endsWith(".txt") || name.endsWith(".md") || name.endsWith(".csv")) {
+      text = new TextDecoder().decode(buffer)
+    } else {
       return `(binary file: ${doc.file_name}, ${doc.mime_type || "unknown type"}, ${doc.size_bytes ?? 0} bytes; content not extracted)`
     }
-    try {
-      const { data: signed, error } = await supabase.storage
-        .from("application-documents")
-        .createSignedUrl(path, 120)
-      if (error || !signed?.signedUrl) return `(could not get signed URL: ${error?.message || "unknown"})`
-      const res = await fetch(signed.signedUrl)
-      if (!res.ok) return `(fetch failed: ${res.status})`
-      const text = await res.text()
-      const trimmed = text.replace(/\s+$/g, "").slice(0, 2000)
-      return trimmed || "(empty file)"
-    } catch (e) {
-      return `(read error: ${(e as Error)?.message || "unknown"})`
-    }
+    const trimmed = text.replace(/\s+$/g, "").slice(0, 3000)
+    return trimmed || "(empty file)"
   }
 
   async function loadEditContext() {
@@ -313,7 +356,6 @@ import {
         }
       }
       editContext.value = lines.length ? lines.join("\n") : "No applications or documents found."
-      editTasks.value = editTasks.value.map((t, i) => ({ ...t, done: i <= 1 }))
     } catch (e) {
       editContext.value = "Could not load documents."
     }
@@ -353,12 +395,7 @@ import {
   const editMode = ref(false)
   const consentOpen = ref(false)
   const editContext = ref("")
-  const editTasks = ref([
-    { id: "read", label: "Read your uploaded documents", done: false },
-    { id: "analyse", label: "Analyse content and gaps", done: false },
-    { id: "propose", label: "Propose refined edits", done: false },
-    { id: "apply", label: "Apply edits you approve", done: false },
-  ])
+
 
   // The header avatar mirrors whatever the assistant is doing right now.
   const assistantState = computed<AIState>(() => {
@@ -594,7 +631,6 @@ import {
     consentOpen.value = false
     editMode.value = false
     editContext.value = ""
-    editTasks.value = editTasks.value.map((t) => ({ ...t, done: false }))
   }
 
   onBeforeUnmount(() => {
