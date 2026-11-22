@@ -1,15 +1,15 @@
 <template>
   <div :class="[$style.page, isGaborone ? $style.isGaborone : '']" :style="pageBackground">
     <!-- Reusable Stationary Sidebar -->
-    <Main :active-page="'dashboard'" />
+    <Main :active-page="isEvaluator ? 'my-applications' : 'dashboard'" :role="isEvaluator ? 'evaluator' : undefined" />
 
     <!-- Main Scrollable Content -->
     <main :class="$style.mainContent">
       <div v-if="!applicationReady" :class="$style.viewState">Loading application…</div>
       <div v-else-if="notFound" :class="$style.viewState">
         <p>This application could not be found, or you do not have access to it.</p>
-        <router-link to="/my-applications" :class="$style.emptyLink">
-          Back to My Applications
+        <router-link :to="isEvaluator ? '/review-queue' : '/my-applications'" :class="$style.emptyLink">
+          {{ isEvaluator ? "Back to Review Queue" : "Back to My Applications" }}
         </router-link>
       </div>
       <template v-else>
@@ -46,12 +46,12 @@
       <!-- Action & Navigation Bar -->
       <div :class="$style.actionBar">
         <div :class="$style.navRow">
-          <router-link to="/innovator-dashboard" :class="$style.backLink">
+          <router-link :to="isEvaluator ? '/review-queue' : '/innovator-dashboard'" :class="$style.backLink">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
               <line x1="19" y1="12" x2="5" y2="12"></line>
               <polyline points="12 19 5 12 12 5"></polyline>
             </svg>
-            <span>Back to Dashboard</span>
+            <span>{{ isEvaluator ? 'Back to Review Queue' : 'Back to Dashboard' }}</span>
           </router-link>
           <span :class="$style.navDivider">/</span>
           <span :class="$style.navCurrent">{{ currentIdea.ideaId }}</span>
@@ -130,7 +130,7 @@
         </div>
 
         <!-- Editable draft panel -->
-        <div v-if="isDraft || editingCorrections" id="edit-panel" :class="$style.editSection">
+        <div v-if="canEdit && (isDraft || editingCorrections)" id="edit-panel" :class="$style.editSection">
           <div :class="$style.editHead">
             <div>
               <h2 :class="$style.tableHeading">
@@ -276,17 +276,27 @@
                 </div>
                 <div :class="$style.dataRow">
                   <span :class="$style.dataLabel">Email</span>
-                  <span :class="$style.dataValue">{{ currentIdea.email }}</span>
+                  <span :class="$style.dataValue">
+                    {{ currentIdea.identityHidden ? "Hidden during review" : currentIdea.email || "—" }}
+                  </span>
                 </div>
                 <div :class="$style.dataRow">
                   <span :class="$style.dataLabel">Phone</span>
-                  <span :class="$style.dataValue">{{ currentIdea.phone }}</span>
+                  <span :class="$style.dataValue">
+                    {{ currentIdea.identityHidden ? "Hidden during review" : currentIdea.phone || "—" }}
+                  </span>
                 </div>
                 <div :class="$style.dataRow">
                   <span :class="$style.dataLabel">Location</span>
-                  <span :class="$style.dataValue">{{ currentIdea.location }}</span>
+                  <span :class="$style.dataValue">
+                    {{ currentIdea.identityHidden ? "Hidden during review" : currentIdea.location || "—" }}
+                  </span>
                 </div>
               </div>
+              <p v-if="currentIdea.identityHidden" :class="$style.blindNote">
+                Innovator contact details stay hidden until adjudication, as required by the review
+                policy.
+              </p>
             </div>
 
             <div :class="$style.unifiedColDivider"></div>
@@ -439,7 +449,7 @@
             </div>
           </div>
 
-          <div v-if="currentIdea.corrections.length > 0" :class="$style.correctionsActions">
+          <div v-if="canEdit && currentIdea.corrections.length > 0" :class="$style.correctionsActions">
             <button :class="$style.resubmitBtn" type="button" @click="startCorrectionEdit">
               Resubmit
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -593,7 +603,7 @@ import { useRoute } from "vue-router";
 import { useCssModule } from "vue";
 import Main from "../components/Main.vue";
 import { supabase } from "../lib/supabase";
-import { authReady, displayName, session } from "../lib/auth";
+import { authReady, currentRole, displayName, session } from "../lib/auth";
 
 const route = useRoute();
 const style = useCssModule();
@@ -614,6 +624,8 @@ interface IdeaCorrection {
 
 interface IdeaDetail {
   ideaId: string;
+  ownerId: string;
+  identityHidden: boolean;
   title: string;
   innovator: string;
   email: string;
@@ -644,6 +656,8 @@ interface IdeaDetail {
 function emptyIdea(): IdeaDetail {
   return {
     ideaId: "",
+    ownerId: "",
+    identityHidden: false,
     title: "Application",
     innovator: "",
     email: "",
@@ -698,13 +712,19 @@ function formatSubmitted(value: string | null): string {
 
 function mapApplication(row: Record<string, any>): IdeaDetail {
   const innovator = Array.isArray(row.innovator) ? row.innovator[0] : row.innovator;
+  // Blind review: evaluators never receive innovator contact details. The
+  // profiles join returns null under RLS, so show a stable reference code.
+  const hidden = currentRole.value === "evaluator";
+  const code = `IN-${String(row.id).slice(-4).toUpperCase()}`;
   return {
     ideaId: row.reference ?? row.id,
+    ownerId: row.innovator_id ?? "",
+    identityHidden: hidden,
     title: row.title ?? "Untitled submission",
-    innovator: innovator?.full_name ?? "You",
-    email: innovator?.email ?? "",
-    phone: innovator?.phone ?? "",
-    location: innovator?.city ?? "",
+    innovator: hidden ? code : (innovator?.full_name ?? "Unknown innovator"),
+    email: hidden ? "" : (innovator?.email ?? ""),
+    phone: hidden ? "" : (innovator?.phone ?? ""),
+    location: hidden ? "" : (innovator?.city ?? ""),
     submittedDate: formatSubmitted(row.submitted_at),
     fundingAmount: Number(row.funding_requested ?? 0).toLocaleString("en-US", {
       minimumFractionDigits: 2,
@@ -713,7 +733,7 @@ function mapApplication(row: Record<string, any>): IdeaDetail {
     category: row.sector ?? "Uncategorised",
     stage: row.innovation_type ?? "Idea",
     status: mapApplicationStatus(String(row.status)),
-    officer: "Unassigned",
+    officer: currentRole.value === "evaluator" ? displayName.value : "Unassigned",
     description: row.summary ?? "",
     problem: row.problem_statement ?? "",
     solution: row.proposed_solution ?? "",
@@ -814,7 +834,14 @@ async function persistApplication(patch: Record<string, unknown>): Promise<boole
   return true;
 }
 
+const isEvaluator = computed(() => currentRole.value === "evaluator");
 const isDraft = computed(() => currentIdea.value.status === "Draft");
+const canEdit = computed(
+  () =>
+    currentRole.value === "innovator" &&
+    Boolean(session.value?.user.id) &&
+    currentIdea.value.ownerId === session.value?.user.id,
+);
 
 const printedOn = new Date().toLocaleDateString("en-GB", {
   day: "numeric",
@@ -2257,6 +2284,16 @@ function mockPreviewDoc(docName: string) {
   .dataValue {
     max-width: 58%;
     overflow-wrap: anywhere;
+  }
+
+  .blindNote {
+    margin: 10px 0 0;
+    padding: 9px 11px;
+    border-radius: 8px;
+    background: #f4f1ea;
+    color: #6a635c;
+    font-size: 12px;
+    line-height: 1.45;
   }
 
   /* Gaborone theme: white header text only on this preset. */

@@ -39,15 +39,21 @@
             </ol>
 
             <div :class="$style.qrCard">
-              <div :class="$style.qrFrame">
-                <div v-if="busy" :class="$style.qrPlaceholder">Creating your setup code…</div>
-                <img
-                  v-else-if="qrCode"
-                  :class="$style.qrImage"
-                  :src="qrCode"
-                  alt="Authenticator setup QR code"
-                />
-                <div v-else :class="$style.qrPlaceholder">Setup code unavailable</div>
+              <div :class="$style.qrShowcase">
+                <div :class="$style.qrFrame">
+                  <div v-if="busy" :class="$style.qrPlaceholder">Creating your setup code…</div>
+                  <img
+                    v-else-if="qrCode"
+                    :class="$style.qrImage"
+                    :src="qrCode"
+                    alt="Authenticator setup QR code"
+                  />
+                  <div v-else :class="$style.qrPlaceholder">Setup code unavailable</div>
+                </div>
+                <span :class="[$style.qrCorner, $style.qrCornerTopLeft]" aria-hidden="true" />
+                <span :class="[$style.qrCorner, $style.qrCornerTopRight]" aria-hidden="true" />
+                <span :class="[$style.qrCorner, $style.qrCornerBottomRight]" aria-hidden="true" />
+                <span :class="[$style.qrCorner, $style.qrCornerBottomLeft]" aria-hidden="true" />
               </div>
               <span :class="$style.qrCaption">{{ accountLabel }}</span>
               <span :class="$style.setupKeyLabel">Setup key</span>
@@ -442,16 +448,66 @@ function finish() {
   position: relative;
 }
 
+/* QR framing follows Untitled UI's QRCode component (MIT): a white scanning
+   surface with four corner brackets, sized up from `md` for reliable scanning. */
+.qrShowcase {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px;
+}
+
 .qrFrame {
-  width: 168px;
-  height: 168px;
+  width: 160px;
+  height: 160px;
   background-color: #ffffff;
-  border-radius: 12px;
-  padding: 10px;
+  border-radius: 10px;
+  padding: 8px;
   box-sizing: border-box;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
   display: grid;
   place-items: center;
+}
+
+.qrCorner {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  border: 0 solid var(--color-darkslategray-500, #0f2e24);
+  pointer-events: none;
+}
+
+.qrCornerTopLeft {
+  top: 0;
+  left: 0;
+  border-top-width: 2px;
+  border-left-width: 2px;
+  border-top-left-radius: 4px;
+}
+
+.qrCornerTopRight {
+  top: 0;
+  right: 0;
+  border-top-width: 2px;
+  border-right-width: 2px;
+  border-top-right-radius: 4px;
+}
+
+.qrCornerBottomRight {
+  right: 0;
+  bottom: 0;
+  border-right-width: 2px;
+  border-bottom-width: 2px;
+  border-bottom-right-radius: 4px;
+}
+
+.qrCornerBottomLeft {
+  bottom: 0;
+  left: 0;
+  border-bottom-width: 2px;
+  border-left-width: 2px;
+  border-bottom-left-radius: 4px;
 }
 
 .qrImage {

@@ -89,8 +89,8 @@
               <div :class="$style.reviewTrackFill" />
             </div>
             <div :class="$style.reviewLoadFooter">
-              <div :class="$style.reviewLoadLabel">Next deadline 24 November</div>
-              <div :class="$style.reviewLoadLabel">Average turnaround 1.8 days</div>
+              <div :class="$style.reviewLoadLabel">Next deadline {{ nextDeadlineLabel }}</div>
+              <div :class="$style.reviewLoadLabel">{{ completedCount }} of {{ assignedCount }} reviews completed</div>
             </div>
           </div>
           <div :class="$style.reviewLoadSide">
@@ -153,12 +153,14 @@
               :class="[$style.summaryDot, $style[item]]"
             />
           </div>
-          <div :class="$style.summaryMeta">2 due today · 3 this week</div>
+          <div :class="$style.summaryMeta">{{ dueTodayCount }} due today · {{ dueThisWeekCount }} this week</div>
         </div>
         <div :class="[$style.summaryCell, $style.summaryDivider]">
           <div :class="$style.summaryLabel">Completed this month</div>
           <h2 :class="$style.summaryValue">{{ completedCount }}</h2>
-          <div :class="$style.summaryMeta">Average score given {{ averageScore }} / 100</div>
+          <div :class="$style.summaryMeta">
+            Average score given {{ averageScoreLabel }}{{ averageScoreLabel === "—" ? "" : " / 100" }}
+          </div>
         </div>
       </section>
 
@@ -243,16 +245,18 @@
           <div :class="$style.scoreCard">
             <img :class="$style.scorePattern" alt="" src="/pattern-1.webp" />
             <div :class="$style.scoreLabel">My average score this month</div>
-            <h2 :class="$style.scoreValue">{{ averageScore }}</h2>
-            <div :class="$style.scoreMeta">out of 100 across {{ completedCount }} completed evaluations</div>
+            <h2 :class="$style.scoreValue">{{ averageScoreLabel }}</h2>
+            <div :class="$style.scoreMeta">
+              {{ completedCount ? `out of 100 across ${completedCount} completed evaluations` : "No evaluations completed this month" }}
+            </div>
             <div :class="$style.scoreFooter">
               <div :class="$style.scoreStat">
-                <b>1.8 days</b>
-                <span>average turnaround</span>
+                <b>{{ completedCount }}</b>
+                <span>completed evaluations</span>
               </div>
               <div :class="$style.scoreStat">
-                <b>100%</b>
-                <span>scored before deadline</span>
+                <b>{{ awaitingCount }}</b>
+                <span>still awaiting a score</span>
               </div>
             </div>
           </div>
@@ -288,6 +292,7 @@
     loadEvaluatorQueue,
     loadMyEvaluations,
     loadRubricCriteria,
+    parsePortalDate,
     type EvaluatorQueueRow,
     type RubricCriterion,
   } from "../lib/portal-data"
@@ -346,7 +351,7 @@
 
   const reviews = computed(() =>
     queue.value.map((row) => {
-      const due = row.due_at ? new Date(row.due_at) : null
+      const due = row.due_at ? parsePortalDate(row.due_at) : null
       const now = new Date()
       const dueToday = !!due && due.toDateString() === now.toDateString()
       const dueThisWeek =
@@ -404,12 +409,19 @@
   const assignedCount = computed(() => queue.value.length)
   const awaitingCount = computed(() => reviews.value.filter((r) => r.tab === "awaiting").length)
   const completedCount = computed(() => thisMonth.value.length)
-  const averageScore = computed(() => {
-    const scored = thisMonth.value.filter((e) => e.weighted_score != null)
-    if (!scored.length) return 0
-    return Math.round(scored.reduce((a, e) => a + (e.weighted_score ?? 0), 0) / scored.length)
-  })
   const dueTodayCount = computed(() => reviews.value.filter((r) => r.status === "Due today").length)
+  const dueThisWeekCount = computed(() => reviews.value.filter((r) => r.status === "Due this week").length)
+  const averageScoreLabel = computed(() => {
+    const scored = thisMonth.value.filter((e) => e.weighted_score != null)
+    if (!scored.length) return "—"
+    return String(Math.round(scored.reduce((a, e) => a + (e.weighted_score ?? 0), 0) / scored.length))
+  })
+  const nextDeadlineLabel = computed(() => {
+    const next = reviews.value
+      .filter((r) => r.tab === "awaiting" && r.dueAt)
+      .sort((a, b) => a.dueAt.localeCompare(b.dueAt))[0]
+    return next ? formatShortDate(next.dueAt) : "no active deadline"
+  })
   const newThisWeek = computed(() => queue.value.filter((r) => {
     const d = new Date(r.submitted_at)
     return Date.now() - d.getTime() <= 7 * 86400000

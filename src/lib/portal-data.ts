@@ -75,16 +75,26 @@ export function statusShortLabel(status: DbStatus): string {
   }
 }
 
+/** Parse a portal date. Deadlines are stored as midnight UTC calendar dates, so
+ *  read the date part in the viewer's timezone instead of shifting back a day. */
+export function parsePortalDate(value: string): Date {
+  const calendar = /^(\d{4})-(\d{2})-(\d{2})(?:$|T00:00:00(?:\.\d+)?(?:Z|[+-]00:00)$)/.exec(value);
+  if (calendar) {
+    return new Date(Number(calendar[1]), Number(calendar[2]) - 1, Number(calendar[3]));
+  }
+  return new Date(value);
+}
+
 export function formatShortDate(iso: string | null | undefined): string {
   if (!iso) return "—";
-  const date = new Date(iso);
+  const date = parsePortalDate(iso);
   if (Number.isNaN(date.getTime())) return "—";
   return date.toLocaleDateString("en-GB", { day: "numeric", month: "long" });
 }
 
 export function formatLongDate(iso: string | null | undefined): string {
   if (!iso) return "—";
-  const date = new Date(iso);
+  const date = parsePortalDate(iso);
   if (Number.isNaN(date.getTime())) return "—";
   return date.toLocaleDateString("en-GB", {
     day: "numeric",

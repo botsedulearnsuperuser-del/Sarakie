@@ -81,8 +81,12 @@
             />
           </div>
 
-          <button :class="$style.submitButton" type="submit">
-            <span>Send Reset Link</span>
+          <button
+            :class="$style.submitButton"
+            type="submit"
+            :disabled="submitting"
+          >
+            <span>{{ submitting ? "Sending…" : "Send Reset Link" }}</span>
             <svg
               :class="$style.btnArrow"
               viewBox="0 0 24 24"
@@ -98,6 +102,11 @@
               />
             </svg>
           </button>
+
+          <p v-if="resetError" :class="$style.resetMessage">{{ resetError }}</p>
+          <p v-else-if="resetSent" :class="$style.resetSuccess">
+            If an account exists for {{ identifier }}, a reset link is on its way.
+          </p>
 
           <p :class="$style.signupPrompt">
             Remembered your password ?
@@ -128,18 +137,31 @@
 
 <script setup lang="ts">
 import { ref } from "vue";
-import { useRouter } from "vue-router";
-
-const router = useRouter();
+import { requestPasswordReset } from "../lib/auth";
 
 const manImageSrc = encodeURI("/innovator-man.webp");
 const womanImageSrc = encodeURI("/hero-client.webp");
 
 const identifier = ref("");
+const submitting = ref(false);
+const resetError = ref("");
+const resetSent = ref(false);
 
-const handleReset = () => {
-  // Return to the sign in page after the reset link has been requested
-  router.push({ name: "Login" });
+const handleReset = async () => {
+  if (submitting.value) return;
+
+  resetError.value = "";
+  resetSent.value = false;
+  submitting.value = true;
+  const result = await requestPasswordReset(identifier.value);
+  submitting.value = false;
+
+  if (!result.ok) {
+    resetError.value = result.error ?? "Could not send the reset link.";
+    return;
+  }
+
+  resetSent.value = true;
 };
 </script>
 
@@ -436,6 +458,27 @@ const handleReset = () => {
   cursor: pointer;
   box-shadow: 0 3px 8px rgba(0, 0, 0, 0.12);
   transition: background-color 0.2s, transform 0.15s;
+}
+
+.submitButton:disabled {
+  opacity: 0.7;
+  cursor: default;
+}
+
+.resetMessage {
+  margin: 10px 0 0;
+  color: #b3261e;
+  font-size: 13px;
+  line-height: 1.45;
+  text-align: center;
+}
+
+.resetSuccess {
+  margin: 10px 0 0;
+  color: #1c6b45;
+  font-size: 13px;
+  line-height: 1.45;
+  text-align: center;
 }
 
 .submitButton:hover {

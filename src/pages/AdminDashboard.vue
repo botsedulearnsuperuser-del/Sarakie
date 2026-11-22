@@ -17,6 +17,7 @@
           </div>
         </div>
         <div :class="$style.div3">
+          <router-link to="/admin/evaluators" :class="$style.manageLink">Manage evaluators</router-link>
           <img :class="$style.notifications2New" alt="" src="/Notifications-2-new.svg" />
           <img :class="$style.notifications2New" alt="" src="/Help.svg" />
           <router-link to="/profile" :class="$style.userA" style="text-decoration: none;">
@@ -283,6 +284,19 @@
     position: relative;
     border-radius: 23px;
     cursor: pointer;
+  }
+  .manageLink {
+    display: inline-flex;
+    align-items: center;
+    height: 40px;
+    padding: 0 16px;
+    border-radius: 999px;
+    background-color: var(--color-darkslategray-500);
+    color: #fff;
+    font-size: var(--fs-13);
+    font-weight: 700;
+    text-decoration: none;
+    white-space: nowrap;
   }
   .userA {
     height: var(--height-48);

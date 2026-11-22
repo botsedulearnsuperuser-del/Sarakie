@@ -165,7 +165,8 @@
     | "profile"
     | "ideas"
     | "deadlines"
-    | "team";
+    | "team"
+    | "admin-evaluators";
 
   interface Props {
     activePage?: ActivePage;
@@ -241,6 +242,7 @@
 
   const adminNav: NavItem[] = [
     { id: "overview", label: "Admin overview", page: "admin", route: "AdminDashboard", icon: ICONS.home },
+    { id: "evaluators", label: "Evaluator accounts", page: "admin-evaluators", route: "AdminEvaluators", icon: ICONS.users },
     { id: "applications", label: "All applications", page: "my-applications", route: "AllApplications", icon: ICONS.document },
     { id: "feedback", label: "Feedback Centre", page: "feedback-center", route: "FeedbackCenter", icon: ICONS.feedback },
     { id: "ideas", label: "Idea repository", page: "ideas", route: "IdeasView", icon: ICONS.chat },

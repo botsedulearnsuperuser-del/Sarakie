@@ -10,6 +10,7 @@ import AiAgent from "./pages/AiAgent.vue";
 import AdminLogin from "./pages/AdminLogin.vue";
 import AdminSignUp from "./pages/AdminSignUp.vue";
 import ForgotPassword from "./pages/ForgotPassword.vue";
+import ResetPassword from "./pages/ResetPassword.vue";
 import MyApplications from "./pages/MyApplications.vue";
 import ReviewQueue from "./pages/ReviewQueue.vue";
 import FeedbackCenter from "./pages/FeedbackCenter.vue";
@@ -18,6 +19,7 @@ import TeamView from "./pages/TeamView.vue";
 import IdeasView from "./pages/IdeasView.vue";
 import LoginPage from "./pages/LoginPage.vue";
 import AdminDashboard from "./pages/AdminDashboard.vue";
+import AdminEvaluators from "./pages/AdminEvaluators.vue";
 import BlogPage from "./pages/BlogPage.vue";
 import ArticlePage from "./pages/ArticlePage.vue";
 import DeadlinesView from "./pages/DeadlinesView.vue";
@@ -115,6 +117,11 @@ const routes: RouteRecordRaw[] = [
     component: AdminDashboard,
   },
   {
+    path: "/admin/evaluators",
+    name: "AdminEvaluators",
+    component: AdminEvaluators,
+  },
+  {
     path: "/blog",
     name: "BlogPage",
     component: BlogPage,
@@ -168,6 +175,12 @@ const routes: RouteRecordRaw[] = [
     path: "/forgot-password",
     name: "ForgotPassword",
     component: ForgotPassword,
+  },
+  {
+    path: "/reset-password",
+    name: "ResetPassword",
+    component: ResetPassword,
+    meta: { title: "Choose a new password — CEDA Innovation Portal" },
   },
   {
     path: "/faq",

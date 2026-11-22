@@ -62,8 +62,7 @@
   grid-template-columns: 56% 44%;
   align-items: stretch;
   min-height: clamp(520px, calc(100vh - 118px), 980px);
-  background-color: #f7c613;
-  background-image: radial-gradient(ellipse at top center, #97231e 0%, transparent 70%);
+  background-color: #ffffff;
   -webkit-mask-image: linear-gradient(to bottom, black 96%, transparent 100%);
   mask-image: linear-gradient(to bottom, black 96%, transparent 100%);
   box-shadow: 0 -6px 24px rgba(151, 35, 30, 0.35), -10px 0 28px rgba(151, 35, 30, 0.35), 10px 0 28px rgba(151, 35, 30, 0.35);

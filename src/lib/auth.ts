@@ -1,6 +1,7 @@
 import { computed, ref } from "vue";
 import type { Session, User } from "@supabase/supabase-js";
 import { isSupabaseConfigured, supabase } from "./supabase";
+import { PASSWORD_REQUIREMENT_MESSAGE, passwordChecks } from "./password";
 
 export type AppRole = "innovator" | "evaluator" | "admin";
 
@@ -124,6 +125,8 @@ export async function signUpWithPassword(input: {
     email: input.email.trim(),
     password: input.password,
     options: {
+      // Where the confirmation email lands. Must be in Supabase → Redirect URLs.
+      emailRedirectTo: `${window.location.origin}/login`,
       data: {
         full_name: input.fullName.trim(),
         role: "innovator",
@@ -138,6 +141,38 @@ export async function signUpWithPassword(input: {
 
   session.value = data.session;
   await loadProfile(data.user ?? null);
+  return { ok: true };
+}
+
+/** Send the "reset password" email; the link returns to /reset-password. */
+export async function requestPasswordReset(
+  email: string,
+): Promise<{ ok: boolean; error?: string }> {
+  if (!supabase) return { ok: false, error: "Supabase is not configured." };
+
+  const address = email.trim();
+  if (!address.includes("@")) {
+    return { ok: false, error: "Enter the email address for your account." };
+  }
+
+  const { error } = await supabase.auth.resetPasswordForEmail(address, {
+    redirectTo: `${window.location.origin}/reset-password`,
+  });
+  if (error) return { ok: false, error: error.message };
+  return { ok: true };
+}
+
+/** Finish the recovery link: store the new password on the recovery session. */
+export async function completePasswordReset(
+  password: string,
+): Promise<{ ok: boolean; error?: string }> {
+  if (!supabase) return { ok: false, error: "Supabase is not configured." };
+  if (!passwordChecks(password).valid) {
+    return { ok: false, error: PASSWORD_REQUIREMENT_MESSAGE };
+  }
+
+  const { error } = await supabase.auth.updateUser({ password });
+  if (error) return { ok: false, error: error.message };
   return { ok: true };
 }
 

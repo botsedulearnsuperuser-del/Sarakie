@@ -3,6 +3,7 @@ import vue from "@vitejs/plugin-vue";
 import fs from "node:fs";
 import path from "node:path";
 import chatHandler from "./api/chat.js";
+import adminEvaluatorsHandler from "./api/admin-evaluators.js";
 
 // Load .env.local into process.env so the dev middleware (api/chat) can read secrets.
 try {
@@ -20,6 +21,35 @@ try {
 export default defineConfig({
   plugins: [
     vue(),
+    {
+      name: "ceda-admin-evaluators-dev-middleware",
+      configureServer(server) {
+        server.middlewares.use("/api/admin-evaluators", async (req, res) => {
+          if (req.method !== "POST") {
+            res.statusCode = 405;
+            res.setHeader("Content-Type", "application/json");
+            res.end(JSON.stringify({ error: "Method not allowed" }));
+            return;
+          }
+          let body = "";
+          req.on("data", (c) => (body += c));
+          req.on("end", async () => {
+            try {
+              req.body = body ? JSON.parse(body) : {};
+            } catch {
+              req.body = {};
+            }
+            try {
+              await adminEvaluatorsHandler(req, res);
+            } catch (err) {
+              res.statusCode = 500;
+              res.setHeader("Content-Type", "application/json");
+              res.end(JSON.stringify({ error: err?.message || "Server error" }));
+            }
+          });
+        });
+      },
+    },
     {
       name: "ceda-chat-dev-middleware",
       configureServer(server) {
