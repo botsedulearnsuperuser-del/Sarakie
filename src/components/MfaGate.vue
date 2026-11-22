@@ -44,10 +44,12 @@
     <!-- Signed in, no authenticator yet: 2FA is not optional -->
     <div v-else-if="needsEnrollment" :class="$style.overlay">
       <div :class="$style.card" role="dialog" aria-modal="true" aria-labelledby="mfa-setup-title">
-        <span :class="$style.badge" aria-hidden="true">
+        <span :class="$style.plainIcon" aria-hidden="true">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5">
-            <path d="M12 3l7 3v5.5c0 4.2-2.9 7.9-7 9.5-4.1-1.6-7-5.3-7-9.5V6l7-3Z" />
-            <path d="m9 12 2.2 2.2L15.5 10" />
+            <path d="M5 11.5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2Z" />
+            <path d="M8 7a4 4 0 0 1 8 0" />
+            <path d="M8 15.5h8" />
+            <path d="m13.5 13 2.5 2.5-2.5 2.5" />
           </svg>
         </span>
 
@@ -205,6 +207,14 @@
   .badge svg {
     width: 24px;
     height: 24px;
+  }
+  .plainIcon {
+    display: inline-grid;
+    color: var(--color-darkslategray-600);
+  }
+  .plainIcon svg {
+    width: 46px;
+    height: 46px;
   }
   .title {
     margin: 4px 0 0;
