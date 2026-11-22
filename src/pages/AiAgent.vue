@@ -325,40 +325,6 @@ import {
     })
   }
 
-  function replyTo(text: string): string {
-    const query = text.toLowerCase()
-
-    const asksAboutAccount =
-      /\bmy\b|account|mine|submitted|submission status|progress|application status|how many/.test(query)
-    if (asksAboutAccount) {
-      if (liveSummary.value) return liveSummary.value
-      void loadLiveSummary()
-      return "One moment — I'm reading your latest submissions from the portal."
-    }
-
-    if (query.includes("score") || query.includes("rubric") || query.includes("criteria")) {
-      return "Submissions are scored out of 100 against five criteria: problem and market need (25%), solution and feasibility (25%), team and capability (20%), financial projections (20%), and impact with youth ownership (10%). Evaluators score each one and the panel reviews the total."
-    }
-
-    if (query.includes("document") || query.includes("attach") || query.includes("file")) {
-      return "Attach a problem statement, a description of your solution and financial projections at minimum. A fuller submission also carries a business proposal, market research and founder CVs. You can attach up to 10 files per application — PDF, Word, Excel, PowerPoint or images."
-    }
-
-    if (query.includes("long") || query.includes("review") || query.includes("status") || query.includes("time")) {
-      return "Reviews usually take about 10 working days, longer if documents are missing or the proposal needs specialist input. Every status change raises a notification and updates the application timeline, so you can follow progress from your dashboard."
-    }
-
-    if (query.includes("feedback") || query.includes("comment") || query.includes("resubmit")) {
-      return "Evaluator comments appear in the Feedback Centre against the idea they relate to. Open a comment to read the detail, reply if you need to clarify something, then resubmit the corrected proposal from the same panel."
-    }
-
-    if (query.includes("withdraw") || query.includes("delete")) {
-      return "A withdrawal request is sent to your analyst from the Feedback Centre and the status changes to Withdrawn. Nothing you submitted is deleted, so the documents can be reused on a future application."
-    }
-
-    return "I can help with submission status, the scoring rubric, required documents and evaluator feedback. This prototype assistant replies from a fixed set of answers, so for anything account-specific contact your CEDA analyst on +267 77 663 331."
-  }
-
   /**
    * The moment the assistant needs a human decision, it puts up an approval card
    * instead of assuming an answer. Only the turns that lead to an action ask.
@@ -502,9 +468,8 @@ import {
 
     if (replyTimer !== null) clearTimeout(replyTimer)
     if (streamTimer !== null) clearInterval(streamTimer)
-    replyTimer = window.setTimeout(() => {
+    replyTimer = window.setTimeout(async () => {
       typing.value = false
-      const full = replyTo(text)
       const msgIndex = messages.value.length
       const msg: ChatMessage = { role: "agent", text: "", streaming: false }
       if (reasoningEnabled.value) {
@@ -514,10 +479,39 @@ import {
       replyTimer = null
       scrollToBottom()
 
-      const startAnswer = () => streamAnswer(full, msgIndex, text)
+      const startAnswer = (full: string) => streamAnswer(full, msgIndex, text)
+
+      let full = ""
+      try {
+        const history = messages.value
+          .slice(0, msgIndex)
+          .filter((m) => m.role === "user" || m.role === "agent")
+          .map((m) => ({ role: m.role === "agent" ? "assistant" : "user", content: m.text }))
+        const contextMsg = liveSummary.value
+          ? [{ role: "system", content: `Live portal data for this innovator: ${liveSummary.value}` }]
+          : []
+        const res = await fetch("/api/chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ messages: [...contextMsg, ...history, { role: "user", content: text }] }),
+        })
+        const data = await res.json().catch(() => ({}))
+        if (!res.ok) {
+          full = data?.error || "Sorry, I couldn't reach the assistant right now. Please try again."
+        } else {
+          full = data?.reply || "I'm here, but I didn't get a reply. Please try again."
+        }
+      } catch {
+        full = "Sorry, I couldn't reach the assistant right now. Please try again."
+      }
+
+      const finish = () => {
+        if (msg.reasoning) msg.reasoning.streaming = false
+        startAnswer(full)
+      }
 
       if (!msg.reasoning) {
-        startAnswer()
+        finish()
         return
       }
 
@@ -536,7 +530,7 @@ import {
           streamTimer = null
           replyTimer = window.setTimeout(() => {
             replyTimer = null
-            startAnswer()
+            finish()
           }, 650)
         }
       }, 45)
