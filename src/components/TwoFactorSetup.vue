@@ -20,7 +20,8 @@
               <li>
                 <b :class="$style.instructionTitle">Install an authenticator app</b>
                 <span :class="$style.instructionText">
-                  Google Authenticator, Microsoft Authenticator or Authy on your phone.
+                  Google Authenticator, Microsoft Authenticator, Authy or any other
+                  authenticator app on your phone.
                 </span>
               </li>
               <li>
@@ -39,28 +40,26 @@
 
             <div :class="$style.qrCard">
               <div :class="$style.qrFrame">
-                <svg :class="$style.qrSvg" viewBox="0 0 21 21" role="img" aria-label="Authenticator setup QR code">
-                  <rect
-                    v-for="cell in qrCells"
-                    :key="cell.key"
-                    :x="cell.col"
-                    :y="cell.row"
-                    width="1"
-                    height="1"
-                    fill="#0f2e24"
-                  />
-                </svg>
+                <div v-if="busy" :class="$style.qrPlaceholder">Creating your setup code…</div>
+                <img
+                  v-else-if="qrCode"
+                  :class="$style.qrImage"
+                  :src="qrCode"
+                  alt="Authenticator setup QR code"
+                />
+                <div v-else :class="$style.qrPlaceholder">Setup code unavailable</div>
               </div>
-              <span :class="$style.qrCaption">Sarkaie · Marion Lucas</span>
+              <span :class="$style.qrCaption">{{ accountLabel }}</span>
               <span :class="$style.setupKeyLabel">Setup key</span>
               <div :class="$style.setupKeyRow">
-                <code :class="$style.setupKey">{{ setupKey }}</code>
+                <code :class="$style.setupKey">{{ displaySecret }}</code>
                 <button :class="$style.copyBtn" type="button" @click="copyKey">
                   {{ copied ? "Copied" : "Copy" }}
                 </button>
               </div>
             </div>
           </div>
+          <p v-if="error" :class="$style.errorBanner" role="alert">{{ error }}</p>
         </div>
 
         <!-- Step 2 — verify the code from the app -->
@@ -75,10 +74,11 @@
               autocomplete="one-time-code"
               maxlength="6"
               placeholder="000000"
+              :disabled="busy"
               @input="onCodeInput"
               @keyup.enter="verifyCode"
             />
-            <p v-if="error" :class="$style.errorText">{{ error }}</p>
+            <p v-if="error" :class="$style.errorText" role="alert">{{ error }}</p>
             <p :class="$style.helperText">The code refreshes every 30 seconds in your authenticator app.</p>
           </div>
         </div>
@@ -87,40 +87,28 @@
         <div v-else :class="$style.body">
           <div :class="$style.successBox">
             <div :class="$style.successIcon">
-              <svg
-                width="44"
-                height="44"
-                viewBox="0 0 24 24"
-                xmlns="http://www.w3.org/2000/svg"
-              >
+              <svg width="44" height="44" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                 <path d="M0 0h24v24H0z" fill="none" />
-                <g
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="1.5"
-                >
-                  <path
-                    d="M9.5 15.25v.5m.5-.25a.5.5 0 1 1-1 0a.5.5 0 0 1 1 0m4.5-.25v.5m.5-.25a.5.5 0 1 1-1 0a.5.5 0 0 1 1 0M16.5 9V6.5a4.5 4.5 0 1 0-9 0V9"
-                  />
-                  <path
-                    d="M4.268 18.845c.225 1.67 1.608 2.979 3.292 3.056c1.416.065 2.855.099 4.44.099s3.024-.034 4.44-.1c1.684-.076 3.067-1.385 3.292-3.055c.147-1.09.268-2.207.268-3.345s-.121-2.255-.268-3.345c-.225-1.67-1.608-2.979-3.292-3.056A95 95 0 0 0 12 9c-1.585 0-3.024.034-4.44.1c-1.684.076-3.067 1.385-3.292 3.055C4.12 13.245 4 14.362 4 15.5s.121 2.255.268 3.345"
-                  />
+                <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5">
+                  <path d="M9.5 15.25v.5m.5-.25a.5.5 0 1 1-1 0a.5.5 0 0 1 1 0m4.5-.25v.5m.5-.25a.5.5 0 1 1-1 0a.5.5 0 0 1 1 0M16.5 9V6.5a4.5 4.5 0 1 0-9 0V9" />
+                  <path d="M4.268 18.845c.225 1.67 1.608 2.979 3.292 3.056c1.416.065 2.855.099 4.44.099s3.024-.034 4.44-.1c1.684-.076 3.067-1.385 3.292-3.055c.147-1.09.268-2.207.268-3.345s-.121-2.255-.268-3.345c-.225-1.67-1.608-2.979-3.292-3.056A95 95 0 0 0 12 9c-1.585 0-3.024.034-4.44.1c-1.684.076-3.067 1.385-3.292 3.055C4.12 13.245 4 14.362 4 15.5s.121 2.255.268 3.345" />
                 </g>
               </svg>
             </div>
-            <h4 :class="$style.successTitle">Two-factor authentication enabled</h4>
+            <h4 :class="$style.successTitle">
+              {{ mfaEnabled ? "Authenticator app connected" : "Two-factor authentication enabled" }}
+            </h4>
             <p :class="$style.successText">
               From now on you’ll be asked for a code from your authenticator app each time you sign in.
             </p>
+            <p v-if="error" :class="$style.errorText" role="alert">{{ error }}</p>
           </div>
         </div>
 
         <footer :class="$style.footer">
           <template v-if="step === 1">
             <button :class="$style.cancelLink" type="button" @click="emit('close')">Cancel</button>
-            <button :class="$style.primaryBtn" type="button" @click="step = 2">
+            <button :class="$style.primaryBtn" type="button" :disabled="!qrCode || busy" @click="step = 2">
               Continue
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                 <line x1="5" y1="12" x2="19" y2="12" />
@@ -134,11 +122,22 @@
               <button :class="$style.backBtn" type="button" @click="step = 1">Back</button>
               <button :class="$style.cancelLink" type="button" @click="emit('close')">Cancel</button>
             </div>
-            <button :class="$style.primaryBtn" type="button" @click="verifyCode">Verify &amp; enable</button>
+            <button :class="$style.primaryBtn" type="button" :disabled="busy" @click="verifyCode">
+              {{ busy ? "Verifying…" : "Verify & enable" }}
+            </button>
           </template>
 
           <template v-else>
-            <span />
+            <button
+              v-if="mfaEnabled"
+              :class="$style.cancelLink"
+              type="button"
+              :disabled="busy"
+              @click="removeFactor"
+            >
+              {{ busy ? "Removing…" : "Remove authenticator app" }}
+            </button>
+            <span v-else />
             <button :class="$style.primaryBtn" type="button" @click="finish">Done</button>
           </template>
         </footer>
@@ -149,15 +148,34 @@
 
 <script setup lang="ts">
 import { computed, ref, watch } from "vue";
+import { session } from "../lib/auth";
+import {
+  confirmTotpEnrollment,
+  disableTotp,
+  formatSecret,
+  mfaEnabled,
+  refreshMfa,
+  startTotpEnrollment,
+  verifiedFactor,
+} from "../lib/mfa";
 
 const props = defineProps<{ open: boolean }>();
 const emit = defineEmits<{ close: []; enabled: [] }>();
 
-const setupKey = "SRKI 2FA7 Q4MD 9XLP";
 const step = ref(1);
 const code = ref("");
 const error = ref("");
 const copied = ref(false);
+const busy = ref(false);
+const factorId = ref("");
+const qrCode = ref("");
+const secret = ref("");
+
+const accountLabel = computed(() => {
+  const email = session.value?.user.email;
+  return email ? `CEDA Innovation Portal · ${email}` : "CEDA Innovation Portal";
+});
+const displaySecret = computed(() => (secret.value ? formatSecret(secret.value) : "—"));
 
 const stepTag = computed(() => {
   if (step.value === 3) return "All set";
@@ -180,61 +198,41 @@ const stepSub = computed(() => {
   return "Your account is now protected with a second step at sign-in.";
 });
 
-/** Decorative QR-style tile — a real otpauth QR is produced by the auth backend. */
-const qrCells = computed(() => {
-  const size = 21;
-  const seed = setupKey.replace(/\s/g, "");
-  let h = 2166136261;
-  for (const ch of seed) h = (h * 31 + ch.charCodeAt(0)) | 0;
-  const next = () => {
-    h ^= h << 13;
-    h ^= h >>> 17;
-    h ^= h << 5;
-    return (h >>> 0) % 2 === 0;
-  };
-
-  const filled: boolean[] = new Array(size * size).fill(false);
-  const isFinder = (row: number, col: number) =>
-    (row < 7 && col < 7) || (row < 7 && col >= size - 7) || (row >= size - 7 && col < 7);
-
-  for (let row = 0; row < size; row++) {
-    for (let col = 0; col < size; col++) {
-      if (!isFinder(row, col)) filled[row * size + col] = next();
-    }
+async function beginEnrollment() {
+  error.value = "";
+  if (!session.value) {
+    error.value = "Sign in first, then connect an authenticator app to your account.";
+    return;
   }
-
-  const drawFinder = (row0: number, col0: number) => {
-    for (let row = 0; row < 7; row++) {
-      for (let col = 0; col < 7; col++) {
-        const edge = row === 0 || row === 6 || col === 0 || col === 6;
-        const core = row >= 2 && row <= 4 && col >= 2 && col <= 4;
-        filled[(row0 + row) * size + (col0 + col)] = edge || core;
-      }
-    }
-  };
-
-  drawFinder(0, 0);
-  drawFinder(0, size - 7);
-  drawFinder(size - 7, 0);
-
-  const cells: { key: string; row: number; col: number }[] = [];
-  for (let row = 0; row < size; row++) {
-    for (let col = 0; col < size; col++) {
-      if (filled[row * size + col]) cells.push({ key: `${row}-${col}`, row, col });
-    }
+  busy.value = true;
+  const result = await startTotpEnrollment();
+  busy.value = false;
+  if (!result.ok) {
+    error.value = result.error ?? "Could not create an authenticator setup code.";
+    return;
   }
-  return cells;
-});
+  factorId.value = result.factorId ?? "";
+  qrCode.value = result.qrCode ?? "";
+  secret.value = result.secret ?? "";
+}
 
 watch(
   () => props.open,
-  (isOpen) => {
-    if (isOpen) {
-      step.value = 1;
-      code.value = "";
-      error.value = "";
-      copied.value = false;
+  async (isOpen) => {
+    if (!isOpen) return;
+    step.value = 1;
+    code.value = "";
+    error.value = "";
+    copied.value = false;
+    qrCode.value = "";
+    secret.value = "";
+    factorId.value = "";
+    await refreshMfa();
+    if (mfaEnabled.value) {
+      step.value = 3;
+      return;
     }
+    await beginEnrollment();
   },
 );
 
@@ -247,8 +245,9 @@ function onCodeInput(event: Event) {
 }
 
 async function copyKey() {
+  if (!secret.value) return;
   try {
-    await navigator.clipboard?.writeText(setupKey.replace(/\s/g, ""));
+    await navigator.clipboard?.writeText(secret.value);
     copied.value = true;
     window.setTimeout(() => (copied.value = false), 2000);
   } catch {
@@ -256,13 +255,45 @@ async function copyKey() {
   }
 }
 
-function verifyCode() {
+async function verifyCode() {
   if (code.value.length !== 6) {
     error.value = "Enter the 6-digit code shown in your authenticator app.";
     return;
   }
+  if (!factorId.value) {
+    error.value = "The setup code expired. Go back and scan the new code.";
+    step.value = 1;
+    await beginEnrollment();
+    return;
+  }
+
+  busy.value = true;
   error.value = "";
+  const result = await confirmTotpEnrollment(factorId.value, code.value);
+  busy.value = false;
+
+  if (!result.ok) {
+    error.value = result.error ?? "That code could not be verified.";
+    code.value = "";
+    return;
+  }
+
   step.value = 3;
+  emit("enabled");
+}
+
+async function removeFactor() {
+  const factor = verifiedFactor.value;
+  if (!factor) return;
+  busy.value = true;
+  error.value = "";
+  const result = await disableTotp(factor.id);
+  busy.value = false;
+  if (!result.ok) {
+    error.value = result.error ?? "Could not remove the authenticator app.";
+    return;
+  }
+  emit("close");
 }
 
 function finish() {
@@ -402,18 +433,30 @@ function finish() {
   padding: 10px;
   box-sizing: border-box;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+  display: grid;
+  place-items: center;
 }
 
-.qrSvg {
+.qrImage {
   width: 100%;
   height: 100%;
   display: block;
+  object-fit: contain;
+}
+
+.qrPlaceholder {
+  font-size: 11.5px;
+  line-height: 1.4;
+  color: #6b7280;
+  text-align: center;
+  padding: 0 6px;
 }
 
 .qrCaption {
   font-size: 12px;
   color: #6b7280;
   text-align: center;
+  word-break: break-word;
 }
 
 .setupKeyLabel {
@@ -438,10 +481,12 @@ function finish() {
 
 .setupKey {
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-  font-size: 12.5px;
+  font-size: 11.5px;
   letter-spacing: 1px;
   color: #0f2e24;
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .copyBtn {
@@ -456,6 +501,17 @@ function finish() {
   cursor: pointer;
   padding: 0;
   flex-shrink: 0;
+}
+
+.errorBanner {
+  margin: 16px 0 0;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background-color: #fef3f2;
+  border: 1px solid #fecdca;
+  color: #b42318;
+  font-size: 12.5px;
+  font-weight: 600;
 }
 
 .verifyCard {
@@ -608,8 +664,13 @@ function finish() {
   transition: background-color 0.2s ease;
 }
 
-.primaryBtn:hover {
+.primaryBtn:hover:not(:disabled) {
   background-color: #081d16;
+}
+
+.primaryBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 @media screen and (max-width: 700px) {

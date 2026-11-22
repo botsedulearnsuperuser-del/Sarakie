@@ -151,6 +151,8 @@
   import { ref, computed, onMounted, onUnmounted } from "vue";
   import { useRouter } from "vue-router";
   import TwoFactorSetup from "./TwoFactorSetup.vue";
+  import { session } from "../lib/auth";
+  import { mfaEnabled, mfaLoaded, mfaRequired, refreshMfa } from "../lib/mfa";
   import { ROLE_STORAGE_KEY, type DashboardRole } from "./dashboardRole";
   import ThemePicker from "./ThemePicker.vue";
   import {
@@ -283,23 +285,29 @@
     window.dispatchEvent(new CustomEvent("open-tavus-agent"));
   }
 
-  // 2FA toast state — hidden for the session once 2FA has been enabled
-  const twoFactorEnabled = ref(sessionStorage.getItem("sarka-2fa-enabled") === "1");
-  const showToast = ref(!twoFactorEnabled.value);
+  /* 2FA toast state — driven by the account's real authenticator factors in
+     Supabase Auth, so it disappears the moment setup completes. */
+  const toastDismissed = ref(false);
+  const showToast = computed(
+    () =>
+      Boolean(session.value) &&
+      mfaLoaded.value &&
+      !mfaEnabled.value &&
+      !mfaRequired.value &&
+      !toastDismissed.value,
+  );
   const showTwoFactorSetup = ref(false);
 
   function dismissToast() {
-    showToast.value = false;
+    toastDismissed.value = true;
   }
 
   function enable2FA() {
-    showToast.value = false;
     showTwoFactorSetup.value = true;
   }
 
   function closeTwoFactorSetup() {
     showTwoFactorSetup.value = false;
-    if (!twoFactorEnabled.value) showToast.value = true;
   }
 
   const showThemePicker = ref(false);
@@ -338,16 +346,14 @@
   }
 
   function onTwoFactorEnabled() {
-    twoFactorEnabled.value = true;
-    sessionStorage.setItem("sarka-2fa-enabled", "1");
+    void refreshMfa();
     showTwoFactorSetup.value = false;
-    showToast.value = false;
     window.dispatchEvent(new CustomEvent("sarka-2fa-changed"));
   }
 
   /* Pages can ask for the authenticator setup, e.g. the profile security card. */
   function openTwoFactorSetupFromPage() {
-    showToast.value = false;
+    toastDismissed.value = true;
     showTwoFactorSetup.value = true;
   }
 

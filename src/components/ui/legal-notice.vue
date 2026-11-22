@@ -10,20 +10,10 @@
       tabindex="-1"
     >
       <div :class="$style.head">
-        <div :class="$style.headText">
-          <h2 id="legal-notice-title" :class="$style.title">Before you continue</h2>
-          <p :class="$style.subtitle">
-            Please read and understand these terms — they explain how your data is handled.
-          </p>
-        </div>
-        <span :class="$style.icon" aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M11.5 21.25H7.25a2.5 2.5 0 0 1-2.5-2.5V5.25a2.5 2.5 0 0 1 2.5-2.5h6.5l5.5 5.5v2" />
-            <path d="M13.75 2.75v3.5a2 2 0 0 0 2 2h3.5m-11 3.5h3.5M8.25 15h2" />
-            <circle cx="16.5" cy="15.25" r="3.25" />
-            <path d="M14.75 18v3.25L16.5 20l1.75 1.25V18" />
-          </svg>
-        </span>
+        <h2 id="legal-notice-title" :class="$style.title">Before you continue</h2>
+        <p :class="$style.subtitle">
+          Please read and understand these terms — they explain how your data is handled.
+        </p>
       </div>
 
       <p id="legal-notice-desc" :class="$style.text">
@@ -219,27 +209,7 @@
     }
   }
   .head {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: 16px;
-  }
-  .headText {
-    min-width: 0;
-  }
-  .icon {
-    display: grid;
-    place-items: center;
-    width: 46px;
-    height: 46px;
-    flex-shrink: 0;
-    border-radius: 50%;
-    background: rgba(1, 53, 37, 0.08);
-    color: var(--color-darkslategray-600);
-  }
-  .icon svg {
-    width: 26px;
-    height: 26px;
+    display: block;
   }
   .title {
     margin: 0;
@@ -351,14 +321,6 @@
     .card {
       padding: 16px;
       max-height: calc(100vh - 24px);
-    }
-    .icon {
-      width: 42px;
-      height: 42px;
-    }
-    .icon svg {
-      width: 24px;
-      height: 24px;
     }
     .text,
     .link {

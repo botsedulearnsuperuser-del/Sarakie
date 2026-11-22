@@ -574,6 +574,7 @@
   });
 
 import { onMounted, onUnmounted, ref, computed, useCssModule } from "vue";
+import { mfaEnabled, refreshMfa } from "../lib/mfa";
 import { THEME_EVENT, isGaboroneTheme } from "../components/themes";
 import { useRoute } from "vue-router";
 import Main from "../components/Main.vue";
@@ -678,11 +679,11 @@ function closePasswordModal() {
   passwordSuccess.value = false;
 }
 
-/* ── Two-factor auth state ── */
-const twoFactorEnabled = ref(sessionStorage.getItem("sarka-2fa-enabled") === "1");
+/* ── Two-factor auth state, read from the account's Supabase factors ── */
+const twoFactorEnabled = computed(() => mfaEnabled.value);
 
 function syncTwoFactorState() {
-  twoFactorEnabled.value = sessionStorage.getItem("sarka-2fa-enabled") === "1";
+  void refreshMfa();
 }
 
 function openTwoFactorSetup() {
