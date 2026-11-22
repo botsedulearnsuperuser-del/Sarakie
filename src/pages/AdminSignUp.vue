@@ -180,9 +180,8 @@
         <!-- Shown after a successful registration -->
         <div v-else :class="$style.successPanel">
           <div :class="$style.successIcon" aria-hidden="true">
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-              <rect x="2.5" y="4.5" width="19" height="15" rx="2.5" />
-              <path d="m3.5 7 7.3 5.4a2 2 0 0 0 2.4 0L20.5 7" />
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5">
+              <path d="m9.498 15l7.5-7.5m-8.992.179l7.321-3.46c3.042-1.438 4.563-2.157 5.533-1.436s.693 2.365.138 5.652l-.954 5.662c-.363 2.149-.544 3.223-1.345 3.692s-1.842.109-3.923-.611l-6.365-2.202c-3.892-1.346-5.838-2.019-5.91-3.34c-.074-1.32 1.786-2.2 5.505-3.957M9.498 15.5v2.227c0 2.374 0 3.56.71 3.75s1.458-.798 2.954-2.773l.836-1.204" />
             </svg>
           </div>
 
@@ -190,23 +189,8 @@
           <p :class="$style.successText">
             We sent a confirmation link to
             <strong>{{ submittedEmail }}</strong>. Open it to activate your CEDA
-            Innovation Portal account.
+            Innovation Portal account. The link is valid for 24 hours.
           </p>
-
-          <ol :class="$style.successSteps">
-            <li>
-              <b>Confirm your email</b>
-              <span>The link is valid for 24 hours.</span>
-            </li>
-            <li>
-              <b>Complete your innovator profile</b>
-              <span>Add your organisation and contact details.</span>
-            </li>
-            <li>
-              <b>Start your first submission</b>
-              <span>Describe your idea and upload supporting documents.</span>
-            </li>
-          </ol>
 
           <router-link
             :class="$style.submitButton"
@@ -838,11 +822,11 @@ async function resendEmail() {
 .successIcon {
   display: grid;
   place-items: center;
+  color: var(--color-darkslategray-600);
+}
+.successIcon svg {
   width: 56px;
   height: 56px;
-  border-radius: 999px;
-  background: rgba(1, 53, 37, 0.08);
-  color: var(--color-darkslategray-600);
 }
 .successTitle {
   margin: 4px 0 0;
@@ -856,51 +840,6 @@ async function resendEmail() {
   line-height: 1.5;
   color: #525252;
   max-width: 46ch;
-}
-.successSteps {
-  list-style: none;
-  counter-reset: step;
-  margin: 6px 0 4px;
-  padding: 0;
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  text-align: left;
-}
-.successSteps li {
-  counter-increment: step;
-  position: relative;
-  padding: 10px 12px 10px 42px;
-  border: 1px solid #eceae4;
-  border-radius: 10px;
-  background: #faf9f5;
-}
-.successSteps li::before {
-  content: counter(step);
-  position: absolute;
-  left: 12px;
-  top: 11px;
-  width: 20px;
-  height: 20px;
-  border-radius: 999px;
-  background: var(--color-darkslategray-500);
-  color: #ffffff;
-  font-size: 11px;
-  font-weight: 700;
-  display: grid;
-  place-items: center;
-}
-.successSteps b {
-  display: block;
-  font-size: 13.5px;
-  color: #1f2933;
-}
-.successSteps span {
-  display: block;
-  margin-top: 2px;
-  font-size: 12.5px;
-  color: #616161;
 }
 .successHint {
   margin: 2px 0 0;
