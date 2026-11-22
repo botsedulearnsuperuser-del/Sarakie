@@ -76,6 +76,10 @@
                 <b>{{ assignedTeam.map((member) => member.name).join(", ") }}</b>
               </div>
             </div>
+            <p :class="$style.successViewNote">
+              You can view this application on the
+              <router-link to="/my-applications" :class="$style.successViewLink">Applications page</router-link>.
+            </p>
             <div :class="$style.successActions">
               <router-link to="/innovator-dashboard" :class="$style.successBtn">Return to Dashboard</router-link>
               <button :class="$style.newAppBtn" type="button" @click="resetForm">Record another idea</button>
@@ -1083,6 +1087,17 @@ function resetForm() {
   padding: 36px 42px;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.02);
   border: 1px solid rgba(0, 0, 0, 0.03);
+  min-height: 640px;
+  display: flex;
+  flex-direction: column;
+}
+
+.successScreen {
+  text-align: center;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 .stepIndicator {
@@ -1752,16 +1767,46 @@ function resetForm() {
 
 .successCard {
   max-width: 400px;
-  margin: 0 auto 32px;
+  margin: 0 auto 20px;
   text-align: left;
+}
+
+.successViewNote {
+  margin: 0 0 24px;
+  font-size: 14px;
+  color: #6b7280;
+}
+
+.successViewLink {
+  color: #0f2e24;
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 2px;
 }
 
 .successRow {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 12px;
   padding: 8px 0;
   border-bottom: 1px solid #f3f4f6;
+}
+
+.successRow span {
+  flex-shrink: 0;
+  color: #6b7280;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.successRow b {
+  flex: 1;
+  min-width: 0;
+  text-align: right;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .successRow:last-child {
@@ -1864,6 +1909,13 @@ function resetForm() {
   font-size: 15px;
   color: #6b7280;
   margin-bottom: 20px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  white-space: normal;
+  word-break: break-word;
 }
 
 .summaryDivider {
@@ -1882,17 +1934,26 @@ function resetForm() {
 .summaryRow {
   display: flex;
   justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
   font-size: 14px;
   color: #111827;
 }
 
 .summaryRow span {
+  flex-shrink: 0;
   color: #6b7280;
 }
 
 .summaryRow b {
+  flex: 1;
+  min-width: 0;
+  text-align: right;
   color: #0f2e24;
   font-weight: 700;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .infoCard {
