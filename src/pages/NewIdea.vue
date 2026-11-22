@@ -15,8 +15,8 @@
           <img :class="$style.iconBtn" alt="" src="/Notifications-2-new.svg" />
           <img :class="$style.iconBtn" alt="" src="/Help.svg" />
           <router-link to="/profile" :class="$style.userA" style="text-decoration: none;">
-            <img :class="$style.userAvatarImg" src="/innovator-man.webp" alt="Marion Lucas" />
-            <div :class="$style.userName">Marion Lucas</div>
+            <img :class="$style.userAvatarImg" src="/innovator-man.webp" :alt="displayName" />
+            <div :class="$style.userName">{{ displayName }}</div>
           </router-link>
         </div>
       </header>
@@ -557,7 +557,7 @@
     window.addEventListener(THEME_EVENT, () => (isGaborone.value = isGaboroneTheme()));
   });
 
-import { onMounted, ref, computed } from "vue";
+import { onMounted, ref, computed, watch } from "vue";
 import { THEME_EVENT, isGaboroneTheme } from "../components/themes";
 
 import Main from "../components/Main.vue";
@@ -565,6 +565,7 @@ import AIOrbFace, { type AIState, type ExpressionName } from "../components/ui/A
 import Assignees from "../components/ui/Assignees.vue";
 import { useTeamMembers } from "../composables/useTeamMembers";
 import { submitApplication } from "../lib/application-submit";
+import { displayName, profile } from "../lib/auth";
 
 const steps = ["Idea overview", "Innovator details", "Contact & address", "Field / Industry", "Supporting documents", "Submission"];
 const currentStep = ref(1);
@@ -605,22 +606,41 @@ const expectedImpact = ref("");
 const innovationType = ref("Product");
 const maturityLevel = ref("Concept");
 
-const customer = ref({
-  firstName: "Tlhalefang",
-  lastName: "Molefe",
-  omang: "931528410",
-  dob: "1994-03-14",
-  gender: "Male",
-  maritalStatus: "Single",
-  mobile: "+267 71 234 567",
-  email: "tlhalefang.molefe@gmail.com",
-  physicalAddress: "Plot 4471, Mokgosi Close",
-  city: "Gaborone",
-  area: "Block 8",
-  postalAddress: "P O Box 20451, Gaborone",
-  yearsAtAddress: 3,
-  organization: "Innovative Holdings (Pty) Ltd",
-});
+function blankCustomer() {
+  return {
+    firstName: "",
+    lastName: "",
+    omang: "",
+    dob: "",
+    gender: "",
+    maritalStatus: "",
+    mobile: "",
+    email: "",
+    physicalAddress: "",
+    city: "",
+    area: "",
+    postalAddress: "",
+    yearsAtAddress: 0,
+    organization: "",
+  };
+}
+
+const customer = ref(blankCustomer());
+
+/** Applicant details come from the signed-in profile, never from fixed sample data. */
+function prefillCustomer() {
+  const current = profile.value;
+  if (!current) return;
+  const [first = "", ...rest] = (current.full_name ?? "").trim().split(/\s+/);
+  customer.value.firstName ||= first;
+  customer.value.lastName ||= rest.join(" ");
+  customer.value.email ||= current.email ?? "";
+  customer.value.mobile ||= current.phone ?? "";
+  customer.value.city ||= current.city ?? "";
+  customer.value.organization ||= current.organization ?? "";
+}
+
+watch(profile, prefillCustomer, { immediate: true });
 
 const preferredContact = ref("Email");
 const targetMarket = ref("");
@@ -856,22 +876,8 @@ function resetForm() {
   expectedImpact.value = "";
   innovationType.value = "Product";
   maturityLevel.value = "Concept";
-  customer.value = {
-    firstName: "Tlhalefang",
-    lastName: "Molefe",
-    omang: "931528410",
-    dob: "1994-03-14",
-    gender: "Male",
-    maritalStatus: "Single",
-    mobile: "+267 71 234 567",
-    email: "tlhalefang.molefe@gmail.com",
-    physicalAddress: "Plot 4471, Mokgosi Close",
-    city: "Gaborone",
-    area: "Block 8",
-    postalAddress: "P O Box 20451, Gaborone",
-    yearsAtAddress: 3,
-    organization: "Innovative Holdings (Pty) Ltd",
-  };
+  customer.value = blankCustomer();
+  prefillCustomer();
   preferredContact.value = "Email";
   targetMarket.value = "";
   competitiveAdvantage.value = "";

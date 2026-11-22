@@ -241,6 +241,28 @@ export async function markFeedbackRead(ids: string[]): Promise<void> {
     .eq("status", "unread");
 }
 
+/** Document metadata for the signed-in user's applications. */
+export interface ApplicationDocumentRow {
+  application_id: string;
+  file_name: string;
+  mime_type: string | null;
+  size_bytes: number | null;
+  created_at: string;
+}
+
+export async function loadApplicationDocuments(): Promise<ApplicationDocumentRow[]> {
+  if (!supabase) return [];
+  const { data, error } = await supabase
+    .from("application_documents")
+    .select("application_id, file_name, mime_type, size_bytes, created_at")
+    .order("created_at", { ascending: true });
+  if (error) {
+    console.warn("[portal] Could not load documents:", error.message);
+    return [];
+  }
+  return (data ?? []) as ApplicationDocumentRow[];
+}
+
 /** Documents attached to the signed-in user's applications. */
 export async function countDocumentsByApplication(): Promise<Record<string, number>> {
   if (!supabase) return {};
@@ -411,6 +433,69 @@ export async function loadMyEvaluations(): Promise<MyEvaluationRow[]> {
     return [];
   }
   return (data ?? []) as unknown as MyEvaluationRow[];
+}
+
+/** Deadlines visible to the signed-in user (RLS by audience). */
+export interface DeadlineRow {
+  id: string;
+  title: string;
+  description: string | null;
+  due_on: string;
+  audience: string | null;
+}
+
+export async function loadDeadlines(): Promise<DeadlineRow[]> {
+  if (!supabase) return [];
+  const { data, error } = await supabase
+    .from("deadlines")
+    .select("id, title, description, due_on, audience")
+    .order("due_on", { ascending: true });
+  if (error) {
+    console.warn("[portal] Could not load deadlines:", error.message);
+    return [];
+  }
+  return (data ?? []) as DeadlineRow[];
+}
+
+/** Notifications for the signed-in user. */
+export interface NotificationRow {
+  id: string;
+  title: string;
+  body: string | null;
+  link: string | null;
+  read_at: string | null;
+  created_at: string;
+}
+
+export async function loadNotifications(): Promise<NotificationRow[]> {
+  if (!supabase) return [];
+  const { data, error } = await supabase
+    .from("notifications")
+    .select("id, title, body, link, read_at, created_at")
+    .order("created_at", { ascending: false })
+    .limit(50);
+  if (error) {
+    console.warn("[portal] Could not load notifications:", error.message);
+    return [];
+  }
+  return (data ?? []) as NotificationRow[];
+}
+
+export async function markNotificationRead(id: string): Promise<void> {
+  if (!supabase) return;
+  await supabase
+    .from("notifications")
+    .update({ read_at: new Date().toISOString() })
+    .eq("id", id)
+    .is("read_at", null);
+}
+
+export async function markAllNotificationsRead(): Promise<void> {
+  if (!supabase) return;
+  await supabase
+    .from("notifications")
+    .update({ read_at: new Date().toISOString() })
+    .is("read_at", null);
 }
 
 /** Count innovator profiles (admin only). */

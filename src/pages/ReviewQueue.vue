@@ -25,9 +25,9 @@
           />
           <img :class="$style.notifications2New" alt="" src="/Help.svg" />
           <router-link to="/profile" :class="$style.a" style="text-decoration: none;">
-            <img :class="$style.userAvatarImg" src="/innovator-man.webp" alt="Marion Lucas" />
+            <img :class="$style.userAvatarImg" src="/innovator-man.webp" :alt="displayName" />
             <div :class="$style.span3">
-              <div :class="$style.marionLucas">Marion Lucas</div>
+              <div :class="$style.marionLucas">{{ displayName }}</div>
             </div>
           </router-link>
         </div>
@@ -88,9 +88,9 @@
 
             <!-- Funding requested -->
             <span :class="$style.balanceLabel">Total funding under review</span>
-            <div :class="$style.balanceAmount">P 10,900.00</div>
+            <div :class="$style.balanceAmount">{{ totalFunding }}</div>
             <div :class="$style.borrowedInfo">
-              across 4 assigned applications · last updated 2 October 2026
+              across {{ applicationsData.length }} assigned application{{ applicationsData.length === 1 ? "" : "s" }} · last submitted {{ lastSubmitted }}
               <button :class="$style.teamBtn" type="button" @click="goToTeam">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -126,10 +126,8 @@
         <!-- Settle Early Notice Banner -->
         <div :class="$style.settleBanner">
           <div :class="$style.settleTextGroup">
-            <span :class="$style.settleTitle">Two applications need your review</span>
-            <span :class="$style.settleDesc">
-              Edu App has corrections pending, and Irrigation Kit is still under review.
-            </span>
+            <span :class="$style.settleTitle">{{ pendingTitle }}</span>
+            <span :class="$style.settleDesc">{{ pendingDescription }}</span>
           </div>
           <a :class="$style.debitOrderLink" href="#view-feedback" @click.prevent>
             Open feedback
@@ -313,7 +311,12 @@
                 </tr>
                 <tr v-if="filteredApplications.length === 0">
                   <td :class="$style.noResults" colspan="5">
-                    No applications match your search criteria.
+                    <template v-if="loadingApplications">Loading assigned applications…</template>
+                    <template v-else-if="loadError">{{ loadError }}</template>
+                    <template v-else-if="applicationsData.length === 0">
+                      No applications are assigned to you right now.
+                    </template>
+                    <template v-else>No applications match your search criteria.</template>
                   </td>
                 </tr>
               </tbody>
@@ -335,8 +338,10 @@
     window.addEventListener(THEME_EVENT, () => (isGaborone.value = isGaboroneTheme()));
   });
 
-import { onMounted, ref, computed, useCssModule } from "vue";
+import { onMounted, ref, computed, useCssModule, watch } from "vue";
 import { THEME_EVENT, isGaboroneTheme } from "../components/themes";
+import { authReady, displayName, session } from "../lib/auth";
+import { formatShortDate, loadEvaluatorQueue } from "../lib/portal-data";
 
 import { useRouter } from "vue-router";
 import Main from "../components/Main.vue";
@@ -357,49 +362,99 @@ type ApplicationStatus =
   | "DECLINED";
 
 interface ApplicationRecord {
+  dbId: string;
   applicationId: string;
   name: string;
   funding: string;
   duration: string;
   status: ApplicationStatus;
   submitted: string;
+  assignmentStatus: "assigned" | "in_progress" | "submitted" | "overdue";
 }
 
-// The innovator's own submissions, matching the applications on the dashboard.
-const applicationsData: ApplicationRecord[] = [
-  {
-    applicationId: "CEDA-IN-2026-0481",
-    name: "Irrigation Kit",
-    funding: "P 900.00",
-    duration: "12 months",
-    status: "UNDER REVIEW",
-    submitted: "25 Sep 2026",
-  },
-  {
-    applicationId: "CEDA-IN-2026-0482",
-    name: "Solar Dryer",
-    funding: "P 1,000.00",
-    duration: "9 months",
-    status: "APPROVED",
-    submitted: "25 Sep 2026",
-  },
-  {
-    applicationId: "CEDA-IN-2026-0483",
-    name: "Edu App",
-    funding: "P 3,000.00",
-    duration: "6 months",
-    status: "FEEDBACK",
-    submitted: "2 Oct 2026",
-  },
-  {
-    applicationId: "CEDA-IN-2026-0484",
-    name: "Agri Drone",
-    funding: "P 6,000.00",
-    duration: "18 months",
-    status: "AWARDED",
-    submitted: "2 Oct 2026",
-  },
-];
+const applicationsData = ref<ApplicationRecord[]>([]);
+const loadingApplications = ref(true);
+const loadError = ref("");
+
+function mapStatus(status: string): ApplicationStatus {
+  switch (status) {
+    case "approved":
+      return "APPROVED";
+    case "rejected":
+      return "DECLINED";
+    case "returned":
+      return "FEEDBACK";
+    default:
+      return "UNDER REVIEW";
+  }
+}
+
+async function loadQueue() {
+  if (!session.value) {
+    applicationsData.value = [];
+    loadingApplications.value = false;
+    return;
+  }
+  loadingApplications.value = true;
+  loadError.value = "";
+  const rows = await loadEvaluatorQueue();
+  applicationsData.value = rows.map((row) => ({
+    dbId: row.application_id,
+    applicationId: row.reference,
+    name: row.title,
+    funding: `P ${Number(row.funding_requested ?? 0).toLocaleString("en-US", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    })}`,
+    duration: "—",
+    status: mapStatus(String(row.status)),
+    submitted: formatShortDate(row.submitted_at),
+    assignmentStatus: row.assignment_status,
+  }));
+  loadingApplications.value = false;
+}
+
+watch([session, authReady], () => void loadQueue(), { immediate: true });
+
+const totalFunding = computed(() => {
+  const total = applicationsData.value.reduce((sum, application) => {
+    const value = Number(application.funding.replace(/[^0-9.]/g, ""));
+    return sum + (Number.isFinite(value) ? value : 0);
+  }, 0);
+  return `P ${total.toLocaleString("en-US", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  })}`;
+});
+
+const pendingReview = computed(() =>
+  applicationsData.value.filter(
+    (application) =>
+      application.assignmentStatus !== "submitted" ||
+      application.status === "FEEDBACK",
+  ),
+);
+
+const pendingTitle = computed(() => {
+  const count = pendingReview.value.length;
+  if (count === 0) return "No applications need your review";
+  return `${count} application${count === 1 ? "" : "s"} need${count === 1 ? "s" : ""} your review`;
+});
+
+const pendingDescription = computed(() => {
+  const list = pendingReview.value;
+  if (list.length === 0) return "Your evaluation queue is up to date.";
+  const parts = list.slice(0, 2).map((application) =>
+    application.status === "FEEDBACK"
+      ? `${application.name} has corrections pending`
+      : `${application.name} is still under review`,
+  );
+  return `${parts.join(", ")}${list.length > 2 ? `, and ${list.length - 2} more.` : "."}`;
+});
+
+const lastSubmitted = computed(
+  () => applicationsData.value[0]?.submitted ?? "—",
+);
 
 const statusKey = (status: ApplicationStatus) =>
   status === "UNDER REVIEW"
@@ -414,10 +469,10 @@ const statusKey = (status: ApplicationStatus) =>
 
 const filterOptions = computed(() => {
   const countFor = (key: string) =>
-    applicationsData.filter((application) => statusKey(application.status) === key).length;
+    applicationsData.value.filter((application) => statusKey(application.status) === key).length;
 
   return [
-    { key: "all", label: "All", count: applicationsData.length },
+    { key: "all", label: "All", count: applicationsData.value.length },
     { key: "review", label: "Under review", count: countFor("review") },
     { key: "approved", label: "Approved", count: countFor("approved") },
     { key: "feedback", label: "Feedback", count: countFor("feedback") },
@@ -426,9 +481,10 @@ const filterOptions = computed(() => {
 });
 
 function openApplication(application: ApplicationRecord) {
-  const target = application.status === "FEEDBACK"
-    ? { name: "ApplicationView", query: { name: application.name }, hash: "#corrections" }
-    : { name: "ApplicationView", query: { name: application.name } };
+  const target =
+    application.status === "FEEDBACK"
+      ? { name: "ApplicationView", query: { id: application.dbId }, hash: "#corrections" }
+      : { name: "ApplicationView", query: { id: application.dbId } };
   router.push(target);
 }
 
@@ -437,7 +493,7 @@ function goToTeam() {
 }
 
 const filteredApplications = computed(() => {
-  let list = applicationsData;
+  let list = applicationsData.value;
 
   if (activeView.value === "awaiting") {
     list = list.filter(

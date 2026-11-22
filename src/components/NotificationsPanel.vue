@@ -40,6 +40,9 @@
         </div>
 
         <div :class="$style.list">
+          <p v-if="items.length === 0" :class="$style.empty">
+            You have no notifications yet.
+          </p>
           <article
             v-for="item in items"
             :key="item.id"
@@ -51,12 +54,10 @@
             </div>
             <p :class="$style.noticeText">{{ item.text }}</p>
             <div :class="$style.meta">
-              <span>{{ item.application }}</span>
-              <span :class="$style.sep">·</span>
               <span>{{ item.time }}</span>
             </div>
             <div :class="$style.actions">
-              <button :class="$style.action" type="button" @click="openApplication">
+              <button :class="$style.action" type="button" @click="openApplication(item)">
                 View application
               </button>
               <button
@@ -76,72 +77,82 @@
 </template>
 
 <script setup lang="ts">
-import { computed, reactive } from "vue";
+import { computed, ref, watch } from "vue";
 import { useRouter } from "vue-router";
+import { authReady, session } from "../lib/auth";
+import {
+  loadNotifications,
+  markAllNotificationsRead,
+  markNotificationRead,
+} from "../lib/portal-data";
 
 defineProps<{ open: boolean }>();
 const emit = defineEmits<{ close: [] }>();
 const router = useRouter();
 
 interface Notice {
-  id: number;
-  application: string;
+  id: string;
   title: string;
   text: string;
   time: string;
   read: boolean;
+  link: string | null;
 }
 
-const items = reactive<Notice[]>([
-  {
-    id: 1,
-    application: "Irrigation Kit",
-    title: "Review scheduled",
-    text: "Your next review for Irrigation Kit is booked for 25 October 2026 with the evaluator assigned to your proposal.",
-    time: "2 hours ago",
-    read: false,
-  },
-  {
-    id: 2,
-    application: "Solar Dryer",
-    title: "Feedback requested",
-    text: "CEDA asked for more detail on the unit economics of Solar Dryer before the proposal can move to the next stage.",
-    time: "Yesterday",
-    read: false,
-  },
-  {
-    id: 3,
-    application: "Agri-cooling proposal",
-    title: "Application approved",
-    text: "P 10,900.00 was approved for the Agri-cooling proposal on 2 October 2026.",
-    time: "1 October 2026",
-    read: false,
-  },
-  {
-    id: 4,
-    application: "Edu App",
-    title: "Draft saved",
-    text: "Your new idea application was saved automatically. 4 of 6 steps are complete.",
-    time: "28 September 2026",
-    read: true,
-  },
-]);
+const items = ref<Notice[]>([]);
 
-const unreadCount = computed(() => items.filter((item) => !item.read).length);
-
-function markRead(item: Notice) {
-  item.read = true;
-}
-
-function markAllRead() {
-  items.forEach((item) => {
-    item.read = true;
+function relativeTime(iso: string): string {
+  const then = new Date(iso).getTime();
+  if (Number.isNaN(then)) return "";
+  const minutes = Math.max(1, Math.round((Date.now() - then) / 60000));
+  if (minutes < 60) return `${minutes} min ago`;
+  const hours = Math.round(minutes / 60);
+  if (hours < 24) return `${hours} hour${hours === 1 ? "" : "s"} ago`;
+  const days = Math.round(hours / 24);
+  if (days < 7) return `${days} day${days === 1 ? "" : "s"} ago`;
+  return new Date(iso).toLocaleDateString("en-GB", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
   });
 }
 
-function openApplication() {
+async function loadItems() {
+  if (!session.value) {
+    items.value = [];
+    return;
+  }
+  const rows = await loadNotifications();
+  items.value = rows.map((row) => ({
+    id: row.id,
+    title: row.title,
+    text: row.body ?? "",
+    time: relativeTime(row.created_at),
+    read: Boolean(row.read_at),
+    link: row.link,
+  }));
+}
+
+watch([session, authReady], () => void loadItems(), { immediate: true });
+
+const unreadCount = computed(() => items.value.filter((item) => !item.read).length);
+
+async function markRead(item: Notice) {
+  if (item.read) return;
+  item.read = true;
+  await markNotificationRead(item.id);
+}
+
+async function markAllRead() {
+  items.value.forEach((item) => {
+    item.read = true;
+  });
+  await markAllNotificationsRead();
+}
+
+function openApplication(item: Notice) {
   emit("close");
-  router.push("/my-applications");
+  router.push(item.link || "/my-applications");
 }
 </script>
 
@@ -244,6 +255,14 @@ function openApplication() {
 
 .closeBtn:hover {
   background-color: #f3efe6;
+}
+
+.empty {
+  margin: 0;
+  padding: 28px 4px;
+  text-align: center;
+  font-size: 13px;
+  color: #7d776c;
 }
 
 .list {

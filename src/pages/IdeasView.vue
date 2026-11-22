@@ -20,9 +20,9 @@
           <img :class="$style.notifications2New" alt="" src="/Notifications-2-new.svg" />
           <img :class="$style.notifications2New" alt="" src="/Help.svg" />
           <router-link to="/profile" :class="$style.userA" style="text-decoration: none;">
-            <img :class="$style.userAvatarImg" src="/innovator-man.webp" alt="Marion Lucas" />
+            <img :class="$style.userAvatarImg" src="/innovator-man.webp" :alt="displayName" />
             <div :class="$style.span3">
-              <div :class="$style.marionLucas">Marion Lucas</div>
+              <div :class="$style.marionLucas">{{ displayName }}</div>
             </div>
           </router-link>
         </div>
@@ -89,7 +89,7 @@
           <div v-for="idea in visibleIdeas" :key="idea.id" :class="$style.row">
             <span :class="$style.ideaCell">
               <span :class="$style.ideaTitle">{{ idea.title }}</span>
-              <span :class="$style.ideaMeta">{{ idea.sector }} · {{ idea.documents }} documents</span>
+              <span :class="$style.ideaMeta">{{ idea.sector }} · {{ idea.documents }} {{ idea.documents === 1 ? "document" : "documents" }}</span>
             </span>
             <span :class="$style.cell">{{ idea.submitter }}</span>
             <span :class="$style.cell">
@@ -98,6 +98,9 @@
             <span :class="$style.cell">{{ idea.evaluator }}</span>
             <span :class="$style.cell">{{ idea.submitted }}</span>
           </div>
+          <div v-if="!loadingIdeas && visibleIdeas.length === 0" :class="$style.emptyRow">
+            {{ ideas.length === 0 ? "No ideas have been submitted yet." : "No ideas match this stage." }}
+          </div>
         </div>
       </section>
     </main>
@@ -105,10 +108,16 @@
 </template>
 
 <script setup lang="ts">
-  import { ref, computed, onMounted, onUnmounted } from "vue";
+  import { ref, computed, onMounted, onUnmounted, watch } from "vue";
   import Main from "../components/Main.vue";
   import { usePageTheme } from "../composables/usePageTheme";
   import { THEME_EVENT, isGaboroneTheme } from "../components/themes";
+  import { authReady, displayName, session } from "../lib/auth";
+  import {
+    countDocumentsByApplication,
+    formatShortDate,
+    loadAllApplications,
+  } from "../lib/portal-data";
 
   const pageBackground = usePageTheme();
   const isGaborone = ref(isGaboroneTheme());
@@ -119,7 +128,7 @@
   onUnmounted(() => window.removeEventListener(THEME_EVENT, syncTheme));
 
   type Idea = {
-    id: number;
+    id: string;
     title: string;
     sector: string;
     documents: number;
@@ -132,96 +141,82 @@
 
   const filters = ["All", "Submitted", "In review", "Awaiting feedback", "Approved"];
 
-  const ideas: Idea[] = [
-    {
-      id: 1,
-      title: "Solar-powered cold storage for farmers",
-      sector: "Agritech",
-      documents: 6,
-      submitter: "Kabo Mothusi",
-      stage: "In review",
-      evaluator: "Thabo S.",
-      submitted: "14 Nov 2026",
-      tone: "warn",
-    },
-    {
-      id: 2,
-      title: "Mobile clinic booking for rural districts",
-      sector: "Health",
-      documents: 4,
-      submitter: "Neo Kgang",
-      stage: "Awaiting feedback",
-      evaluator: "Lerato P.",
-      submitted: "12 Nov 2026",
-      tone: "warn",
-    },
-    {
-      id: 3,
-      title: "SME inventory credit scoring",
-      sector: "Fintech",
-      documents: 8,
-      submitter: "Refilwe Dube",
-      stage: "Approved",
-      evaluator: "Mpho R.",
-      submitted: "9 Nov 2026",
-      tone: "ok",
-    },
-    {
-      id: 4,
-      title: "Community water-quality sensors",
-      sector: "Cleantech",
-      documents: 3,
-      submitter: "Tapiwa Ndlovu",
-      stage: "Submitted",
-      evaluator: "Unassigned",
-      submitted: "18 Nov 2026",
-      tone: "neutral",
-    },
-    {
-      id: 5,
-      title: "Setswana learning app for primary schools",
-      sector: "Edtech",
-      documents: 5,
-      submitter: "Boitumelo A.",
-      stage: "In review",
-      evaluator: "Thabo S.",
-      submitted: "13 Nov 2026",
-      tone: "warn",
-    },
-    {
-      id: 6,
-      title: "Waste-to-briquette micro factory",
-      sector: "Manufacturing",
-      documents: 7,
-      submitter: "Kgotso Molefe",
-      stage: "Approved",
-      evaluator: "Mpho R.",
-      submitted: "7 Nov 2026",
-      tone: "ok",
-    },
-    {
-      id: 7,
-      title: "Livestock traceability ledger",
-      sector: "Agritech",
-      documents: 2,
-      submitter: "Amantle Seb",
-      stage: "Submitted",
-      evaluator: "Unassigned",
-      submitted: "19 Nov 2026",
-      tone: "neutral",
-    },
-  ];
+  const ideas = ref<Idea[]>([]);
+  const loadingIdeas = ref(true);
 
-  const stats = [
-    { label: "Ideas in repository", value: "7" },
-    { label: "In review", value: "2" },
-    { label: "Awaiting feedback", value: "1" },
-    { label: "Approved to date", value: "2" },
-  ];
+  function stageFor(status: string): string {
+    switch (status) {
+      case "draft":
+        return "Draft";
+      case "returned":
+        return "Awaiting feedback";
+      case "approved":
+        return "Approved";
+      case "rejected":
+        return "Declined";
+      case "submitted":
+        return "Submitted";
+      default:
+        return "In review";
+    }
+  }
+
+  function toneFor(stage: string): string {
+    if (stage === "Approved") return "ok";
+    if (stage === "Awaiting feedback" || stage === "In review") return "warn";
+    if (stage === "Declined") return "danger";
+    return "neutral";
+  }
+
+  async function loadIdeas() {
+    if (!session.value) {
+      ideas.value = [];
+      loadingIdeas.value = false;
+      return;
+    }
+    loadingIdeas.value = true;
+    const [rows, documents] = await Promise.all([
+      loadAllApplications(),
+      countDocumentsByApplication(),
+    ]);
+    ideas.value = rows.map((row) => {
+      const stage = stageFor(String(row.status));
+      return {
+        id: row.id,
+        title: row.title,
+        sector: row.sector ?? "Uncategorised",
+        documents: documents[row.id] ?? 0,
+        submitter: row.innovator_name ?? "—",
+        stage,
+        evaluator: row.evaluator_name ?? "Unassigned",
+        submitted: formatShortDate(row.submitted_at),
+        tone: toneFor(stage),
+      };
+    });
+    loadingIdeas.value = false;
+  }
+
+  watch([session, authReady], () => void loadIdeas(), { immediate: true });
+
+  const stats = computed(() => [
+    { label: "Ideas in repository", value: String(ideas.value.length) },
+    {
+      label: "In review",
+      value: String(ideas.value.filter((idea) => idea.stage === "In review").length),
+    },
+    {
+      label: "Awaiting feedback",
+      value: String(ideas.value.filter((idea) => idea.stage === "Awaiting feedback").length),
+    },
+    {
+      label: "Approved to date",
+      value: String(ideas.value.filter((idea) => idea.stage === "Approved").length),
+    },
+  ]);
 
   const stage = ref("All");
   const visibleIdeas = computed(() =>
-    stage.value === "All" ? ideas : ideas.filter((idea) => idea.stage === stage.value),
+    stage.value === "All" ? ideas.value : ideas.value.filter((idea) => idea.stage === stage.value),
   );
 </script>
 
@@ -491,6 +486,12 @@
   }
   .row:hover {
     background-color: #fdfbf7;
+  }
+  .emptyRow {
+    padding: 28px 12px;
+    text-align: center;
+    font-size: 14px;
+    color: #7d776c;
   }
   .row:last-child {
     border-bottom: none;

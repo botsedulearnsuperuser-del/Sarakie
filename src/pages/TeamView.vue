@@ -23,9 +23,9 @@
           <img :class="$style.notifications2New" alt="" src="/Notifications-2-new.svg" />
           <img :class="$style.notifications2New" alt="" src="/Help.svg" />
           <router-link to="/profile" :class="$style.userA" style="text-decoration: none;">
-            <img :class="$style.userAvatarImg" src="/innovator-man.webp" alt="Marion Lucas" />
+            <img :class="$style.userAvatarImg" src="/innovator-man.webp" :alt="displayName" />
             <div :class="$style.span3">
-              <div :class="$style.marionLucas">Marion Lucas</div>
+              <div :class="$style.marionLucas">{{ displayName }}</div>
             </div>
           </router-link>
         </div>
@@ -319,6 +319,7 @@ import ChatWithAgent from "../components/ChatWithAgent.vue";
 import TaskWidget from "../components/ui/task-widget.vue";
 import VoiceChatDisclosure from "../components/ui/voice-chat-disclosure.vue";
 import { useTeamMembers } from "../composables/useTeamMembers";
+import { displayName } from "../lib/auth";
 
 // activePage not passed to Main since Team is no longer in the sidebar nav
 // Main defaults to "dashboard" when no matching page is found

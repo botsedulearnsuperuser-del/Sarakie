@@ -5,6 +5,14 @@
 
     <!-- Main Scrollable Content -->
     <main :class="$style.mainContent">
+      <div v-if="!applicationReady" :class="$style.viewState">Loading application…</div>
+      <div v-else-if="notFound" :class="$style.viewState">
+        <p>This application could not be found, or you do not have access to it.</p>
+        <router-link to="/my-applications" :class="$style.emptyLink">
+          Back to My Applications
+        </router-link>
+      </div>
+      <template v-else>
       <!-- Top Bar Header matching InnovatorDashboard & LoanView -->
       <header :class="$style.div">
         <div :class="$style.div2">
@@ -27,9 +35,9 @@
           <img :class="$style.notifications2New" alt="" src="/Notifications-2-new.svg" />
           <img :class="$style.notifications2New" alt="" src="/Help.svg" />
           <router-link to="/profile" :class="$style.userA" style="text-decoration: none;">
-            <img :class="$style.userAvatarImg" src="/innovator-man.webp" alt="Kago Molefe" />
+            <img :class="$style.userAvatarImg" src="/innovator-man.webp" :alt="displayName" />
             <div :class="$style.span3">
-              <div :class="$style.marionLucas">Kago Molefe</div>
+              <div :class="$style.marionLucas">{{ displayName }}</div>
             </div>
           </router-link>
         </div>
@@ -445,10 +453,11 @@
           </div>
         </div>
       </section>
+      </template>
     </main>
 
     <!-- Print-only compiled application document -->
-    <section :class="$style.printDoc">
+    <section v-if="applicationReady && !notFound" :class="$style.printDoc">
       <header :class="$style.printHead">
         <div :class="$style.printHeadMain">
           <img
@@ -584,7 +593,7 @@ import { useRoute } from "vue-router";
 import { useCssModule } from "vue";
 import Main from "../components/Main.vue";
 import { supabase } from "../lib/supabase";
-import { session } from "../lib/auth";
+import { authReady, displayName, session } from "../lib/auth";
 
 const route = useRoute();
 const style = useCssModule();
@@ -631,176 +640,36 @@ interface IdeaDetail {
   corrections: IdeaCorrection[];
 }
 
-const mockIdeas: Record<string, IdeaDetail> = {
-  "irrigation-kit": {
-    ideaId: "CEDA-IN-2026-0481",
-    title: "Irrigation Kit",
-    fundingAmount: "900.00",
-    innovator: "Thato Lekgoba",
-    email: "t.lekgoba@gmail.com",
-    phone: "+267 71 442 901",
-    location: "Maun, North-West District",
-    submittedDate: "25 September 2026",
-    category: "Agri-Tech",
-    stage: "Idea",
-    status: "Under Review",
-    officer: "Marion Lucas",
-    description: "A low-cost drip irrigation kit designed for smallholder farmers in semi-arid regions of Botswana.",
-    problem: "Smallholder farmers lose up to 40% of crops due to inefficient water use and manual watering.",
-    solution: "A modular drip irrigation kit using locally sourced materials, reducing water usage by up to 60%.",
-    beneficiaries: "Smallholder farmers in Maun and surrounding villages.",
-    impact: "Increased crop yield by 35% and reduced water consumption by 60%.",
-    documents: [
-      { name: "Business Plan.pdf", type: "PDF", size: "2.1 MB", uploaded: "25 Sep 2026" },
-      { name: "Prototype Photos.zip", type: "ZIP", size: "8.4 MB", uploaded: "25 Sep 2026" },
-      { name: "Budget Breakdown.xlsx", type: "XLSX", size: "340 KB", uploaded: "25 Sep 2026" },
-    ],
-    corrections: [],
-  },
-  "solar-dryer": {
-    ideaId: "CEDA-IN-2026-0482",
-    title: "Solar Dryer",
-    fundingAmount: "1,000.00",
-    innovator: "Solar Innovators (Pty) Ltd",
-    email: "info@solarinnovators.co.bw",
-    phone: "+267 72 118 440",
-    location: "Gaborone, South-East District",
-    submittedDate: "25 September 2026",
-    category: "Renewable Energy",
-    stage: "Prototype",
-    status: "Approved",
-    officer: "Marion Lucas",
-    description: "A solar-powered food dryer for preserving vegetables and fruits, reducing post-harvest losses.",
-    problem: "Post-harvest losses of up to 30% for perishable produce in rural farming communities.",
-    solution: "An affordable solar dryer that extends shelf life of produce without electricity.",
-    beneficiaries: "Rural farming communities and women cooperatives.",
-    impact: "Reduce post-harvest losses by 25% and create income opportunities.",
-    documents: [
-      { name: "Technical Drawings.pdf", type: "PDF", size: "5.2 MB", uploaded: "25 Sep 2026" },
-      { name: "Cost Analysis.xlsx", type: "XLSX", size: "280 KB", uploaded: "25 Sep 2026" },
-    ],
-    corrections: [],
-  },
-  "edu-app": {
-    ideaId: "CEDA-IN-2026-0483",
-    title: "Edu App",
-    fundingAmount: "3,000.00",
-    innovator: "Kago Molefe",
-    email: "k.molefe@ceda.co.bw",
-    phone: "+267 74 900 212",
-    location: "Francistown, North-East District",
-    submittedDate: "2 October 2026",
-    category: "EdTech",
-    stage: "Idea",
-    status: "Feedback Required",
-    officer: "Marion Lucas",
-    description: "A mobile learning application tailored for primary school students in Botswana.",
-    problem: "Limited access to quality digital learning resources in rural primary schools.",
-    solution: "An offline-capable mobile app with curriculum-aligned content in Setswana and English.",
-    beneficiaries: "Primary school students and teachers in rural Botswana.",
-    impact: "Improve literacy and numeracy outcomes for 10,000+ students.",
-    documents: [
-      { name: "App Wireframes.pdf", type: "PDF", size: "3.6 MB", uploaded: "2 Oct 2026" },
-      { name: "Market Research.docx", type: "DOCX", size: "1.2 MB", uploaded: "2 Oct 2026" },
-    ],
-    corrections: [
-      { field: "Revenue Model", issue: "Clarify how the app will generate sustainable revenue beyond grant funding.", severity: "High" },
-      { field: "CIPA Registration", issue: "Add CIPA company registration number to the application.", severity: "Medium" },
-      { field: "Budget Breakdown", issue: "Provide itemised cost estimates for development and hosting.", severity: "Medium" },
-    ],
-  },
-  "agri-drone": {
-    ideaId: "CEDA-IN-2026-0484",
-    title: "Agri Drone",
-    fundingAmount: "6,000.00",
-    innovator: "AgriTech Botswana",
-    email: "contact@agritechbw.co.bw",
-    phone: "+267 76 550 101",
-    location: "Selebi-Phikwe, Central District",
-    submittedDate: "2 October 2026",
-    category: "Agri-Tech",
-    stage: "Prototype",
-    status: "Awarded",
-    officer: "Marion Lucas",
-    description: "Agricultural drones for crop monitoring and precision spraying to boost farm productivity.",
-    problem: "Manual crop monitoring is slow and imprecise, leading to delayed interventions.",
-    solution: "Drone-based aerial imaging and targeted spraying to detect pests and optimise inputs.",
-    beneficiaries: "Commercial and emerging farmers in the Central District.",
-    impact: "Reduce pesticide use by 30% and increase yields by 20%.",
-    documents: [
-      { name: "Pilot Results Report.pdf", type: "PDF", size: "4.8 MB", uploaded: "2 Oct 2026" },
-      { name: "Drone Specifications.pdf", type: "PDF", size: "2.3 MB", uploaded: "2 Oct 2026" },
-      { name: "Financial Projections.xlsx", type: "XLSX", size: "560 KB", uploaded: "2 Oct 2026" },
-      { name: "Partnership Letters.pdf", type: "PDF", size: "1.1 MB", uploaded: "2 Oct 2026" },
-    ],
-    corrections: [],
-  },
-  "irrigation-kit-draft": {
-    ideaId: "CEDA-IN-2026-0485",
-    title: "Irrigation Kit Draft",
-    fundingAmount: "14,793.40",
-    innovator: "Thato Lekgoba",
-    email: "t.lekgoba@gmail.com",
-    phone: "+267 71 442 901",
-    location: "Maun, North-West District",
-    submittedDate: "Not submitted yet",
-    category: "Agri-Tech",
-    stage: "Idea",
+/** Empty shell used while the database row loads. */
+function emptyIdea(): IdeaDetail {
+  return {
+    ideaId: "",
+    title: "Application",
+    innovator: "",
+    email: "",
+    phone: "",
+    location: "",
+    submittedDate: "",
+    fundingAmount: "0.00",
+    category: "",
+    stage: "",
     status: "Draft",
-    officer: "Unassigned",
-    description: "Working draft of a low-cost drip irrigation kit for smallholder farmers in semi-arid Botswana. Details are still being refined before submission.",
-    problem: "Smallholder farmers in semi-arid regions still lose a large share of their crops to inefficient water use.",
-    solution: "A modular drip irrigation kit built from locally sourced materials that cuts water usage for small plots.",
-    beneficiaries: "Smallholder farmers in Maun and surrounding villages.",
-    impact: "Higher crop yields with less water, using equipment that can be repaired locally.",
-    documents: [
-      { name: "Draft Budget Breakdown.xlsx", type: "XLSX", size: "210 KB", uploaded: "18 Nov 2026" },
-    ],
-    corrections: [
-      { field: "Budget Breakdown", issue: "Provide a detailed budget breakdown for the drip kit components and installation costs before submission.", severity: "High" },
-      { field: "CIPA Registration", issue: "Add CIPA company registration number to the application.", severity: "Medium" },
-    ],
-  },
-};
-
-// Edits to a draft are kept for this session so reopening it keeps the changes.
-const draftStore: Record<string, IdeaDetail> = {};
-
-const slugify = (name: string) =>
-  name.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "");
-
-const snapshot = (idea: IdeaDetail): IdeaDetail => ({
-  ...idea,
-  documents: [...idea.documents],
-  corrections: [...idea.corrections],
-});
-
-function resolveKey(): string {
-  const queryName = (route.query.name as string || "").toLowerCase().replace(/\s+/g, "-");
-  const paramId = (route.params.id as string || "").toLowerCase();
-
-  if (queryName && (draftStore[queryName] || mockIdeas[queryName])) return queryName;
-  if (paramId && (draftStore[paramId] || mockIdeas[paramId])) return paramId;
-
-  // fuzzy match by slugified title
-  const needle = queryName || paramId;
-  for (const key of Object.keys(mockIdeas)) {
-    const title = (draftStore[key] || mockIdeas[key]).title;
-    if (slugify(title) === needle) return key;
-  }
-
-  return "irrigation-kit";
+    officer: "",
+    description: "",
+    problem: "",
+    solution: "",
+    beneficiaries: "",
+    impact: "",
+    documents: [],
+    corrections: [],
+  };
 }
 
-function loadIdea(key: string): IdeaDetail {
-  const source = draftStore[key] || mockIdeas[key] || mockIdeas["irrigation-kit"];
-  return snapshot(source);
-}
-
-const ideaKey = ref(resolveKey());
-const currentIdea = ref<IdeaDetail>(loadIdea(ideaKey.value));
+const currentIdea = ref<IdeaDetail>(emptyIdea());
+const applicationReady = ref(false);
+const notFound = ref(false);
 const savedNotice = ref("");
-/** Supabase row id when this page was opened from a real application. */
+/** Supabase row id: this page only ever renders a stored application. */
 const dbId = ref<string | null>(null);
 
 function mapApplicationStatus(status: string): IdeaDetail["status"] {
@@ -857,54 +726,62 @@ function mapApplication(row: Record<string, any>): IdeaDetail {
 
 async function hydrateFromRoute() {
   savedNotice.value = "";
-  const id = typeof route.query.id === "string" ? route.query.id : "";
+  applicationReady.value = false;
+  notFound.value = false;
+  dbId.value = null;
 
-  if (id && supabase && session.value) {
-    const { data, error } = await supabase
-      .from("applications")
-      .select("*, innovator:profiles(full_name, email, phone, city)")
-      .eq("id", id)
-      .maybeSingle();
+  const queryId = typeof route.query.id === "string" ? route.query.id : "";
+  const paramId = typeof route.params.id === "string" ? route.params.id : "";
+  const id = queryId || paramId;
 
-    if (!error && data) {
-      dbId.value = data.id;
-      currentIdea.value = mapApplication(data);
-
-      const [{ data: docs }, { data: fixes }] = await Promise.all([
-        supabase
-          .from("application_documents")
-          .select("file_name, mime_type, size_bytes, created_at")
-          .eq("application_id", data.id),
-        supabase
-          .from("application_corrections")
-          .select("body, created_at")
-          .eq("application_id", data.id)
-          .is("resolved_at", null),
-      ]);
-
-      currentIdea.value.documents = (docs ?? []).map((doc: Record<string, any>) => ({
-        name: doc.file_name,
-        type: (doc.mime_type?.split("/").pop() ?? "FILE").toUpperCase(),
-        size: formatFileSize(Number(doc.size_bytes ?? 0)),
-        uploaded: formatSubmitted(doc.created_at),
-      }));
-
-      currentIdea.value.corrections = (fixes ?? []).map((fix: Record<string, any>) => ({
-        field: "Reviewer note",
-        issue: fix.body,
-        severity: "Required",
-      }));
-
-      activeTab.value = route.hash === "#corrections" ? "corrections" : "application";
-      return;
-    }
+  if (!id || !supabase || !session.value) {
+    notFound.value = true;
+    applicationReady.value = true;
+    return;
   }
 
-  // Not opened from the database (or signed out): fall back to the sample record.
-  dbId.value = null;
-  ideaKey.value = resolveKey();
-  currentIdea.value = loadIdea(ideaKey.value);
+  const { data, error } = await supabase
+    .from("applications")
+    .select("*, innovator:profiles(full_name, email, phone, city)")
+    .eq("id", id)
+    .maybeSingle();
+
+  if (error || !data) {
+    notFound.value = true;
+    applicationReady.value = true;
+    return;
+  }
+
+  dbId.value = data.id;
+  currentIdea.value = mapApplication(data);
+
+  const [{ data: docs }, { data: fixes }] = await Promise.all([
+    supabase
+      .from("application_documents")
+      .select("file_name, mime_type, size_bytes, created_at")
+      .eq("application_id", data.id),
+    supabase
+      .from("application_corrections")
+      .select("body, created_at")
+      .eq("application_id", data.id)
+      .is("resolved_at", null),
+  ]);
+
+  currentIdea.value.documents = (docs ?? []).map((doc: Record<string, any>) => ({
+    name: doc.file_name,
+    type: (doc.mime_type?.split("/").pop() ?? "FILE").toUpperCase(),
+    size: formatFileSize(Number(doc.size_bytes ?? 0)),
+    uploaded: formatSubmitted(doc.created_at),
+  }));
+
+  currentIdea.value.corrections = (fixes ?? []).map((fix: Record<string, any>) => ({
+    field: "Reviewer note",
+    issue: fix.body,
+    severity: "Required",
+  }));
+
   activeTab.value = route.hash === "#corrections" ? "corrections" : "application";
+  applicationReady.value = true;
 }
 
 /** Column values for the row behind this page. */
@@ -985,8 +862,16 @@ onMounted(() => nextTick(resizeDraftTextareas));
 watch(currentIdea, () => nextTick(resizeDraftTextareas));
 
 watch(
-  () => [route.query.id, route.query.name, route.params.id, route.hash],
+  () => [
+    route.query.id,
+    route.query.name,
+    route.params.id,
+    route.hash,
+    session.value?.user.id,
+    authReady.value,
+  ],
   () => {
+    if (!authReady.value) return;
     void hydrateFromRoute();
   },
   { immediate: true }
@@ -1011,7 +896,6 @@ function scrollToCorrections() {
 }
 
 async function saveDraft() {
-  draftStore[ideaKey.value] = snapshot(currentIdea.value);
   const saved = await persistApplication({
     ...applicationPatch(),
     ...(currentIdea.value.status === "Draft" ? { status: "draft" } : {}),
@@ -1036,7 +920,6 @@ function cancelCorrectionEdit() {
 }
 
 async function submitCorrections() {
-  draftStore[ideaKey.value] = snapshot(currentIdea.value);
   const now = new Date();
   currentIdea.value.status = "Under Review";
   currentIdea.value.submittedDate = formatSubmitted(now.toISOString());
@@ -1092,7 +975,6 @@ function handleFiles(event: Event) {
 }
 
 async function submitDraft() {
-  draftStore[ideaKey.value] = snapshot(currentIdea.value);
   const now = new Date();
   currentIdea.value.status = "Under Review";
   currentIdea.value.submittedDate = formatSubmitted(now.toISOString());
@@ -1953,6 +1835,26 @@ function mockPreviewDoc(docName: string) {
     font-size: 12.5px;
     color: var(--color-darkslategray-100);
   }
+
+.viewState {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 48px 12px;
+  font-family: var(--font-inter);
+  color: var(--color-darkslategray-500);
+}
+
+.emptyLink {
+  color: #0f6b4f;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.emptyLink:hover {
+  text-decoration: underline;
+}
 
 .savedNotice {
   margin: 14px 0 0;

@@ -25,9 +25,9 @@
           />
           <img :class="$style.notifications2New" alt="" src="/Help.svg" />
           <router-link to="/profile" :class="$style.a" style="text-decoration: none;">
-            <img :class="$style.userAvatarImg" src="/innovator-man.webp" alt="Marion Lucas" />
+            <img :class="$style.userAvatarImg" src="/innovator-man.webp" :alt="displayName" />
             <div :class="$style.span3">
-              <div :class="$style.marionLucas">Marion Lucas</div>
+              <div :class="$style.marionLucas">{{ displayName }}</div>
             </div>
           </router-link>
         </div>
@@ -130,10 +130,8 @@
         <!-- Settle Early Notice Banner -->
         <div :class="$style.settleBanner">
           <div :class="$style.settleTextGroup">
-            <span :class="$style.settleTitle">Two applications need your attention</span>
-            <span :class="$style.settleDesc">
-              Edu App has feedback waiting, and Irrigation Kit is still under review.
-            </span>
+            <span :class="$style.settleTitle">{{ attentionTitle }}</span>
+            <span :class="$style.settleDesc">{{ attentionDescription }}</span>
           </div>
           <a :class="$style.debitOrderLink" href="#view-feedback" @click.prevent>
             Open feedback
@@ -185,7 +183,7 @@
           >
             <FolderReveal
               :color="folderColor(app.name)"
-              :items="folderItems"
+              :items="folderItemsFor(app)"
               :label="app.name"
               :size="150"
               :open="hoveredFolder === app.applicationId"
@@ -297,7 +295,12 @@
                 </tr>
                 <tr v-if="filteredApplications.length === 0">
                   <td :class="$style.noResults" colspan="5">
-                    No applications match your search criteria.
+                    <template v-if="loadingApplications">Loading applications…</template>
+                    <template v-else-if="applicationsData.length === 0">
+                      You have not submitted an application yet.
+                      <router-link to="/new-idea" :class="$style.emptyLink">Start one</router-link>.
+                    </template>
+                    <template v-else>No applications match your search criteria.</template>
                   </td>
                 </tr>
               </tbody>
@@ -320,7 +323,7 @@
     window.addEventListener(THEME_EVENT, () => (isGaborone.value = isGaboroneTheme()));
   });
 
-import { onMounted, ref, computed, useCssModule } from "vue";
+import { onMounted, ref, computed, useCssModule, watch } from "vue";
 import { THEME_EVENT, isGaboroneTheme } from "../components/themes";
 
 import { useRouter } from "vue-router";
@@ -328,7 +331,11 @@ import Main from "../components/Main.vue";
 import ChatWithAgent from "../components/ChatWithAgent.vue";
 import FolderReveal from "../components/ui/FolderReveal.vue";
 import { supabase } from "../lib/supabase";
-import { session } from "../lib/auth";
+import { authReady, displayName, session } from "../lib/auth";
+import {
+  loadApplicationDocuments,
+  type ApplicationDocumentRow,
+} from "../lib/portal-data";
 
 const router = useRouter();
 const activeFilter = ref("all");
@@ -375,11 +382,25 @@ const docCard = (title: string, size: string, bg = "#f4f4f5") => `
   </div>
 </div>`;
 
-const folderItems = [
-  { id: "doc-1", content: docCard("Business Plan.pdf", "PDF • 2.1 MB") },
-  { id: "doc-2", content: docCard("Prototype Photos.docx", "DOCX • 8.4 MB", "oklch(0.975 0.014 150)") },
-  { id: "doc-3", content: docCard("Budget Breakdown.xlsx", "XLSX • 340 KB") },
-];
+const documentsByApplication = ref<Record<string, ApplicationDocumentRow[]>>({});
+
+function formatFileSize(bytes: number) {
+  if (bytes >= 1024 * 1024) return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+  return `${Math.max(1, Math.round(bytes / 1024))} KB`;
+}
+
+function folderItemsFor(app: ApplicationRecord) {
+  const docs = app.dbId ? documentsByApplication.value[app.dbId] ?? [] : [];
+  return docs.map((doc, index) => ({
+    id: `${app.applicationId}-${index}`,
+    content: docCard(
+      doc.file_name,
+      `${(doc.mime_type?.split("/").pop() ?? "FILE").toUpperCase()} • ${formatFileSize(
+        Number(doc.size_bytes ?? 0),
+      )}`,
+    ),
+  }));
+}
 
 type ApplicationStatus =
   | "UNDER REVIEW"
@@ -400,41 +421,7 @@ interface ApplicationRecord {
   submitted: string;
 }
 
-// Shown until Supabase answers (or when nobody is signed in).
-const applicationsData = ref<ApplicationRecord[]>([
-  {
-    applicationId: "CEDA-IN-2026-0481",
-    name: "Irrigation Kit",
-    funding: "P 900.00",
-    duration: "12 months",
-    status: "UNDER REVIEW",
-    submitted: "25 Sep 2026",
-  },
-  {
-    applicationId: "CEDA-IN-2026-0482",
-    name: "Solar Dryer",
-    funding: "P 1,000.00",
-    duration: "9 months",
-    status: "APPROVED",
-    submitted: "25 Sep 2026",
-  },
-  {
-    applicationId: "CEDA-IN-2026-0483",
-    name: "Edu App",
-    funding: "P 3,000.00",
-    duration: "6 months",
-    status: "FEEDBACK",
-    submitted: "2 Oct 2026",
-  },
-  {
-    applicationId: "CEDA-IN-2026-0484",
-    name: "Agri Drone",
-    funding: "P 6,000.00",
-    duration: "18 months",
-    status: "AWARDED",
-    submitted: "2 Oct 2026",
-  },
-]);
+const applicationsData = ref<ApplicationRecord[]>([]);
 
 const loadingApplications = ref(false);
 const loadError = ref("");
@@ -476,25 +463,62 @@ function mapRow(row: Record<string, any>): ApplicationRecord {
 }
 
 async function loadApplications() {
-  if (!supabase || !session.value) return;
+  if (!supabase || !session.value) {
+    applicationsData.value = [];
+    loadingApplications.value = false;
+    return;
+  }
 
   loadingApplications.value = true;
   loadError.value = "";
-  const { data, error } = await supabase
-    .from("applications")
-    .select("*")
-    .order("submitted_at", { ascending: false });
+  const [{ data, error }, docs] = await Promise.all([
+    supabase
+      .from("applications")
+      .select("*")
+      .order("submitted_at", { ascending: false }),
+    loadApplicationDocuments(),
+  ]);
   loadingApplications.value = false;
 
   if (error) {
     loadError.value = error.message;
     return;
   }
-  if (data) applicationsData.value = data.map(mapRow);
+  applicationsData.value = (data ?? []).map(mapRow);
+
+  const grouped: Record<string, ApplicationDocumentRow[]> = {};
+  for (const doc of docs) {
+    (grouped[doc.application_id] ??= []).push(doc);
+  }
+  documentsByApplication.value = grouped;
 }
 
-onMounted(() => {
-  void loadApplications();
+watch([session, authReady], () => void loadApplications(), { immediate: true });
+
+const attentionApplications = computed(() =>
+  applicationsData.value.filter(
+    (application) =>
+      application.status === "FEEDBACK" || application.status === "UNDER REVIEW",
+  ),
+);
+
+const attentionTitle = computed(() => {
+  const count = attentionApplications.value.length;
+  if (count === 0) return "You're all caught up";
+  return `${count} application${count === 1 ? "" : "s"} need${count === 1 ? "s" : ""} your attention`;
+});
+
+const attentionDescription = computed(() => {
+  const list = attentionApplications.value;
+  if (list.length === 0) return "Nothing is waiting on you right now.";
+  const parts = list
+    .slice(0, 2)
+    .map((application) =>
+      application.status === "FEEDBACK"
+        ? `${application.name} has feedback waiting`
+        : `${application.name} is still under review`,
+    );
+  return `${parts.join(", ")}${list.length > 2 ? `, and ${list.length - 2} more.` : "."}`;
 });
 
 const totalFunding = computed(() => {
@@ -571,13 +595,10 @@ const filteredApplications = computed(() => {
 const style = useCssModule();
 
 function folderColor(name: string): "manila" | "brand" | "blue" | "green" | "slate" {
-  const map: Record<string, "manila" | "brand" | "blue" | "green" | "slate"> = {
-    "Irrigation Kit": "green",
-    "Solar Dryer": "blue",
-    "Edu App": "brand",
-    "Agri Drone": "slate",
-  };
-  return map[name] ?? "manila";
+  const colors = ["manila", "brand", "blue", "green", "slate"] as const;
+  let hash = 0;
+  for (const char of name) hash = (hash * 31 + char.charCodeAt(0)) >>> 0;
+  return colors[hash % colors.length];
 }
 
 function doOpen(app: ApplicationRecord) {
@@ -1208,6 +1229,16 @@ const getStatusClass = (status: string) => {
   font-size: 12px;
   font-weight: 500;
   color: #718096;
+}
+
+.emptyLink {
+  color: #0f6b4f;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.emptyLink:hover {
+  text-decoration: underline;
 }
 
 .noResults {

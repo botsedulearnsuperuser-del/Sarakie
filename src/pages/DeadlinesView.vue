@@ -20,9 +20,9 @@
           <img :class="$style.notifications2New" alt="" src="/Notifications-2-new.svg" />
           <img :class="$style.notifications2New" alt="" src="/Help.svg" />
           <router-link to="/profile" :class="$style.userA" style="text-decoration: none;">
-            <img :class="$style.userAvatarImg" src="/innovator-man.webp" alt="Marion Lucas" />
+            <img :class="$style.userAvatarImg" src="/innovator-man.webp" :alt="displayName" />
             <div :class="$style.span3">
-              <div :class="$style.marionLucas">Marion Lucas</div>
+              <div :class="$style.marionLucas">{{ displayName }}</div>
             </div>
           </router-link>
         </div>
@@ -84,16 +84,22 @@
             <span :class="[$style.badge, $style[item.tone]]">{{ item.status }}</span>
           </div>
         </div>
+
+        <div v-if="!loadingDeadlines && groups.length === 0" :class="$style.emptyRow">
+          No deadlines have been scheduled yet.
+        </div>
       </section>
     </main>
   </div>
 </template>
 
 <script setup lang="ts">
-  import { ref, onMounted, onUnmounted } from "vue";
+  import { ref, computed, onMounted, onUnmounted, watch } from "vue";
   import Main from "../components/Main.vue";
   import { usePageTheme } from "../composables/usePageTheme";
   import { THEME_EVENT, isGaboroneTheme } from "../components/themes";
+  import { authReady, displayName, session } from "../lib/auth";
+  import { loadDeadlines, type DeadlineRow } from "../lib/portal-data";
 
   const pageBackground = usePageTheme();
   const isGaborone = ref(isGaboroneTheme());
@@ -103,103 +109,82 @@
   onMounted(() => window.addEventListener(THEME_EVENT, syncTheme));
   onUnmounted(() => window.removeEventListener(THEME_EVENT, syncTheme));
 
-  type Item = {
-    id: number;
-    day: string;
-    month: string;
-    title: string;
-    about: string;
-    owner: string;
-    status: string;
-    tone: string;
+  const deadlineRows = ref<DeadlineRow[]>([]);
+  const loadingDeadlines = ref(true);
+
+  const startOfToday = () => {
+    const now = new Date();
+    return new Date(now.getFullYear(), now.getMonth(), now.getDate());
   };
 
-  type Group = { label: string; items: Item[] };
+  const dayDiff = (iso: string) => {
+    const due = new Date(`${iso}T00:00:00`);
+    if (Number.isNaN(due.getTime())) return Number.POSITIVE_INFINITY;
+    return Math.round((due.getTime() - startOfToday().getTime()) / 86400000);
+  };
 
-  const stats = [
-    { label: "Due this week", value: "3", tone: "" },
-    { label: "Overdue", value: "1", tone: "danger" },
-    { label: "Next call closes", value: "3 Dec", tone: "" },
-    { label: "Average review time", value: "4 days", tone: "" },
-  ];
+  const deadlineItems = computed(() => {
+    return deadlineRows.value.map((row) => {
+      const due = new Date(`${row.due_on}T00:00:00`);
+      const diff = dayDiff(row.due_on);
+      const status = diff < 0 ? "Overdue" : diff <= 3 ? "Due soon" : diff <= 7 ? "This week" : "Scheduled";
+      const tone = diff < 0 ? "danger" : diff <= 3 ? "warn" : diff <= 7 ? "ok" : "neutral";
+      return {
+        id: row.id,
+        day: Number.isNaN(due.getTime()) ? "—" : String(due.getDate()).padStart(2, "0"),
+        month: Number.isNaN(due.getTime())
+          ? ""
+          : due.toLocaleDateString("en-GB", { month: "short" }),
+        title: row.title,
+        about: row.description ?? "Deadline",
+        owner: row.audience
+          ? row.audience.charAt(0).toUpperCase() + row.audience.slice(1)
+          : "Everyone",
+        status,
+        tone,
+        diff,
+      };
+    });
+  });
 
-  const groups: Group[] = [
-    {
-      label: "This week",
-      items: [
-        {
-          id: 1,
-          day: "21",
-          month: "Nov",
-          title: "Clarification response — Solar cold storage",
-          about: "Awaiting feedback",
-          owner: "Kabo Mothusi",
-          status: "Due soon",
-          tone: "warn",
-        },
-        {
-          id: 2,
-          day: "22",
-          month: "Nov",
-          title: "Panel scoring — Mobile clinic booking",
-          about: "In review",
-          owner: "Lerato P.",
-          status: "Due soon",
-          tone: "warn",
-        },
-        {
-          id: 3,
-          day: "20",
-          month: "Nov",
-          title: "Evaluator feedback — Inventory credit scoring",
-          about: "Feedback stage",
-          owner: "Mpho R.",
-          status: "Overdue",
-          tone: "danger",
-        },
-      ],
-    },
-    {
-      label: "Next week",
-      items: [
-        {
-          id: 4,
-          day: "26",
-          month: "Nov",
-          title: "Adjudication committee sits",
-          about: "Credit committee",
-          owner: "Innovation committee",
-          status: "On track",
-          tone: "ok",
-        },
-        {
-          id: 5,
-          day: "28",
-          month: "Nov",
-          title: "Resubmission window closes — Water sensors",
-          about: "Awaiting resubmission",
-          owner: "Tapiwa Ndlovu",
-          status: "On track",
-          tone: "ok",
-        },
-      ],
-    },
-    {
-      label: "Later",
-      items: [
-        {
-          id: 6,
-          day: "3",
-          month: "Dec",
-          title: "Award announcement",
-          about: "Award stage",
-          owner: "CEDA",
-          status: "Scheduled",
-          tone: "neutral",
-        },
-      ],
-    },
-  ];
+  const groups = computed(() => {
+    const thisWeek = deadlineItems.value.filter((item) => item.diff < 8);
+    const nextWeek = deadlineItems.value.filter((item) => item.diff >= 8 && item.diff < 15);
+    const later = deadlineItems.value.filter((item) => item.diff >= 15);
+    return [
+      { label: "This week", items: thisWeek },
+      { label: "Next week", items: nextWeek },
+      { label: "Later", items: later },
+    ].filter((group) => group.items.length > 0);
+  });
+
+  const stats = computed(() => {
+    const items = deadlineItems.value;
+    const thisWeek = items.filter((item) => item.diff >= 0 && item.diff <= 7).length;
+    const overdue = items.filter((item) => item.diff < 0).length;
+    const next = items
+      .filter((item) => item.diff >= 0)
+      .sort((a, b) => a.diff - b.diff)[0];
+    return [
+      { label: "Due this week", value: String(thisWeek), tone: "" },
+      { label: "Overdue", value: String(overdue), tone: "danger" },
+      { label: "Next deadline", value: next ? `${next.day} ${next.month}` : "—", tone: "" },
+      { label: "Scheduled", value: String(items.length), tone: "" },
+    ];
+  });
+
+  async function loadDeadlineData() {
+    if (!session.value) {
+      deadlineRows.value = [];
+      loadingDeadlines.value = false;
+      return;
+    }
+    loadingDeadlines.value = true;
+    deadlineRows.value = await loadDeadlines();
+    loadingDeadlines.value = false;
+  }
+
+  watch([session, authReady], () => void loadDeadlineData(), { immediate: true });
 </script>
 
 <style module>
@@ -439,6 +424,13 @@
     color: #6b6355;
     font-size: 10.5px;
     letter-spacing: 0;
+  }
+
+  .emptyRow {
+    padding: 28px 12px;
+    text-align: center;
+    font-size: 14px;
+    color: #7d776c;
   }
 
   .row {
