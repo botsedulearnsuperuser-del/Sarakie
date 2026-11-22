@@ -15,8 +15,8 @@
           <img :class="$style.iconBtn" alt="" src="/Notifications-2-new.svg" />
           <img :class="$style.iconBtn" alt="" src="/Help.svg" />
           <div :class="$style.userA">
-            <img :class="$style.userAvatarImg" src="/innovator-man.webp" alt="Marion Lucas" />
-            <div :class="$style.userName">Marion Lucas</div>
+            <img :class="$style.userAvatarImg" :src="avatarUrl" :alt="profileName" />
+            <div :class="$style.userName">{{ profileName }}</div>
           </div>
         </div>
       </header>
@@ -29,9 +29,12 @@
           alt=""
         />
         <div :class="$style.bannerLeft">
-          <img :class="$style.avatarImg" src="/innovator-man.webp" alt="Marion Lucas" />
+          <label :class="$style.avatarPicker" title="Change photo">
+            <img :class="$style.avatarImg" :src="avatarUrl" :alt="profileName" />
+            <input type="file" accept="image/png,image/jpeg,image/webp" @change="uploadAvatar" />
+          </label>
           <div :class="$style.bannerInfo">
-            <h2 :class="$style.profileName">Marion Lucas</h2>
+            <h2 :class="$style.profileName">{{ profileName }}</h2>
             <p :class="$style.profileSub">{{ roleLine }}</p>
             <div :class="$style.badgeRow">
               <span :class="$style.roleBadge">{{ roleBadge }}</span>
@@ -44,13 +47,13 @@
         </div>
         <div :class="$style.statWidget">
           <div :class="$style.statItem">
-            <span :class="$style.statValue">148</span>
-            <span :class="$style.statLabel">Loans processed</span>
+            <span :class="$style.statValue">{{ applicationCount }}</span>
+            <span :class="$style.statLabel">Applications</span>
           </div>
           <div :class="$style.statDivider"></div>
           <div :class="$style.statItem">
-            <span :class="$style.statValue">12</span>
-            <span :class="$style.statLabel">Pending reviews</span>
+            <span :class="$style.statValue">{{ reviewCount }}</span>
+            <span :class="$style.statLabel">In review</span>
           </div>
         </div>
       </section>
@@ -70,11 +73,11 @@
             <div :class="$style.fieldRow">
               <div :class="$style.field">
                 <span :class="$style.fieldLabel">Full name</span>
-                <span :class="$style.fieldValue">Marion Lucas</span>
+                <span :class="$style.fieldValue">{{ profileName }}</span>
               </div>
               <div :class="$style.field">
                 <span :class="$style.fieldLabel">Employee ID</span>
-                <span :class="$style.fieldValue">SRK-ADM-0042</span>
+                <span :class="$style.fieldValue">{{ profileRef }}</span>
               </div>
             </div>
             <div :class="$style.fieldRow">
@@ -84,17 +87,17 @@
               </div>
               <div :class="$style.field">
                 <span :class="$style.fieldLabel">Branch</span>
-                <span :class="$style.fieldValue">Gaborone Main</span>
+                <span :class="$style.fieldValue">{{ profileCity }}</span>
               </div>
             </div>
             <div :class="$style.fieldRow">
               <div :class="$style.field">
                 <span :class="$style.fieldLabel">Date joined</span>
-                <span :class="$style.fieldValue">15 January 2023</span>
+                <span :class="$style.fieldValue">{{ joinedDate }}</span>
               </div>
               <div :class="$style.field">
                 <span :class="$style.fieldLabel">Reporting to</span>
-                <span :class="$style.fieldValue">Thabo Mokoena</span>
+                <span :class="$style.fieldValue">CEDA review team</span>
               </div>
             </div>
           </div>
@@ -113,21 +116,21 @@
             <div :class="$style.fieldRow">
               <div :class="$style.field">
                 <span :class="$style.fieldLabel">Work email</span>
-                <span :class="$style.fieldValue">m.lucas@ceda.co.bw</span>
+                <span :class="$style.fieldValue">{{ profileEmail }}</span>
               </div>
               <div :class="$style.field">
                 <span :class="$style.fieldLabel">Work phone</span>
-                <span :class="$style.fieldValue">+267 391 2200</span>
+                <span :class="$style.fieldValue">{{ profilePhone }}</span>
               </div>
             </div>
             <div :class="$style.fieldRow">
               <div :class="$style.field">
                 <span :class="$style.fieldLabel">Mobile</span>
-                <span :class="$style.fieldValue">+267 71 234 567</span>
+                <span :class="$style.fieldValue">{{ profileCity }}</span>
               </div>
               <div :class="$style.field">
                 <span :class="$style.fieldLabel">Extension</span>
-                <span :class="$style.fieldValue">Ext. 104</span>
+                <span :class="$style.fieldValue">{{ profileOrganization }}</span>
               </div>
             </div>
           </div>
@@ -192,19 +195,19 @@
               <div :class="$style.permList">
                 <div :class="$style.permRow">
                   <span :class="[$style.permDot, $style.permDotGreen]"></span>
-                  <span :class="$style.fieldValue">Create &amp; edit loan applications</span>
+                  <span :class="$style.fieldValue">Create &amp; edit innovation submissions</span>
                 </div>
                 <div :class="$style.permRow">
                   <span :class="[$style.permDot, $style.permDotGreen]"></span>
-                  <span :class="$style.fieldValue">Approve loans up to P 10,000</span>
+                  <span :class="$style.fieldValue">Track every application stage</span>
                 </div>
                 <div :class="$style.permRow">
                   <span :class="[$style.permDot, $style.permDotGreen]"></span>
-                  <span :class="$style.fieldValue">View &amp; manage customer records</span>
+                  <span :class="$style.fieldValue">Respond to evaluator feedback</span>
                 </div>
                 <div :class="$style.permRow">
                   <span :class="[$style.permDot, $style.permDotGreen]"></span>
-                  <span :class="$style.fieldValue">Generate reports &amp; statements</span>
+                  <span :class="$style.fieldValue">Download decision letters</span>
                 </div>
                 <div :class="$style.permRow">
                   <span :class="[$style.permDot, $style.permDotRed]"></span>
@@ -229,8 +232,8 @@
               <select v-model="auditFilter" :class="$style.auditSelect">
                 <option value="all">All activity</option>
                 <option value="login">Logins</option>
-                <option value="loan">Loan actions</option>
-                <option value="customer">Customer updates</option>
+                <option value="loan">Application actions</option>
+                <option value="customer">Feedback activity</option>
                 <option value="system">System</option>
               </select>
             </div>
@@ -244,6 +247,13 @@
             <span :class="$style.auditColAction">Action</span>
             <span :class="$style.auditColDetails">Details</span>
             <span :class="$style.auditColIP">IP Address</span>
+          </div>
+          <div v-if="!filteredLogs.length" :class="$style.auditRow">
+            <span :class="$style.auditColDate">—</span>
+            <span :class="$style.auditColUser">No account activity recorded yet</span>
+            <span :class="$style.auditColAction"></span>
+            <span :class="$style.auditColDetails"></span>
+            <span :class="$style.auditColIP">—</span>
           </div>
           <div
             v-for="(log, idx) in filteredLogs"
@@ -317,6 +327,9 @@
 
           <!-- Password Form -->
           <form v-else :class="$style.modalForm" @submit.prevent="submitPasswordChange">
+            <p v-if="passwordError" :class="$style.fieldLabel" style="color: #b42318; margin: 0">
+              {{ passwordError }}
+            </p>
             <!-- Current Password -->
             <div :class="$style.inputGroup">
               <label :class="$style.inputLabel">Current password</label>
@@ -573,10 +586,13 @@
     window.removeEventListener("sarka-2fa-changed", syncTwoFactorState);
   });
 
-import { onMounted, onUnmounted, ref, computed, useCssModule } from "vue";
+import { onMounted, onUnmounted, ref, computed, watch, useCssModule } from "vue";
 import { mfaEnabled, refreshMfa } from "../lib/mfa";
 import { THEME_EVENT, isGaboroneTheme } from "../components/themes";
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
+import { supabase } from "../lib/supabase";
+import { authReady, profile, session, signOutNow } from "../lib/auth";
+import { IN_REVIEW_STATUSES, loadInnovatorApplications } from "../lib/portal-data";
 import Main from "../components/Main.vue";
 import ChatWithAgent from "../components/ChatWithAgent.vue";
 import { resolveDashboardRole } from "../components/dashboardRole";
@@ -599,8 +615,8 @@ const roleLine = computed(() =>
   role.value === "admin"
     ? "Branch Administrator · Gaborone Main Branch"
     : role.value === "evaluator"
-      ? "Innovator Evaluator · Gaborone"
-      : "Innovator · Gaborone",
+      ? `Innovator Evaluator · ${profileCity.value}`
+      : `Innovator · ${profileCity.value}`,
 );
 const roleBadge = computed(() =>
   role.value === "admin" ? "Administrator" : role.value === "evaluator" ? "Evaluator" : "Innovator",
@@ -610,8 +626,98 @@ const roleTitle = computed(() =>
 );
 const roleNoun = computed(() => (role.value === "admin" ? "administrator" : role.value));
 
+const router = useRouter();
 const auditFilter = ref("all");
-const lastChangedDate = ref("22 September 2026");
+const lastChangedDate = ref("—");
+
+/* ── Live profile ── */
+const profileName = computed(
+  () => profile.value?.full_name || session.value?.user.email?.split("@")[0] || "Innovator",
+);
+const profileEmail = computed(() => profile.value?.email ?? session.value?.user.email ?? "");
+const profilePhone = computed(() => profile.value?.phone || "—");
+const profileCity = computed(() => profile.value?.city || "—");
+const profileOrganization = computed(() => profile.value?.organization || "—");
+const profileRef = computed(() => {
+  const id = session.value?.user.id;
+  if (!id) return "—";
+  const prefix = (profile.value?.role ?? "innovator").slice(0, 3).toUpperCase();
+  return `SRK-${prefix}-${id.slice(0, 6).toUpperCase()}`;
+});
+const accountEmail = computed(() => profileEmail.value);
+
+/* Applications summary shown in the banner */
+const applicationCount = ref(0);
+const reviewCount = ref(0);
+
+async function loadProfileStats() {
+  if (!session.value) {
+    applicationCount.value = 0;
+    reviewCount.value = 0;
+    return;
+  }
+  const apps = await loadInnovatorApplications();
+  applicationCount.value = apps.length;
+  reviewCount.value = apps.filter((app) => IN_REVIEW_STATUSES.includes(app.status)).length;
+}
+
+/* Avatar lives in the private `avatars` bucket; the browser only sees a signed URL. */
+const avatarUrl = ref("/innovator-man.webp");
+const avatarPath = ref("");
+const avatarError = ref("");
+
+async function loadAvatar() {
+  if (!supabase || !session.value) return;
+  const { data } = await supabase
+    .from("profiles")
+    .select("avatar_url")
+    .eq("id", session.value.user.id)
+    .maybeSingle();
+  const path = (data as { avatar_url?: string | null } | null)?.avatar_url;
+  if (!path) return;
+  avatarPath.value = path;
+  const { data: signed } = await supabase.storage.from("avatars").createSignedUrl(path, 3600);
+  if (signed?.signedUrl) avatarUrl.value = signed.signedUrl;
+}
+
+async function uploadAvatar(event: Event) {
+  const input = event.target as HTMLInputElement;
+  const file = input.files?.[0];
+  input.value = "";
+  if (!file || !supabase || !session.value) return;
+  avatarError.value = "";
+  if (file.size > 5 * 1024 * 1024) {
+    avatarError.value = "Choose an image smaller than 5 MB.";
+    return;
+  }
+  const extension = (file.name.split(".").pop() || "png").toLowerCase();
+  const path = `${session.value.user.id}/avatar-${Date.now()}.${extension}`;
+  const { error } = await supabase.storage
+    .from("avatars")
+    .upload(path, file, { upsert: true, contentType: file.type });
+  if (error) {
+    avatarError.value = error.message;
+    return;
+  }
+  const { error: profileError } = await supabase
+    .from("profiles")
+    .update({ avatar_url: path })
+    .eq("id", session.value.user.id);
+  if (profileError) avatarError.value = profileError.message;
+  if (avatarPath.value) await supabase.storage.from("avatars").remove([avatarPath.value]);
+  avatarPath.value = path;
+  const { data: signed } = await supabase.storage.from("avatars").createSignedUrl(path, 3600);
+  if (signed?.signedUrl) avatarUrl.value = signed.signedUrl;
+}
+
+onMounted(() => {
+  void loadProfileStats();
+  void loadAvatar();
+});
+watch([session, authReady], () => {
+  void loadProfileStats();
+  void loadAvatar();
+});
 
 /* ── Modal & Password State ── */
 const showPasswordModal = ref(false);
@@ -622,6 +728,7 @@ const showCurrentPassword = ref(false);
 const showNewPassword = ref(false);
 const showConfirmPassword = ref(false);
 const passwordSuccess = ref(false);
+const passwordError = ref("");
 
 /* ── Strong Password Rules Enforcement ── */
 const hasMinLength = computed(() => newPassword.value.length >= 8);
@@ -691,12 +798,11 @@ function openTwoFactorSetup() {
 }
 
 /* ── Delete account ── */
-const accountEmail = "m.lucas@ceda.co.bw";
 const showDeleteModal = ref(false);
 const deleteEmail = ref("");
 
 const emailMatches = computed(
-  () => deleteEmail.value.trim().toLowerCase() === accountEmail.toLowerCase(),
+  () => deleteEmail.value.trim().toLowerCase() === accountEmail.value.toLowerCase(),
 );
 
 function openDeleteModal() {
@@ -709,29 +815,44 @@ function closeDeleteModal() {
   deleteEmail.value = "";
 }
 
-function confirmDeleteAccount() {
+async function confirmDeleteAccount() {
   if (!emailMatches.value) return;
+  if (supabase && session.value) {
+    await supabase.from("account_deletion_requests").insert({
+      user_id: session.value.user.id,
+      email: profileEmail.value,
+      reason: "Requested from profile settings",
+    });
+    await signOutNow();
+    closeDeleteModal();
+    router.push({ name: "AdminLogin" });
+    return;
+  }
   closeDeleteModal();
 }
 
-function submitPasswordChange() {
-  if (!isFormValid.value) return;
+async function submitPasswordChange() {
+  if (!isFormValid.value || !supabase) return;
+  passwordError.value = "";
 
-  const now = new Date();
-  const timeStr = now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-  lastChangedDate.value = `Today, ${timeStr}`;
-
-  // Prepend entry into immutable audit log
-  auditLogs.value.unshift({
-    date: `17 Oct 2026, ${timeStr}`,
-    user: "Marion Lucas",
-    userInitials: "ML",
-    action: "Password changed",
-    type: "system",
-    details: "Admin password successfully updated with 4/4 security criteria",
-    ip: "196.216.164.12",
+  // Re-authenticate first so a hijacked session cannot silently change the password.
+  const check = await supabase.auth.signInWithPassword({
+    email: profileEmail.value,
+    password: currentPassword.value,
   });
+  if (check.error) {
+    passwordError.value = "Your current password is not correct.";
+    return;
+  }
 
+  const { error } = await supabase.auth.updateUser({ password: newPassword.value });
+  if (error) {
+    passwordError.value = error.message;
+    return;
+  }
+
+  const timeStr = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+  lastChangedDate.value = `Today, ${timeStr}`;
   passwordSuccess.value = true;
   setTimeout(() => {
     closePasswordModal();
@@ -748,116 +869,18 @@ interface AuditLog {
   ip: string;
 }
 
-const auditLogs = ref<AuditLog[]>([
-  {
-    date: "17 Oct 2026, 08:42",
-    user: "Marion Lucas",
-    userInitials: "ML",
-    action: "Logged in",
-    type: "login",
-    details: "Successful login via password + 2FA",
-    ip: "196.216.164.12",
-  },
-  {
-    date: "17 Oct 2026, 08:55",
-    user: "Marion Lucas",
-    userInitials: "ML",
-    action: "Created loan",
-    type: "loan",
-    details: "New loan SRK-L-10847 for Kamogelo Lekaba — P 308.20",
-    ip: "196.216.164.12",
-  },
-  {
-    date: "17 Oct 2026, 09:12",
-    user: "Marion Lucas",
-    userInitials: "ML",
-    action: "Updated customer",
-    type: "customer",
-    details: "Changed phone number for Jacob Maleo",
-    ip: "196.216.164.12",
-  },
-  {
-    date: "16 Oct 2026, 16:30",
-    user: "Marion Lucas",
-    userInitials: "ML",
-    action: "Approved loan",
-    type: "loan",
-    details: "Approved loan SRK-L-10842 — P 2,000 for Seneo Jacob",
-    ip: "196.216.164.12",
-  },
-  {
-    date: "16 Oct 2026, 15:05",
-    user: "Thabo Mokoena",
-    userInitials: "TM",
-    action: "Logged in",
-    type: "login",
-    details: "Successful login via password + 2FA",
-    ip: "196.216.164.38",
-  },
-  {
-    date: "16 Oct 2026, 14:22",
-    user: "Marion Lucas",
-    userInitials: "ML",
-    action: "Sent back loan",
-    type: "loan",
-    details: "Returned SRK-L-10839 — missing employment verification",
-    ip: "196.216.164.12",
-  },
-  {
-    date: "16 Oct 2026, 11:48",
-    user: "Marion Lucas",
-    userInitials: "ML",
-    action: "Created customer",
-    type: "customer",
-    details: "Registered new customer Naledi Seneo — SRK-C-10301",
-    ip: "196.216.164.12",
-  },
-  {
-    date: "16 Oct 2026, 10:15",
-    user: "Marion Lucas",
-    userInitials: "ML",
-    action: "Logged in",
-    type: "login",
-    details: "Successful login via password + 2FA",
-    ip: "196.216.164.12",
-  },
-  {
-    date: "15 Oct 2026, 17:00",
-    user: "System",
-    userInitials: "SY",
-    action: "Auto backup",
-    type: "system",
-    details: "Daily database backup completed successfully",
-    ip: "—",
-  },
-  {
-    date: "15 Oct 2026, 14:33",
-    user: "Marion Lucas",
-    userInitials: "ML",
-    action: "Rejected loan",
-    type: "loan",
-    details: "Rejected SRK-L-10835 — Naledi Seneo, insufficient income proof",
-    ip: "196.216.164.12",
-  },
-  {
-    date: "15 Oct 2026, 09:10",
-    user: "Thabo Mokoena",
-    userInitials: "TM",
-    action: "Updated settings",
-    type: "system",
-    details: "Changed interest rate cap from 30% to 25% p.a.",
-    ip: "196.216.164.38",
-  },
-  {
-    date: "15 Oct 2026, 08:30",
-    user: "Marion Lucas",
-    userInitials: "ML",
-    action: "Logged in",
-    type: "login",
-    details: "Successful login via password + 2FA",
-    ip: "196.216.164.12",
-  },
-]);
+const joinedDate = computed(() => {
+  const created = session.value?.user.created_at;
+  if (!created) return "—";
+  return new Date(created).toLocaleDateString("en-GB", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
+});
+
+/** Live activity only — nothing is seeded. */
+const auditLogs = ref<AuditLog[]>([]);
 
 const filteredLogs = computed(() => {
   if (auditFilter.value === "all") return auditLogs.value;
@@ -2140,4 +2163,11 @@ function getActionClass(type: string) {
 .isGaborone .profileSub {
   color: rgba(255, 255, 255, 0.9);
 }
+  .avatarPicker {
+    display: inline-flex;
+    cursor: pointer;
+  }
+  .avatarPicker input {
+    display: none;
+  }
 </style>

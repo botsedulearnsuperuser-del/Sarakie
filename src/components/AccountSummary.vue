@@ -58,7 +58,8 @@
     | "Under Review"
     | "Approved"
     | "Feedback Required"
-    | "Awarded";
+    | "Awarded"
+    | "Not Successful";
 
   interface InnovatorProposal {
     title: string;
@@ -66,19 +67,21 @@
     submitted: string;
   }
 
-  // The innovator's own submissions, matching the ideas listed on the dashboard.
-  const proposals: InnovatorProposal[] = [
-    { title: "Irrigation Kit", status: "Under Review", submitted: "25 September" },
-    { title: "Solar Dryer", status: "Approved", submitted: "25 September" },
-    { title: "Edu App", status: "Feedback Required", submitted: "2 October" },
-    { title: "Agri Drone", status: "Awarded", submitted: "2 October" },
-  ];
+  /* Supplied by the page from the innovator's real applications. */
+  const props = withDefaults(
+    defineProps<{ proposals?: InnovatorProposal[] }>(),
+    { proposals: () => [] },
+  );
+
+  const proposals = computed(() => props.proposals);
 
   const countBy = (status: ProposalStatus) =>
-    proposals.filter((proposal) => proposal.status === status).length;
+    proposals.value.filter((proposal) => proposal.status === status).length;
 
-  const inReviewCount = countBy("Under Review");
-  const approvedCount = countBy("Approved") + countBy("Awarded");
+  const inReviewCount = computed(() => countBy("Under Review"));
+  const approvedCount = computed(
+    () => countBy("Approved") + countBy("Awarded"),
+  );
 
   const statusBreakdown = computed(() => {
     const parts = [
@@ -86,14 +89,15 @@
       `${countBy("Feedback Required")} needing feedback`,
       `${countBy("Approved")} approved`,
       `${countBy("Awarded")} awarded`,
+      `${countBy("Not Successful")} not successful`,
     ].filter((part) => !part.startsWith("0 "));
-    return parts.join(" · ");
+    return parts.length ? parts.join(" · ") : "Nothing submitted yet";
   });
 
   const approvedBreakdown = computed(() => {
     const approved = countBy("Approved");
     const awarded = countBy("Awarded");
-    const latest = proposals
+    const latest = proposals.value
       .filter((proposal) => proposal.status === "Awarded")
       .map((proposal) => proposal.submitted)
       .pop();
@@ -104,7 +108,7 @@
     ].filter(Boolean);
 
     return parts.length
-      ? `${parts.join(" · ")} of ${proposals.length} submitted`
+      ? `${parts.join(" · ")} of ${proposals.value.length} submitted`
       : "None approved yet";
   });
 

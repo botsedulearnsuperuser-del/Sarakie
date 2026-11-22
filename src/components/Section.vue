@@ -5,69 +5,72 @@
     </div>
     <div :class="$style.p">
       <div :class="$style.longTermLoan">
-        Innovation submission counts after each review, 2026
+        Innovation submission counts {{ year }}
       </div>
     </div>
-    <div :class="$style.div">
-      <div :class="$style.div2">
-        <div :class="$style.span">
-          <div :class="$style.graphGridValues">80</div>
-        </div>
-        <div :class="$style.div3" />
+
+    <div :class="$style.chart">
+      <div :class="$style.yAxis">
+        <span v-for="tick in ticks" :key="tick" :class="$style.tick">{{ tick }}</span>
       </div>
-      <div :class="$style.div4">
-        <div :class="$style.span2">
-          <div :class="$style.graphGridValues">70</div>
+      <div :class="$style.plot">
+        <div :class="$style.grid">
+          <span v-for="tick in ticks" :key="tick" :class="$style.gridLine" />
         </div>
-        <div :class="$style.div6" />
-      </div>
-      <div :class="$style.div7">
-        <div :class="$style.span">
-          <div :class="$style.graphGridValues">60</div>
+        <div :class="$style.columns">
+          <div v-for="(month, index) in months" :key="month.key" :class="$style.column">
+            <span :class="$style.barValue">{{ month.count }}</span>
+            <div
+              :class="[
+                $style.bar,
+                index === months.length - 1 ? $style.barLatest : $style.barMuted,
+              ]"
+              :style="{ height: barHeight(month.count) }"
+              :title="`${month.label}: ${month.count} submission${month.count === 1 ? '' : 's'}`"
+            />
+          </div>
         </div>
-        <div :class="$style.div9" />
-      </div>
-      <div :class="$style.div10">
-        <div :class="$style.span">
-          <div :class="$style.graphGridValues">50</div>
-        </div>
-        <div :class="$style.div12" />
-      </div>
-      <div :class="$style.div13">
-        <div :class="$style.span">
-          <div :class="$style.graphGridValues">40</div>
-        </div>
-        <div :class="$style.div15" />
-      </div>
-      <div :class="$style.div16">
-        <div :class="$style.span">
-          <div :class="$style.graphGridValues">38</div>
-        </div>
-        <div :class="$style.div18" />
       </div>
     </div>
-    <div :class="$style.div19">
-      <div :class="$style.span7">
-        <div :class="$style.apr">Apr</div>
-      </div>
-      <div :class="$style.span7">
-        <div :class="$style.apr">May</div>
-      </div>
-      <div :class="$style.span7">
-        <div :class="$style.apr">Jun</div>
-      </div>
-      <div :class="$style.span7">
-        <div :class="$style.apr">Jul</div>
-      </div>
-      <div :class="$style.span7">
-        <div :class="$style.apr">Aug</div>
-      </div>
-      <div :class="$style.span7">
-        <div :class="$style.apr">Sep</div>
-      </div>
+
+    <div :class="$style.monthLabels">
+      <span v-for="month in months" :key="month.key" :class="$style.monthLabel">
+        {{ month.label }}
+      </span>
     </div>
   </div>
 </template>
+
+<script setup lang="ts">
+import { computed } from "vue";
+import type { MonthlyCount } from "../lib/portal-data";
+
+const props = withDefaults(defineProps<{ months?: MonthlyCount[] }>(), {
+  months: () => [],
+});
+
+const year = new Date().getFullYear();
+
+const months = computed(() => props.months);
+
+/** Round the axis top up to a friendly step so bars are readable at low counts. */
+const axisMax = computed(() => {
+  const peak = Math.max(1, ...months.value.map((month) => month.count));
+  const step = peak <= 4 ? 1 : Math.ceil(peak / 4);
+  return step * 4;
+});
+
+const ticks = computed(() => {
+  const max = axisMax.value;
+  return [max, Math.round((max * 3) / 4), Math.round(max / 2), Math.round(max / 4), 0];
+});
+
+function barHeight(count: number): string {
+  const percent = (count / axisMax.value) * 100;
+  return `${Math.max(count > 0 ? 6 : 0, percent)}%`;
+}
+</script>
+
 <style module>
   .section {
     position: relative;
@@ -100,7 +103,6 @@
   .totalLoansEach {
     margin: 0;
     align-self: stretch;
-    position: relative;
     font-size: inherit;
     font-weight: 800;
     font-family: inherit;
@@ -114,183 +116,104 @@
   }
   .longTermLoan {
     align-self: stretch;
-    position: relative;
+    font-size: var(--fs-14);
   }
-  .div {
-    align-self: stretch;
-    border-bottom: var(--border-2);
+  .chart {
+    display: flex;
+    gap: 10px;
+    align-items: stretch;
+    margin-top: 18px;
+    min-height: 190px;
+  }
+  .yAxis {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: flex-end;
+    padding-bottom: 18px;
+    font-size: var(--fs-12);
+    color: var(--color-darkslategray-300);
+    width: 26px;
+  }
+  .tick {
+    line-height: 1;
+  }
+  .plot {
+    position: relative;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
+  .grid {
+    position: absolute;
+    inset: 0 0 18px 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  .gridLine {
+    height: 1px;
+    background-color: var(--color-antiquewhite-200);
+    opacity: 0.7;
+  }
+  .columns {
+    position: relative;
+    flex: 1;
     display: flex;
     align-items: flex-end;
     justify-content: space-between;
-    padding: var(--padding-18) var(--padding-0) var(--padding-0);
-    gap: var(--gap-20);
+    gap: var(--gap-12);
+    padding-bottom: 18px;
+    box-sizing: border-box;
+  }
+  .column {
+    flex: 1;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 4px;
+    min-width: 0;
+  }
+  .barValue {
     font-size: var(--fs-12);
+    font-weight: 700;
+    color: var(--color-darkslategray-400);
+  }
+  .bar {
+    width: 100%;
+    max-width: 44px;
+    border-radius: var(--br-10) var(--br-10) var(--br-0) var(--br-0);
+    transition: height 0.25s ease;
+  }
+  .barMuted {
+    background-color: var(--color-darkslategray-500);
+    opacity: 0.35;
+  }
+  .barLatest {
+    background-color: var(--color-goldenrod-200);
+  }
+  .monthLabels {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--gap-12);
+    margin-left: 36px;
+    font-size: var(--fs-13);
     color: var(--color-darkslategray-300);
   }
-  .div2 {
-    align-self: stretch;
+  .monthLabel {
     flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: var(--gap-6);
-    max-width: none;
-  }
-  .span {
-    width: var(--width-16);
-    height: var(--height-15);
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    flex-shrink: 0;
-  }
-  .graphGridValues {
-    position: relative;
-    font-weight: 600;
-  }
-  .div3 {
-    width: 100%;
-    height: 188px;
-    position: relative;
-    border-radius: var(--br-10) var(--br-10) var(--br-0) var(--br-0);
-    background-color: var(--color-darkslategray-500);
-    max-width: none;
-    flex-shrink: 0;
-  }
-  .div4 {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 6.2px var(--padding-0) var(--padding-0);
-    box-sizing: border-box;
-    gap: var(--gap-6);
-    max-width: none;
-  }
-  .span2 {
-    width: var(--width-15);
-    height: var(--height-15);
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    flex-shrink: 0;
-  }
-  .div6 {
-    width: 100%;
-    height: 181.8px;
-    position: relative;
-    border-radius: var(--br-10) var(--br-10) var(--br-0) var(--br-0);
-    background-color: var(--color-darkslategray-500);
-    max-width: none;
-    flex-shrink: 0;
-  }
-  .div7 {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 12.4px var(--padding-0) var(--padding-0);
-    box-sizing: border-box;
-    gap: var(--gap-6);
-    max-width: none;
-  }
-  .div9 {
-    width: 100%;
-    height: 175.6px;
-    position: relative;
-    border-radius: var(--br-10) var(--br-10) var(--br-0) var(--br-0);
-    background-color: var(--color-darkslategray-500);
-    max-width: none;
-    flex-shrink: 0;
-  }
-  .div10 {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 18.7px var(--padding-0) var(--padding-0);
-    box-sizing: border-box;
-    gap: var(--gap-6);
-    max-width: none;
-  }
-  .div12 {
-    width: 100%;
-    height: 169.3px;
-    position: relative;
-    border-radius: var(--br-10) var(--br-10) var(--br-0) var(--br-0);
-    background-color: var(--color-darkslategray-500);
-    max-width: none;
-    flex-shrink: 0;
-  }
-  .div13 {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 27.1px var(--padding-0) var(--padding-0);
-    box-sizing: border-box;
-    gap: var(--gap-6);
-    max-width: none;
-  }
-  .div15 {
-    width: 100%;
-    height: 160.9px;
-    position: relative;
-    border-radius: var(--br-10) var(--br-10) var(--br-0) var(--br-0);
-    background-color: var(--color-darkslategray-500);
-    max-width: none;
-    flex-shrink: 0;
-  }
-  .div16 {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 33.3px var(--padding-0) var(--padding-0);
-    box-sizing: border-box;
-    gap: var(--gap-6);
-    max-width: none;
-  }
-  .div18 {
-    width: 100%;
-    height: 154.7px;
-    position: relative;
-    border-radius: var(--br-10) var(--br-10) var(--br-0) var(--br-0);
-    background-color: var(--color-goldenrod-200);
-    max-width: none;
-    flex-shrink: 0;
-  }
-  .div19 {
-    align-self: stretch;
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    padding: var(--padding-4) var(--padding-0) var(--padding-0);
-    gap: var(--gap-20);
-    font-size: var(--fs-13);
-  }
-  .span7 {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    max-width: none;
-  }
-  .apr {
-    position: relative;
+    text-align: center;
   }
 
   @media screen and (max-width: 450px) {
     .totalLoansEach {
       font-size: var(--fs-17);
     }
-
-    .div {
-      flex-wrap: wrap;
-    }
-
-    .div19 {
-      flex-wrap: wrap;
+    .monthLabels {
+      margin-left: 0;
     }
   }
 </style>

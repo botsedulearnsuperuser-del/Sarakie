@@ -25,9 +25,9 @@
           />
           <img :class="$style.notifications2New" alt="" src="/Help.svg" />
           <router-link to="/profile" :class="$style.userA" style="text-decoration: none;">
-            <img :class="$style.userAvatarImg" src="/innovator-man.webp" alt="Marion Lucas" />
+            <img :class="$style.userAvatarImg" src="/innovator-man.webp" :alt="userName" />
             <div :class="$style.span3">
-              <div :class="$style.marionLucas">Marion Lucas</div>
+              <div :class="$style.marionLucas">{{ userName }}</div>
             </div>
           </router-link>
         </div>
@@ -239,9 +239,9 @@
               <span :class="$style.termBadge">Total Evaluator Comments</span>
             </div>
 
-            <div :class="$style.balanceAmount">5</div>
+            <div :class="$style.balanceAmount">{{ feedbackData.length }}</div>
             <div :class="$style.borrowedInfo">
-              across 4 ideas &middot; last comment 18 November 2026
+              {{ feedbackSummary }}
             </div>
           </div>
         </div>
@@ -373,7 +373,14 @@
     window.addEventListener(THEME_EVENT, () => (isGaborone.value = isGaboroneTheme()));
   });
 
-import { onMounted, ref, computed } from "vue";
+import { onMounted, ref, computed, watch } from "vue";
+import { authReady, displayName, session } from "../lib/auth";
+import {
+  formatLongDate,
+  loadCorrections,
+  loadFeedback,
+  replyToFeedback,
+} from "../lib/portal-data";
 import { THEME_EVENT, isGaboroneTheme } from "../components/themes";
 import { useRoute, useRouter, type RouteLocationRaw } from "vue-router";
 import Main from "../components/Main.vue";
@@ -381,6 +388,17 @@ import { resolveDashboardRole } from "../components/dashboardRole";
 import ChatWithAgent from "../components/ChatWithAgent.vue";
 
 const router = useRouter();
+
+const userName = computed(() => displayName.value);
+
+/** "across N ideas · last comment …" under the total. */
+const feedbackSummary = computed(() => {
+  const rows = feedbackData.value;
+  if (!rows.length) return "No evaluator comments yet";
+  const ideas = new Set(rows.map((row) => row.ideaName)).size;
+  const last = rows[0]?.submittedDate ?? "";
+  return `across ${ideas} idea${ideas === 1 ? "" : "s"} · last comment ${last}`;
+});
 
 const activeFilter = ref<"all" | "unread" | "answered">("all" as const);
 const searchQuery = ref("");
@@ -399,13 +417,25 @@ const feedbackSubtitle = computed(() => {
   return "View and respond to every evaluator comment across all your ideas";
 });
 
-const filterOptions = [
-  { key: "all", label: "All", count: 5 },
-  { key: "unread", label: "Unread", count: 3 },
-  { key: "answered", label: "Answered", count: 2 },
-];
+const filterOptions = computed(() => [
+  { key: "all", label: "All", count: feedbackData.value.length },
+  {
+    key: "unread",
+    label: "Unread",
+    count: feedbackData.value.filter((row) => row.status === "unread").length,
+  },
+  {
+    key: "answered",
+    label: "Answered",
+    count: feedbackData.value.filter((row) => row.status === "answered").length,
+  },
+]);
 
 interface FeedbackRecord {
+  /** Feedback threads and "corrections required" items share this list. */
+  source: "feedback" | "correction";
+  id: string;
+  applicationId: string;
   ideaId: string;
   ideaName: string;
   evaluator: string;
@@ -420,81 +450,87 @@ interface FeedbackRecord {
   hasCorrections: boolean;
 }
 
-const feedbackData: FeedbackRecord[] = [
-  {
-    ideaId: "irrigation-kit",
-    ideaName: "Irrigation Kit",
-    evaluator: "Marion Lucas",
-    comment: "Clarify how the drip kit scales to commercial farms. Include capacity per station, pipe lengths for plots up to 2 hectares, and the cost difference between the smallholder and commercial configurations so the review team can assess scalability.",
-    severity: "Medium",
-    submittedDate: "18 November 2026",
-    status: "unread",
-    showReply: false,
-    commentLong: true,
-    totalCount: 1,
-    bannerText: "1 comment on Irrigation Kit · last comment 18 November 2026",
-    hasCorrections: false,
-  },
-  {
-    ideaId: "solar-dryer",
-    ideaName: "Solar Dryer",
-    evaluator: "Marion Lucas",
-    comment: "Add CIPA registration number to the application. Please include the CIPA company registration certificate and the current membership status so the review team can verify compliance before proceeding with the assessment.",
-    severity: "Medium",
-    submittedDate: "2 October 2026",
-    status: "answered",
-    showReply: false,
-    commentLong: true,
-    totalCount: 1,
-    bannerText: "1 comment on Solar Dryer · last comment 2 October 2026",
-    hasCorrections: false,
-  },
-  {
-    ideaId: "edu-app",
-    ideaName: "Edu App",
-    evaluator: "Marion Lucas",
-    comment: "Provide itemised cost estimates for development and hosting. Break down the costs for the mobile app development, server hosting, content creation, and ongoing maintenance so the budget can be reviewed in detail.",
-    severity: "High",
-    submittedDate: "2 October 2026",
-    status: "unread",
-    showReply: false,
-    commentLong: true,
-    totalCount: 1,
-    bannerText: "1 comment on Edu App · last comment 2 October 2026",
-    hasCorrections: true,
-  },
-  {
-    ideaId: "agri-drone",
-    ideaName: "Agri Drone",
-    evaluator: "Marion Lucas",
-    comment: "Demonstrate pesticide reduction metrics from pilot results. Include the before-and-after pesticide usage figures, the sampling methodology, and the confidence interval around the reported 30% reduction so the claim can be validated.",
-    severity: "High",
-    submittedDate: "2 October 2026",
-    status: "unread",
-    showReply: false,
-    commentLong: true,
-    totalCount: 1,
-    bannerText: "1 comment on Agri Drone · last comment 2 October 2026",
-    hasCorrections: false,
-  },
-  {
-    ideaId: "irrigation-kit-draft",
-    ideaName: "Irrigation Kit Draft",
-    evaluator: "Marion Lucas",
-    comment: "Working draft still being refined — resubmit once the budget is finalised. The current draft shows promise but the budget breakdown is incomplete; please finalise the component costs and resubmit for review when ready.",
-    severity: "Low",
-    submittedDate: "18 November 2026",
-    status: "answered",
-    showReply: false,
-    commentLong: true,
-    totalCount: 1,
-    bannerText: "1 comment on Irrigation Kit Draft · last comment 18 November 2026",
-    hasCorrections: true,
-  },
-]
+const feedbackData = ref<FeedbackRecord[]>([]);
+const feedbackLoading = ref(true);
+const replyError = ref("");
+
+/** Threads come from Supabase: one row per evaluator comment the user can see. */
+async function loadFeedbackData() {
+  if (!session.value) {
+    feedbackData.value = [];
+    feedbackLoading.value = false;
+    return;
+  }
+  const [rows, fixes] = await Promise.all([loadFeedback(), loadCorrections()]);
+  const roots = rows.filter((row) => !row.parent_id);
+  const threads: FeedbackRecord[] = roots.map((row) => {
+    const replies = rows.filter((reply) => reply.parent_id === row.id);
+    const title = row.application?.title ?? "Your application";
+    const last = replies.length
+      ? replies[replies.length - 1].created_at
+      : row.created_at;
+    const total = 1 + replies.length;
+    return {
+      source: "feedback" as const,
+      id: row.id,
+      applicationId: row.application_id,
+      ideaId: row.application_id,
+      ideaName: title,
+      evaluator:
+        row.author_role === "admin"
+          ? "CEDA review team"
+          : row.author_role === "evaluator"
+            ? "CEDA evaluator"
+            : "Innovator",
+      comment: row.body,
+      severity: "Medium",
+      submittedDate: formatLongDate(row.created_at),
+      status: row.status === "unread" ? "unread" : "answered",
+      showReply: false,
+      commentLong: row.body.length > 180,
+      totalCount: total,
+      bannerText: `${total} comment${total === 1 ? "" : "s"} on ${title} · last comment ${formatLongDate(last)}`,
+      hasCorrections: fixes.some((fix) => fix.application_id === row.application_id),
+    } satisfies FeedbackRecord;
+  });
+
+  /* Corrections requested by the review team are feedback the innovator must act on. */
+  const correctedApps = new Set(threads.map((row) => row.applicationId));
+  for (const fix of fixes) {
+    if (correctedApps.has(fix.application_id)) continue;
+    const title = fix.application?.title ?? "Your application";
+    threads.push({
+      source: "correction",
+      id: fix.id,
+      applicationId: fix.application_id,
+      ideaId: fix.application_id,
+      ideaName: title,
+      evaluator: "CEDA review team",
+      comment: fix.body,
+      severity: "High",
+      submittedDate: formatLongDate(fix.created_at),
+      status: fix.resolved_at ? "answered" : "unread",
+      showReply: false,
+      commentLong: fix.body.length > 180,
+      totalCount: 1,
+      bannerText: `1 comment on ${title} · last comment ${formatLongDate(fix.created_at)}`,
+      hasCorrections: true,
+    });
+  }
+
+  threads.sort(
+    (a, b) =>
+      new Date(b.submittedDate).getTime() - new Date(a.submittedDate).getTime(),
+  );
+  feedbackData.value = threads;
+  feedbackLoading.value = false;
+}
+
+onMounted(loadFeedbackData);
+watch([session, authReady], () => void loadFeedbackData());
 
 const filteredComments = computed(() => {
-  let list = [...feedbackData];
+  let list = [...feedbackData.value];
 
   if (activeFilter.value === "unread") {
     list = list.filter((c) => c.status === "unread");
@@ -519,6 +555,9 @@ const replyText = ref("");
 
 const showPopup = ref(false);
 const popupComment = ref<FeedbackRecord>({
+  source: "feedback",
+  id: "",
+  applicationId: "",
   ideaId: "",
   ideaName: "",
   evaluator: "",
@@ -552,26 +591,35 @@ function toggleReply(comment: FeedbackRecord) {
   if (comment.showReply) replyText.value = "";
 }
 
-function sendReply(comment: FeedbackRecord) {
-  if (!replyText.value.trim()) return;
-  comment.status = "answered";
+async function sendReply(comment: FeedbackRecord) {
+  const body = replyText.value.trim();
+  if (!body) return;
+  const userId = session.value?.user.id;
+  if (!userId) {
+    replyError.value = "Sign in again to reply to feedback.";
+    return;
+  }
+  replyError.value = "";
+  const result = await replyToFeedback(
+    comment.applicationId,
+    comment.source === "correction" ? null : comment.id,
+    body,
+    userId,
+  );
+  if (!result.ok) {
+    replyError.value = result.error ?? "Your reply could not be sent.";
+    return;
+  }
   comment.showReply = false;
   replyText.value = "";
+  await loadFeedbackData();
 }
 
 function resubmitIdea(ideaId: string) {
-  const names: Record<string, string> = {
-    "irrigation-kit": "Irrigation Kit",
-    "solar-dryer": "Solar Dryer",
-    "edu-app": "Edu App",
-    "agri-drone": "Agri Drone",
-    "irrigation-kit-draft": "Irrigation Kit Draft",
-  };
-  const ideaName = names[ideaId] || ideaId;
-  const comment = feedbackData.find((c) => c.ideaId === ideaId);
+  const comment = feedbackData.value.find((c) => c.ideaId === ideaId);
   const target: Partial<RouteLocationRaw> = {
     name: "ApplicationView",
-    query: { name: ideaName },
+    query: { id: ideaId },
   };
   if (comment?.hasCorrections) {
     (target as any).hash = "#corrections";
@@ -580,7 +628,7 @@ function resubmitIdea(ideaId: string) {
 }
 
 function openIdea(comment: FeedbackRecord) {
-  router.push({ name: "ApplicationView", query: { name: comment.ideaName } });
+  router.push({ name: "ApplicationView", query: { id: comment.ideaId } });
 }
 </script>
 

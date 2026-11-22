@@ -21,19 +21,19 @@
       <div :class="$style.divmargin">
         <div :class="$style.div3">
           <div :class="$style.valueOfCurrent">
-            Milestone progress on active proposals
+            {{ progressLabel }}
           </div>
         </div>
       </div>
       <div :class="$style.div4">
-        <h1 :class="$style.p14793">68</h1>
+        <h1 :class="$style.p14793">{{ progressPercent }}</h1>
         <div :class="$style.div5">
           <h2 :class="$style.h2">%</h2>
         </div>
       </div>
       <div :class="$style.div6">
         <div :class="$style.valueOfCurrent">
-          of milestones reported on time, reviewed every 3 months
+          {{ progressCaption }}
         </div>
       </div>
       <img
@@ -44,19 +44,17 @@
       />
       <div :class="$style.div7">
         <div :class="$style.span3">
-          <div :class="$style.repaymentsDueSoon">6 milestones due soon</div>
+          <div :class="$style.repaymentsDueSoon">{{ dueText }}</div>
         </div>
         <div :class="$style.span3">
-          <div :class="$style.repaymentsDueSoon">
-            Final milestone March 2028
-          </div>
+          <div :class="$style.repaymentsDueSoon">{{ finalText }}</div>
         </div>
       </div>
     </div>
     <div :class="$style.div8">
       <div :class="$style.div9">
         <div :class="$style.div3">
-          <b :class="$style.valueOfCurrent">Next milestone on 25 October</b>
+          <b :class="$style.valueOfCurrent">{{ nextText }}</b>
         </div>
         <div :class="$style.div11">
           <div :class="$style.debitOrderFrom">
@@ -78,18 +76,48 @@
 <script setup lang="ts">
 import { useRouter } from "vue-router";
 
+const props = withDefaults(
+  defineProps<{
+    progressLabel?: string;
+    progressPercent?: number;
+    progressCaption?: string;
+    dueText?: string;
+    finalText?: string;
+    nextText?: string;
+    /** Most recent application, used by the card actions. */
+    proposalId?: string;
+  }>(),
+  {
+    progressLabel: "Submission progress on active proposals",
+    progressPercent: 0,
+    progressCaption: "of proposals have supporting documents attached",
+    dueText: "No proposals yet",
+    finalText: "Start a submission to begin",
+    nextText: "No review notes yet",
+    proposalId: "",
+  },
+);
+
 const router = useRouter();
 
+function openLatest(hash?: string) {
+  if (!props.proposalId) {
+    router.push({ name: "NewIdea" });
+    return;
+  }
+  router.push({ name: "ApplicationView", query: { id: props.proposalId }, hash });
+}
+
 function reviewNow() {
-  router.push({ name: "ApplicationView", query: { name: "Irrigation Kit" } });
+  openLatest();
 }
 
 function viewProposal() {
-  router.push({ name: "ApplicationView", query: { name: "Irrigation Kit" } });
+  openLatest();
 }
 
 function viewDrafts() {
-  router.push({ name: "ApplicationView", query: { name: "Irrigation Kit Draft" } });
+  router.push({ name: "MyApplications" });
 }
 </script>
 <style module>

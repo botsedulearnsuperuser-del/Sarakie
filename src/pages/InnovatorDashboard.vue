@@ -9,13 +9,13 @@
             <h2 :class="$style.dumelaMarion">
               Dumela,
               <PointerHighlight>
-                <span :class="$style.highlightWord">Innovator</span>
+                <span :class="$style.highlightWord">{{ firstName }}</span>
               </PointerHighlight>
             </h2>
           </div>
           <div :class="$style.p">
             <div :class="$style.sunday4October">
-              Sunday 4 October 2026. Here's your innovation overview.
+              {{ todayLine }}
             </div>
           </div>
         </div>
@@ -49,15 +49,23 @@
             </button>
           </div>
           <router-link to="/profile" :class="$style.a" style="text-decoration: none;">
-            <img :class="$style.userAvatarImg" src="/innovator-man.webp" alt="Kago Molefe" />
+            <img :class="$style.userAvatarImg" src="/innovator-man.webp" :alt="displayName" />
             <div :class="$style.span3">
-              <div :class="$style.marionLucas">Kago Molefe</div>
+              <div :class="$style.marionLucas">{{ displayName }}</div>
             </div>
           </router-link>
         </div>
       </header>
       <section :class="$style.loanCardsRow">
-        <ActiveLoan />
+        <ActiveLoan
+          :progress-label="progressLabel"
+          :progress-percent="documentsPercent"
+          :progress-caption="progressCaption"
+          :due-text="dueText"
+          :final-text="finalText"
+          :next-text="nextText"
+          :proposal-id="latestApplication?.id ?? ''"
+        />
         <div :class="$style.topUpOffer">
           <div :class="$style.frame">
             <div :class="$style.photoArea">
@@ -89,23 +97,26 @@
           </div>
         </div>
       </section>
-      <AccountSummary />
+      <AccountSummary :proposals="summaryProposals" />
       <section :class="$style.divgCalc">
-        <Section />
+        <Section :months="months" />
         <div :class="$style.section">
           <div :class="$style.h2actH">
             <h3 :class="$style.recentApplications">Ideas submitted by the innovator</h3>
           </div>
           <div :class="$style.h2actH">
-            <Li
-              v-for="(item, index) in liItems"
-              :key="index"
-              :p="item.p"
-              :thatoLekgoba="item.thatoLekgoba"
-              :september="item.september"
-              :status="item.status"
-            @view="handleViewIdea"
-            />
+                          <Li
+                v-for="item in liItems"
+                :key="item.id"
+                :p="item.p"
+                :thatoLekgoba="item.thatoLekgoba"
+                :september="item.september"
+                :status="item.status"
+                @view="handleViewIdea(item.id)"
+              />
+              <p v-if="liItems.length === 0" :class="$style.emptyIdeas">
+                No submissions yet. Your first idea will appear here.
+              </p>
           </div>
         </div>
       </section>
@@ -204,12 +215,12 @@
               </div>
               <div :class="$style.p4">
                 <div :class="$style.ml">
-                  SRK-IN-2026-0481. Idea stage, under review
+                  {{ pipelineSubtitle }}
                 </div>
               </div>
             </div>
             <div :class="$style.span12">
-              <b :class="$style.ml">Under Review</b>
+              <b :class="$style.ml">{{ pipelineBadge }}</b>
             </div>
           </div>
           <div :class="$style.ol">
@@ -253,16 +264,16 @@
               </div>
             </div>
 
-            <div :class="$style.feedbackCallout">
+            <div v-if="openCorrection" :class="$style.feedbackCallout">
               <div :class="$style.feedbackCalloutMascot">
                 <GhostBuddy :step="2" :show-bubble="false" />
               </div>
               <div :class="$style.feedbackCalloutBody">
                 <div :class="$style.feedbackCalloutTitle">
-                  Demo feedback on “Feedback Required”
+                  Feedback on “{{ correctionIdeaTitle }}”
                 </div>
                 <div :class="$style.feedbackCalloutText">
-                  “Clarify revenue model &amp; add CIPA reg. number”
+                  “{{ correctionExcerpt }}”
                 </div>
                 <button :class="$style.actionButton" type="button" @click="handleRespondToFeedback">
                   Respond to feedback
@@ -277,7 +288,7 @@
   </div>
 </template>
 <script setup lang="ts">
-  import { computed, onBeforeUnmount, onMounted, ref } from "vue"
+  import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue"
   import { useRouter } from "vue-router"
   import Main from "../components/Main.vue"
   import MaintenanceAnnouncement from "../components/ui/maintenance-announcement.vue"
@@ -298,6 +309,19 @@
     THEME_STORAGE_KEY,
   } from "../components/themes"
   import type { DashboardTheme } from "../components/themes"
+  import { authReady, displayName, session } from "../lib/auth"
+  import {
+    countDocumentsByApplication,
+    formatShortDate,
+    loadCorrections,
+    loadInnovatorApplications,
+    monthlySubmissions,
+    statusLabel,
+    statusShortLabel,
+    todaySentence,
+    type ApplicationRow,
+    type CorrectionRow,
+  } from "../lib/portal-data"
 
   const activeTheme = ref<DashboardTheme | null>(null)
   const showNotifications = ref(false)
@@ -400,55 +424,145 @@
     "Decision",
   ]
 
-  const pipelineSteps = [
-    {
-      name: "Under Review",
-      state: "current",
-      note: "SRK-IN-2026-0481 is with the CEDA review team.",
-    },
-    {
-      name: "Approved",
-      state: "pending",
-      note: "Reached if the review is successful.",
-    },
-    {
-      name: "Feedback Required",
-      state: "pending",
-      note: "Only if evaluators ask for changes.",
-    },
-    {
-      name: "Awarded",
-      state: "pending",
-      note: "Funding released to the innovator.",
-    },
-  ]
+  /* ── Live data from Supabase ── */
+  const applications = ref<ApplicationRow[]>([])
+  const corrections = ref<CorrectionRow[]>([])
+  const documents = ref<Record<string, number>>({})
 
-  const liItems = ref([
-    {
-      p: "I",
-      thatoLekgoba: "Irrigation Kit",
-      september: "25 September",
-      status: "Under review",
-    },
-    {
-      p: "S",
-      thatoLekgoba: "Solar Dryer",
-      september: "25 September",
-      status: "Approved",
-    },
-    {
-      p: "E",
-      thatoLekgoba: "Edu App",
-      september: "2 October",
-      status: "Feedback required",
-    },
-    {
-      p: "A",
-      thatoLekgoba: "Agri Drone",
-      september: "2 October",
-      status: "Awarded",
-    },
-  ])
+  async function loadDashboard() {
+    if (!session.value) return
+    const [apps, fixes, docs] = await Promise.all([
+      loadInnovatorApplications(),
+      loadCorrections(),
+      countDocumentsByApplication(),
+    ])
+    applications.value = apps
+    corrections.value = fixes
+    documents.value = docs
+  }
+
+  onMounted(loadDashboard)
+  watch([session, authReady], () => void loadDashboard())
+
+  const firstName = computed(
+    () => displayName.value?.trim().split(/\s+/)[0] || "Innovator",
+  )
+  const todayLine = todaySentence()
+  const months = computed(() => monthlySubmissions(applications.value))
+  const latestApplication = computed(() => applications.value[0] ?? null)
+
+  type SummaryStatus =
+    | "Draft"
+    | "Under Review"
+    | "Approved"
+    | "Feedback Required"
+    | "Awarded"
+    | "Not Successful"
+
+  const summaryStatus = (status: ApplicationRow["status"]): SummaryStatus => {
+    if (status === "draft") return "Draft"
+    if (status === "approved") return "Approved"
+    if (status === "rejected") return "Not Successful"
+    if (status === "returned") return "Feedback Required"
+    return "Under Review"
+  }
+
+  const summaryProposals = computed(() =>
+    applications.value.map((app) => ({
+      title: app.title,
+      status: summaryStatus(app.status),
+      submitted: formatShortDate(app.submitted_at),
+    })),
+  )
+
+  const withDocuments = computed(
+    () => applications.value.filter((app) => (documents.value[app.id] ?? 0) > 0).length,
+  )
+  const documentsPercent = computed(() =>
+    applications.value.length
+      ? Math.round((withDocuments.value / applications.value.length) * 100)
+      : 0,
+  )
+  const progressLabel = "Submission progress on active proposals"
+  const progressCaption = computed(
+    () =>
+      `${withDocuments.value} of ${applications.value.length} proposals have supporting documents attached`,
+  )
+
+  const openCorrection = computed(
+    () => corrections.value.find((row) => !row.resolved_at) ?? null,
+  )
+  const correctionIdeaTitle = computed(
+    () =>
+      openCorrection.value?.application?.title ??
+      latestApplication.value?.title ??
+      "your proposal",
+  )
+  const correctionExcerpt = computed(() => {
+    const body = openCorrection.value?.body?.trim() ?? ""
+    return body.length > 110 ? `${body.slice(0, 110).trimEnd()}…` : body
+  })
+
+  const dueText = computed(() => {
+    if (!applications.value.length) return "Nothing submitted yet"
+    const needing = applications.value.filter((app) => app.status === "returned").length
+    return needing
+      ? `${needing} proposal${needing === 1 ? "" : "s"} need your feedback`
+      : "No feedback outstanding"
+  })
+  const finalText = computed(() =>
+    latestApplication.value
+      ? `Latest update ${formatShortDate(latestApplication.value.updated_at)}`
+      : "Start a submission to begin",
+  )
+  const nextText = computed(() =>
+    openCorrection.value
+      ? `Feedback received ${formatShortDate(openCorrection.value.created_at)}`
+      : "No review notes yet",
+  )
+
+  const pipelineSteps = computed(() => {
+    const status = latestApplication.value?.status ?? "submitted"
+    const current =
+      status === "returned" ? 2 : status === "approved" ? 1 : status === "due_diligence" ? 1 : 0
+    const reference = latestApplication.value?.reference
+    const steps = [
+      {
+        name: "Under Review",
+        note: reference
+          ? `${reference} is with the CEDA review team.`
+          : "Submit an idea to start the review.",
+      },
+      { name: "Approved", note: "Reached if the review is successful." },
+      { name: "Feedback Required", note: "Only if evaluators ask for changes." },
+      { name: "Awarded", note: "Funding released to the innovator." },
+    ]
+    return steps.map((step, index) => ({
+      ...step,
+      state: index === current ? "current" : "pending",
+    }))
+  })
+
+  const pipelineBadge = computed(() =>
+    latestApplication.value
+      ? statusLabel(latestApplication.value.status)
+      : "No application",
+  )
+  const pipelineSubtitle = computed(() =>
+    latestApplication.value
+      ? `${latestApplication.value.reference}. ${statusLabel(latestApplication.value.status)}`
+      : "No application submitted yet",
+  )
+
+  const liItems = computed(() =>
+    applications.value.slice(0, 4).map((app) => ({
+      id: app.id,
+      p: app.title.slice(0, 1).toUpperCase(),
+      thatoLekgoba: app.title,
+      september: formatShortDate(app.submitted_at),
+      status: statusShortLabel(app.status),
+    })),
+  )
 
   const router = useRouter()
 
@@ -456,12 +570,18 @@
     router.push("/faq")
   }
 
-  const handleViewIdea = (name: string) => {
-    router.push({ name: "ApplicationView", query: { name } })
+  const handleViewIdea = (id: string) => {
+    if (!id) return
+    router.push({ name: "ApplicationView", query: { id } })
   }
 
   const handleRespondToFeedback = () => {
-    router.push({ name: "ApplicationView", query: { name: "Edu App" }, hash: "#corrections" })
+    if (!openCorrection.value) return
+    router.push({
+      name: "ApplicationView",
+      query: { id: openCorrection.value.application_id },
+      hash: "#corrections",
+    })
   }
 </script>
 <style module>
@@ -2102,5 +2222,10 @@
   }
   .isGaborone .marionLucas {
     color: var(--color-darkslategray-500);
+  }
+  .emptyIdeas {
+    margin: 8px 0 0;
+    font-size: var(--fs-14);
+    color: var(--color-darkslategray-100);
   }
 </style>
