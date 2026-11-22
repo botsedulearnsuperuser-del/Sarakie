@@ -15,7 +15,6 @@
 
       <!-- Edit documents control, sits above the reasoning control -->
       <button
-        v-if="permissionOpen || editMode"
         :class="[$style.reasonChip, editMode ? $style.reasonChipOn : '']"
         type="button"
         data-picker
@@ -196,6 +195,7 @@ function toggleReasoning() {
 }
 
 function toggleEdit() {
+  permissionOpen.value = false;
   if (props.editMode) {
     emit("edit-mode-change", false);
   } else {

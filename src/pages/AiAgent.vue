@@ -253,6 +253,31 @@ import {
   const liveSummary = ref("")
   const liveDocuments = ref(0)
 
+  const READABLE_MIME = /^(text\/|application\/(json|csv|xml|javascript|x-www-form-urlencoded))/i
+
+  async function readDocumentContent(doc: Record<string, any>): Promise<string> {
+    if (!supabase) return ""
+    const path = doc.storage_path
+    if (!path) return "(no storage path)"
+    const mime = String(doc.mime_type || "")
+    if (!READABLE_MIME.test(mime)) {
+      return `(binary file: ${doc.file_name}, ${doc.mime_type || "unknown type"}, ${doc.size_bytes ?? 0} bytes; content not extracted)`
+    }
+    try {
+      const { data: signed, error } = await supabase.storage
+        .from("application-documents")
+        .createSignedUrl(path, 120)
+      if (error || !signed?.signedUrl) return `(could not get signed URL: ${error?.message || "unknown"})`
+      const res = await fetch(signed.signedUrl)
+      if (!res.ok) return `(fetch failed: ${res.status})`
+      const text = await res.text()
+      const trimmed = text.replace(/\s+$/g, "").slice(0, 2000)
+      return trimmed || "(empty file)"
+    } catch (e) {
+      return `(read error: ${(e as Error)?.message || "unknown"})`
+    }
+  }
+
   async function loadEditContext() {
     if (!session.value || !supabase) {
       editContext.value = "No signed-in session; cannot read documents."
@@ -274,13 +299,21 @@ import {
         if (app.expected_impact) lines.push(`  Impact: ${String(app.expected_impact).slice(0, 400)}`)
         const { data: docs } = await supabase
           .from("application_documents")
-          .select("file_name, mime_type, size_bytes")
+          .select("file_name, mime_type, size_bytes, storage_path")
           .eq("application_id", app.id)
-        const docNames = (docs ?? []).map((d: any) => d.file_name).join(", ")
-        if (docNames) lines.push(`  Uploaded documents: ${docNames}`)
+        if (docs?.length) {
+          lines.push(`  Uploaded documents (${docs.length}):`)
+          for (const d of docs as Record<string, any>[]) {
+            lines.push(`    - ${d.file_name} (${d.mime_type || "unknown"}, ${d.size_bytes ?? 0} bytes)`)
+            const content = await readDocumentContent(d)
+            if (content) {
+              lines.push(`      Content:\n${content.split("\n").map((l) => "        " + l).join("\n")}`)
+            }
+          }
+        }
       }
       editContext.value = lines.length ? lines.join("\n") : "No applications or documents found."
-      editTasks.value = editTasks.value.map((t, i) => ({ ...t, done: i === 0 }))
+      editTasks.value = editTasks.value.map((t, i) => ({ ...t, done: i <= 1 }))
     } catch (e) {
       editContext.value = "Could not load documents."
     }

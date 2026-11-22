@@ -61,7 +61,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue"
+import { ref, watch } from "vue"
 
 const props = defineProps<{
   open: boolean
@@ -102,7 +102,6 @@ function onDisconnect() {
 }
 
 // Reset checkbox when modal closes
-import { watch } from "vue"
 watch(() => props.open, (o) => {
   if (!o) {
     agreed.value = false
