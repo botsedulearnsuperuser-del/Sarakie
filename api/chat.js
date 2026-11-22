@@ -20,7 +20,9 @@ Guidance: help sharpen problem statement with evidence; make solution feasible w
 
 Answer account-specific questions (status, counts) only from data the client provides; never invent a status or document count.
 
-Formatting: Use Markdown. Put a blank line between paragraphs. Use **bold** for headings, labels and key terms. Use "- " bullet lists for multiple items. Keep lists short. Do not use HTML.`;
+Formatting: Use Markdown. Put a blank line between paragraphs. Use **bold** for headings, labels and key terms. Use "- " bullet lists for multiple items. Keep lists short. Do not use HTML.
+
+Always end your reply with a short "**Next steps:**" section listing 2-3 concrete actions the user can take right now, tailored to their question and their live portal data. Do the work for them: give the actual checklist/answer, not a vague offer to prepare one.`;
 
 export default async function handler(req, res) {
   if (req.method !== "POST") {

@@ -325,55 +325,6 @@ import {
     })
   }
 
-  /**
-   * The moment the assistant needs a human decision, it puts up an approval card
-   * instead of assuming an answer. Only the turns that lead to an action ask.
-   */
-  function approvalFor(text: string): ApprovalRequest | null {
-    const query = text.toLowerCase()
-
-    if (query.includes("withdraw") || query.includes("delete")) {
-      return {
-        question: "Do you want to withdraw this application?",
-        detail: "Your analyst will be notified and the decision is recorded on the application timeline.",
-        options: [
-          { id: "keep", label: "Keep the application" },
-          {
-            id: "withdraw",
-            label: "Withdraw it",
-            detail: "Cannot be undone",
-            destructive: true,
-          },
-        ],
-      }
-    }
-
-    if (query.includes("document") || query.includes("attach") || query.includes("file")) {
-      return {
-        question: "Shall I prepare your document checklist?",
-        detail: "I can tailor the list to the stage your draft is at.",
-        options: [
-          { id: "full", label: "Fuller submission", detail: "Recommended" },
-          { id: "minimum", label: "Minimum three" },
-          { id: "not-now", label: "Not now" },
-        ],
-      }
-    }
-
-    if (query.includes("submit") || query.includes("application") || query.includes("idea")) {
-      return {
-        question: "Shall I start a new submission?",
-        detail: "The form opens on applicant details and nothing is sent until you press Submit.",
-        options: [
-          { id: "start", label: "Start submission" },
-          { id: "draft", label: "Keep it as a draft" },
-        ],
-      }
-    }
-
-    return null
-  }
-
   function approvalFollowUp(option: AIApprovalOption): string {
     const replies: Record<string, string> = {
       full: "Done — the fuller pack is ready: problem statement, solution description, financial projections, business proposal, market research and founder CVs.",
@@ -431,7 +382,7 @@ import {
     return "The request is about CEDA submissions, so I'll check the guidance that covers it before answering. I'll keep the reply to the steps the applicant can actually act on."
   }
 
-  function streamAnswer(full: string, msgIndex: number, text: string) {
+  function streamAnswer(full: string, msgIndex: number) {
     const words = full.split(" ")
     const current = messages.value[msgIndex]
     if (!current) return
@@ -445,7 +396,6 @@ import {
         msg.text = words.slice(0, i).join(" ")
         if (i >= words.length) {
           msg.streaming = false
-          msg.approval = approvalFor(text) ?? undefined
         }
       }
       scrollToBottom()
@@ -479,7 +429,7 @@ import {
       replyTimer = null
       scrollToBottom()
 
-      const startAnswer = (full: string) => streamAnswer(full, msgIndex, text)
+      const startAnswer = (full: string) => streamAnswer(full, msgIndex)
 
       let full = ""
       try {
