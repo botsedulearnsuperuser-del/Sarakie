@@ -36,9 +36,9 @@
       <ul :class="$style.linkList">
         <li :class="$style.linkItem">
           <span :class="$style.linkIcon" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M12 3l7 3v5.5c0 4.2-2.9 7.9-7 9.5-4.1-1.6-7-5.3-7-9.5V6l7-3Z" />
-              <path d="m9 12 2.2 2.2L15.5 10" />
+            <svg viewBox="0 0 32 32" fill="none">
+              <path fill="currentColor" d="M30 18v5.5c0 1.5-.9 2.8-2.3 3.5l-1.7.8l-1.7-.8c-1.4-.6-2.3-2-2.3-3.5V18zm2-2H20v7.5c0 2.2 1.3 4.3 3.4 5.3L26 30l2.6-1.2c2.1-1 3.4-3 3.4-5.3z" />
+              <path fill="currentColor" d="M16 25H7.5C3.4 25 0 21.6 0 17.5c0-3.7 2.7-6.7 6.2-7.4c.9-4.7 5-8.1 9.8-8.1c5.5 0 10 4.5 10 10h-2c0-4.4-3.6-8-8-8c-4.1 0-7.5 3.1-8 7.1v.9h-.9c-2.9.2-5.1 2.6-5.1 5.5c0 3 2.5 5.5 5.5 5.5H16z" />
             </svg>
           </span>
           <router-link to="/privacy" :class="$style.link">
@@ -47,9 +47,9 @@
         </li>
         <li :class="$style.linkItem">
           <span :class="$style.linkIcon" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M14 3H7a1.5 1.5 0 0 0-1.5 1.5v15A1.5 1.5 0 0 0 7 21h10a1.5 1.5 0 0 0 1.5-1.5V7.5L14 3Z" />
-              <path d="M14 3v4.5h4.5M9 13h6M9 16.5h4" />
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="square" stroke-miterlimit="3.5" stroke-width="1.5">
+              <path d="M14.354 21.5H7q-.123 0-.245-.012t-.243-.036q-.12-.024-.238-.06t-.231-.082t-.221-.105t-.211-.126q-.102-.069-.197-.146q-.095-.078-.182-.165t-.165-.182t-.146-.197t-.126-.211t-.105-.221q-.047-.114-.082-.231t-.06-.238t-.036-.243T4.5 19V5q0-.123.012-.245t.036-.243q.024-.12.06-.238t.082-.231t.105-.221q.058-.109.126-.211q.069-.102.146-.197q.078-.095.165-.182t.182-.165q.095-.077.197-.146t.211-.126q.108-.058.221-.105q.114-.047.231-.082t.238-.06q.121-.024.243-.036T7 2.5h10q.123 0 .245.012t.243.036t.238.06t.231.082q.113.047.221.105q.109.058.211.126q.102.069.197.146q.095.078.182.165t.165.182t.146.197t.126.211t.105.221q.047.114.082.231t.06.238t.036.243T19.5 5v8.273M8 6.5h8m-8 3h8M8 13h1.25" />
+              <path d="m14.75 18l2 2L21 15.75" />
             </svg>
           </span>
           <router-link to="/terms" :class="$style.link">
@@ -58,9 +58,9 @@
         </li>
         <li :class="$style.linkItem">
           <span :class="$style.linkIcon" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z" />
-              <path d="M4.5 20.5a7.5 7.5 0 0 1 9.4-7.2M15.5 20.5h5" />
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5">
+              <path d="M16.61 17.66L15.5 22l2.5-1l2.5 1l-1-4.401M21 15a3 3 0 1 1-6 0a3 3 0 0 1 6 0" />
+              <path d="M20 10c0-3.771 0-5.657-1.172-6.828S15.771 2 12 2h-1C7.23 2 5.343 2 4.172 3.172S3 6.229 3 10v4c0 3.771 0 5.657 1.172 6.828S7.229 22 11 22h2M7.5 7h8m-8 5H12" />
             </svg>
           </span>
           <router-link to="/privacy#your-rights" :class="$style.link">
@@ -233,7 +233,7 @@
     width: 46px;
     height: 46px;
     flex-shrink: 0;
-    border-radius: 999px;
+    border-radius: 50%;
     background: rgba(1, 53, 37, 0.08);
     color: var(--color-darkslategray-600);
   }
@@ -276,16 +276,12 @@
   .linkIcon {
     display: grid;
     place-items: center;
-    width: 26px;
-    height: 26px;
     flex-shrink: 0;
-    border-radius: 999px;
-    background: rgba(1, 53, 37, 0.07);
     color: var(--color-darkslategray-600);
   }
   .linkIcon svg {
-    width: 15px;
-    height: 15px;
+    width: 18px;
+    height: 18px;
   }
   .link {
     color: var(--color-darkslategray-600);
