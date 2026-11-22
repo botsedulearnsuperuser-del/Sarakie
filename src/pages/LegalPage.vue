@@ -35,7 +35,12 @@
         <div :class="$style.body">
           <p :class="$style.intro">{{ content.intro }}</p>
 
-          <section v-for="section in content.sections" :key="section.heading" :class="$style.section">
+          <section
+            v-for="section in content.sections"
+            :id="sectionId(section.heading)"
+            :key="section.heading"
+            :class="$style.section"
+          >
             <h2 :class="$style.heading">{{ section.heading }}</h2>
             <p v-for="paragraph in section.paragraphs ?? []" :key="paragraph" :class="$style.paragraph">
               {{ paragraph }}
@@ -67,6 +72,13 @@
 <script setup lang="ts">
 import { computed, watchEffect } from "vue";
 import { useRoute } from "vue-router";
+
+/** Anchor ids so links like /privacy#your-rights land on the right section. */
+const sectionId = (heading: string) =>
+  heading
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "");
 
 interface Section {
   heading: string;
@@ -159,9 +171,10 @@ const privacy: LegalContent = {
       ],
     },
     {
-      heading: "Cookies and local storage",
+      heading: "Data protection and your account",
       paragraphs: [
-        "The portal uses only the storage needed to keep you signed in and to remember the appearance you chose for your dashboard. No advertising or cross-site tracking cookies are used.",
+        "We process your personal information in line with Botswana's Data Protection Act, 2024. We keep only what is needed to review and manage your submission, we never sell your data, and we do not use it for advertising or cross-site tracking.",
+        "To close your account and have your personal information deleted, use the delete-account option in your profile settings or contact the CEDA Innovation team. We will confirm what was removed and what we must keep for audit or legal reasons.",
       ],
     },
     {
