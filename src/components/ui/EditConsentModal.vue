@@ -127,7 +127,7 @@ watch(() => props.open, (o) => {
 }
 .card {
   width: 100%;
-  max-width: 460px;
+  max-width: 640px;
   padding: 26px 24px 22px;
   box-sizing: border-box;
   border-radius: 16px;
@@ -183,9 +183,12 @@ watch(() => props.open, (o) => {
 }
 .actions {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   gap: 8px;
   margin-top: 4px;
+}
+.actions > button {
+  flex: 1;
 }
 .primary {
   height: 40px;

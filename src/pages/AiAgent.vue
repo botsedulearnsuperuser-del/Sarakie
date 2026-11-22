@@ -298,8 +298,9 @@ import {
     const isPdf = mime.includes("pdf") || name.endsWith(".pdf")
     const isDocx =
       mime.includes("wordprocessingml") ||
+      name.endsWith(".docx")
+    const isLegacyDoc =
       mime.includes("msword") ||
-      name.endsWith(".docx") ||
       name.endsWith(".doc")
 
     const fetched = await fetchSignedBuffer(path)
@@ -311,6 +312,8 @@ import {
       text = await extractPdfText(buffer)
     } else if (isDocx) {
       text = await extractDocxText(buffer)
+    } else if (isLegacyDoc) {
+      return `(unsupported format: ${doc.file_name} is a legacy .doc binary file; please re-save as .docx or PDF to enable text extraction)`
     } else if (READABLE_MIME.test(mime) || name.endsWith(".txt") || name.endsWith(".md") || name.endsWith(".csv")) {
       text = new TextDecoder().decode(buffer)
     } else {
