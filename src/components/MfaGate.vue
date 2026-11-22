@@ -326,8 +326,7 @@
     font-size: 12.5px;
     font-weight: 600;
     color: #616161;
-    text-decoration: underline;
-    text-underline-offset: 3px;
+    text-decoration: none;
     cursor: pointer;
   }
 </style>
