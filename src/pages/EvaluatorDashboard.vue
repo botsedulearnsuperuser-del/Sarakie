@@ -53,8 +53,22 @@
         </div>
       </header>
 
+      <!-- Skeleton loading while dashboard data loads -->
+      <div v-if="loading" :class="$style.skeletonBlock">
+        <div :class="$style.skeletonCard">
+          <Skeleton shape="text" width="40%" height="1.5rem" />
+          <Skeleton shape="text" width="60%" height="3rem" />
+          <SkeletonText :lines="2" />
+        </div>
+        <div :class="$style.skeletonCard">
+          <Skeleton shape="text" width="50%" height="1.5rem" />
+          <Skeleton shape="text" width="70%" height="1.5rem" />
+          <SkeletonText :lines="3" />
+        </div>
+      </div>
+
       <!-- Review load + rubric highlight -->
-      <section :class="$style.reviewCardsRow">
+      <section v-if="!loading" :class="$style.reviewCardsRow">
         <div :class="$style.reviewLoadCard">
           <img :class="$style.reviewLoadPattern" alt="" src="/pattern-3.webp" />
           <div :class="$style.reviewLoadBody">
@@ -257,6 +271,8 @@
   import ChatWithAgent from "../components/ChatWithAgent.vue"
   import PointerHighlight from "../components/ui/pointer-highlight.vue"
   import NotificationsPanel from "../components/NotificationsPanel.vue"
+  import Skeleton from "../components/ui/Skeleton.vue"
+  import SkeletonText from "../components/ui/SkeletonText.vue"
   import {
     CUSTOM_IMAGE_STORAGE_KEY,
     CUSTOM_THEME_ID,
@@ -285,25 +301,34 @@
   const queue = ref<EvaluatorQueueRow[]>([])
   const evaluations = ref<{ id: string; application_id: string; weighted_score: number | null; submitted_at: string | null }[]>([])
   const rubric = ref<RubricCriterion[]>([])
+  const loading = ref(true)
 
   async function loadDashboard() {
-    if (!session.value) return
-    const [q, ev, rb] = await Promise.all([
-      loadEvaluatorQueue(),
-      loadMyEvaluations(),
-      loadRubricCriteria(),
-    ])
-    queue.value = q
-    evaluations.value = ev
-    rubric.value = rb.length
-      ? rb
-      : [
-          { key: "problem_market", name: "Problem and market need", weight: 25, hint: "Real, sizeable problem.", position: 1 },
-          { key: "solution_feasible", name: "Solution and feasibility", weight: 25, hint: "Works and is buildable.", position: 2 },
-          { key: "team_capability", name: "Team and capability", weight: 20, hint: "Who delivers it.", position: 3 },
-          { key: "financial", name: "Financial projections", weight: 20, hint: "Numbers add up.", position: 4 },
-          { key: "impact_youth", name: "Impact and youth ownership", weight: 10, hint: "Who benefits, who owns it.", position: 5 },
-        ]
+    if (!session.value) {
+      loading.value = false
+      return
+    }
+    loading.value = true
+    try {
+      const [q, ev, rb] = await Promise.all([
+        loadEvaluatorQueue(),
+        loadMyEvaluations(),
+        loadRubricCriteria(),
+      ])
+      queue.value = q
+      evaluations.value = ev
+      rubric.value = rb.length
+        ? rb
+        : [
+            { key: "problem_market", name: "Problem and market need", weight: 25, hint: "Real, sizeable problem.", position: 1 },
+            { key: "solution_feasible", name: "Solution and feasibility", weight: 25, hint: "Works and is buildable.", position: 2 },
+            { key: "team_capability", name: "Team and capability", weight: 20, hint: "Who delivers it.", position: 3 },
+            { key: "financial", name: "Financial projections", weight: 20, hint: "Numbers add up.", position: 4 },
+            { key: "impact_youth", name: "Impact and youth ownership", weight: 10, hint: "Who benefits, who owns it.", position: 5 },
+          ]
+    } finally {
+      loading.value = false
+    }
   }
 
   onMounted(loadDashboard)
@@ -1405,5 +1430,28 @@
 }
 .isGaborone .marionLucas {
   color: var(--color-darkslategray-500);
+}
+
+.skeletonBlock {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  margin: 16px 0 24px;
+}
+
+.skeletonCard {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 20px;
+  border-radius: 16px;
+  background-color: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+@media screen and (max-width: 850px) {
+  .skeletonBlock {
+    grid-template-columns: 1fr;
+  }
 }
 </style>
