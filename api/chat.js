@@ -26,51 +26,62 @@ export default async function handler(req, res) {
     return;
   }
 
-  const apiKey = process.env.OPENROUTER_API_KEY;
+  const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) {
-    res.status(500).json({ error: "OpenRouter is not configured. Set OPENROUTER_API_KEY." });
+    res.status(500).json({ error: "Gemini is not configured. Set GEMINI_API_KEY." });
     return;
   }
 
-  const model = process.env.OPENROUTER_MODEL || "meta-llama/llama-3.3-70b-instruct:free";
+  const model = process.env.GEMINI_MODEL || "gemini-2.5-flash";
 
   const { messages = [] } = req.body || {};
-  const chatMessages = [
-    { role: "system", content: CEDA_KNOWLEDGE_BASE },
-    ...messages
-      .filter((m) => m && (m.role === "user" || m.role === "assistant" || m.role === "system"))
-      .map((m) => ({ role: m.role, content: String(m.content || m.text || "") })),
-  ];
+
+  // Separate client-provided context (system) from the conversation.
+  const contextParts = [];
+  const contents = [];
+  for (const m of messages) {
+    if (!m) continue;
+    const text = String(m.content || m.text || "");
+    if (!text.trim()) continue;
+    if (m.role === "system") {
+      contextParts.push(text);
+      continue;
+    }
+    const role = m.role === "assistant" ? "model" : "user";
+    contents.push({ role, parts: [{ text }] });
+  }
+
+  const systemText = [CEDA_KNOWLEDGE_BASE, ...contextParts].join("\n\n");
+
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(apiKey)}`;
 
   try {
-    const orRes = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+    const geminiRes = await fetch(url, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${apiKey}`,
-        "HTTP-Referer": process.env.APP_ORIGIN || "https://ceda-innovation-portal.vercel.app",
-        "X-Title": "CEDA Innovation Portal",
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        model,
-        messages: chatMessages,
-        temperature: 0.4,
-        max_tokens: 600,
+        systemInstruction: { parts: [{ text: systemText }] },
+        contents,
+        generationConfig: {
+          temperature: 0.4,
+          maxOutputTokens: 600,
+        },
       }),
     });
 
-    const data = await orRes.json().catch(() => ({}));
-    if (!orRes.ok) {
-      res.status(orRes.status).json({
-        error: data?.error?.message || `OpenRouter error ${orRes.status}`,
+    const data = await geminiRes.json().catch(() => ({}));
+    if (!geminiRes.ok) {
+      res.status(geminiRes.status).json({
+        error: data?.error?.message || `Gemini error ${geminiRes.status}`,
         details: data,
       });
       return;
     }
 
-    const reply = data?.choices?.[0]?.message?.content?.trim() || "";
+    const reply =
+      data?.candidates?.[0]?.content?.parts?.map((p) => p.text).join("")?.trim() || "";
     res.status(200).json({ reply, model });
   } catch (err) {
-    res.status(500).json({ error: err?.message || "Failed to reach OpenRouter." });
+    res.status(500).json({ error: err?.message || "Failed to reach Gemini." });
   }
 }
