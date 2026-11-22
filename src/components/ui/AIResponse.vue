@@ -1,101 +1,91 @@
 <template>
-  <p :class="[$style.response, className]">
-    <template v-for="(token, index) in tokens" :key="index">
-      <template v-if="isWhitespaceOrPunctuation(token.value) && !token.citation">
-        {{ token.value }}
-      </template>
-      <span
-        v-else-if="token.citation"
-        :class="[$style.pill, isNew(index) ? $style.pillNew : '', token.citation.url ? $style.pillLink : '']"
-        :title="token.citation.title"
-      >
-        <a
-          v-if="token.citation.url"
-          :href="token.citation.url"
-          target="_blank"
-          rel="noopener noreferrer"
-          :class="$style.pillAnchor"
-        >{{ token.citation.index }}</a>
-        <template v-else>{{ token.citation.index }}</template>
-      </span>
-      <span
-        v-else
-        :class="[$style.word, isNew(index) ? $style.wordNew : '']"
-      >{{ token.value }}</span>
+  <div :class="[$style.response, className]">
+    <template v-for="(block, bi) in blocks" :key="bi">
+      <div v-if="block.type === 'spacer'" :class="$style.spacer" />
+      <div v-else-if="block.type === 'li'" :class="$style.listItem">
+        <span :class="$style.bullet">•</span>
+        <span class="ai-inline">
+          <template v-for="(part, pi) in block.parts" :key="pi">
+            <strong v-if="part.bold">{{ part.text }}</strong>
+            <template v-else>{{ part.text }}</template>
+          </template>
+        </span>
+      </div>
+      <p v-else :class="$style.para">
+        <template v-for="(part, pi) in block.parts" :key="pi">
+          <strong v-if="part.bold">{{ part.text }}</strong>
+          <template v-else>{{ part.text }}</template>
+        </template>
+      </p>
     </template>
     <span v-if="isStreaming" :class="$style.caret" aria-hidden="true" />
-  </p>
+  </div>
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, onUpdated } from "vue";
+import { computed } from "vue"
 
 export interface AIResponseCitation {
-  id: string;
-  index: number;
-  title: string;
-  url?: string;
+  id: string
+  index: number
+  title: string
+  url?: string
 }
 
 interface Props {
-  citations?: AIResponseCitation[];
-  className?: string;
-  isStreaming?: boolean;
-  text: string;
+  citations?: AIResponseCitation[]
+  className?: string
+  isStreaming?: boolean
+  text: string
 }
 
 const props = withDefaults(defineProps<Props>(), {
   citations: () => [],
   className: "",
   isStreaming: false,
-});
+})
 
-const CITATION_MARKER = /^\[(\d+)\]$/;
-const TOKEN_SPLIT = /(\s+|\[\d+\])/;
-const HAS_WORD_CHARACTER = /[\p{L}\p{N}]/u;
-const WHITESPACE_ONLY = /^\s+$/;
-
-interface Token {
-  citation?: AIResponseCitation;
-  value: string;
+interface InlinePart {
+  text: string
+  bold: boolean
 }
 
-function tokenize(text: string, citations: AIResponseCitation[]): Token[] {
-  return text
-    .split(TOKEN_SPLIT)
-    .filter((value) => value !== "")
-    .map((value) => {
-      const match = value.match(CITATION_MARKER);
-      if (!match) return { value };
-      const index = Number(match[1]);
-      const citation = citations.find((entry) => entry.index === index);
-      return citation ? { citation, value } : { value };
-    });
+interface Block {
+  type: "para" | "li" | "spacer"
+  parts: InlinePart[]
 }
 
-const tokens = computed(() => tokenize(props.text, props.citations));
-
-// Deliberately not reactive: this only advances after a render so the tokens
-// painted in the next update get the entrance. Making it a ref would trigger a
-// second render that immediately clears the newness and the animation never shows.
-let renderedCount = 0;
-
-function commitRenderedCount() {
-  renderedCount = tokens.value.length;
+function parseInline(s: string): InlinePart[] {
+  const parts: InlinePart[] = []
+  const regex = /\*\*(.+?)\*\*/g
+  let last = 0
+  let m: RegExpExecArray | null
+  while ((m = regex.exec(s)) !== null) {
+    if (m.index > last) parts.push({ text: s.slice(last, m.index), bold: false })
+    parts.push({ text: m[1], bold: true })
+    last = m.index + m[0].length
+  }
+  if (last < s.length) parts.push({ text: s.slice(last), bold: false })
+  if (!parts.length) parts.push({ text: s, bold: false })
+  return parts
 }
 
-onMounted(commitRenderedCount);
-onUpdated(commitRenderedCount);
-
-function isNew(index: number): boolean {
-  return index >= renderedCount;
-}
-
-function isWhitespaceOrPunctuation(value: string): boolean {
-  return WHITESPACE_ONLY.test(value) || !HAS_WORD_CHARACTER.test(value);
-}
-
-
+const blocks = computed<Block[]>(() => {
+  const out: Block[] = []
+  for (const rawLine of (props.text || "").split("\n")) {
+    const line = rawLine.trim()
+    if (line === "") {
+      out.push({ type: "spacer", parts: [] })
+      continue
+    }
+    if (/^[-*]\s+/.test(line)) {
+      out.push({ type: "li", parts: parseInline(line.replace(/^[-*]\s+/, "")) })
+    } else {
+      out.push({ type: "para", parts: parseInline(line) })
+    }
+  }
+  return out
+})
 </script>
 
 <style module>
@@ -108,25 +98,35 @@ function isWhitespaceOrPunctuation(value: string): boolean {
   word-break: break-word;
 }
 
-.word {
-  display: inline-block;
+.para {
+  margin: 0 0 6px;
 }
 
-.wordNew {
-  animation: wordIn 0.22s cubic-bezier(0.23, 1, 0.32, 1) both;
+.para:last-child {
+  margin-bottom: 0;
 }
 
-@keyframes wordIn {
-  from {
-    opacity: 0;
-    transform: translateY(2px);
-    filter: blur(4px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-    filter: blur(0);
-  }
+.spacer {
+  height: 6px;
+}
+
+.listItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 2px 0;
+  line-height: 1.6;
+}
+
+.bullet {
+  flex-shrink: 0;
+  color: var(--color-darkslategray-300);
+  font-weight: 700;
+}
+
+.response strong {
+  font-weight: 700;
+  color: var(--color-darkslategray-500);
 }
 
 .caret {
@@ -152,58 +152,7 @@ function isWhitespaceOrPunctuation(value: string): boolean {
   }
 }
 
-.pill {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 16px;
-  height: 16px;
-  padding: 0 4px;
-  margin-right: 2px;
-  border-radius: 999px;
-  border: 1px solid #ede9e1;
-  background-color: #f1ede5;
-  font-size: 10px;
-  font-weight: 600;
-  color: var(--color-darkslategray-200);
-  vertical-align: super;
-  line-height: 1;
-}
-
-.pillNew {
-  animation: pillIn 0.25s cubic-bezier(0.23, 1, 0.32, 1) both;
-}
-
-@keyframes pillIn {
-  from {
-    opacity: 0;
-    transform: scale(0.6);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
-.pillLink {
-  transition: color 0.15s ease, border-color 0.15s ease;
-}
-
-.pillAnchor {
-  color: inherit;
-  text-decoration: none;
-}
-
-.pillLink:hover {
-  color: var(--color-darkslategray-500);
-  border-color: rgba(0, 0, 0, 0.2);
-}
-
 @media (prefers-reduced-motion: reduce) {
-  .wordNew,
-  .pillNew {
-    animation: none;
-  }
   .caret {
     animation: none;
     opacity: 1;

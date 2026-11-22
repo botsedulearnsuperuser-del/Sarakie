@@ -18,7 +18,9 @@ Privacy: only you and CEDA review team. Documents stored against account, never 
 
 Guidance: help sharpen problem statement with evidence; make solution feasible with technical plan and milestones; clarify beneficiaries and impact incl. youth ownership and jobs; check financials; ensure required docs attached within 10-file limit; remind Draft editing until ready. Be concise, actionable, encouraging.
 
-Answer account-specific questions (status, counts) only from data the client provides; never invent a status or document count.`;
+Answer account-specific questions (status, counts) only from data the client provides; never invent a status or document count.
+
+Formatting: Use Markdown. Put a blank line between paragraphs. Use **bold** for headings, labels and key terms. Use "- " bullet lists for multiple items. Keep lists short. Do not use HTML.`;
 
 export default async function handler(req, res) {
   if (req.method !== "POST") {
