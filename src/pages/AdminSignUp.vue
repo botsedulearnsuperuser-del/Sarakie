@@ -317,7 +317,7 @@ async function resendEmail() {
 /* ---------- Left hero column ---------- */
 .heroAside {
   position: relative;
-  background-color: #941d11;
+  background-color: #f7c613;
   height: calc(100vh - 20px);
   margin-top: 20px;
   border-radius: 0 20px 0 0;
@@ -333,7 +333,7 @@ async function resendEmail() {
   left: 0;
   width: 100px;
   height: 100%;
-  background-color: #d18a4e;
+  background-color: #97231e;
   -webkit-mask-image: url("/pattern-3.webp");
   mask-image: url("/pattern-3.webp");
   -webkit-mask-size: 100px auto;
@@ -360,10 +360,10 @@ async function resendEmail() {
   align-items: center;
   gap: 0.6em;
   padding: 0.5em 1.2em 0.5em 1em;
-  border: 2px solid #941d11;
+  border: 2px solid #97231e;
   border-radius: 999px;
-  background-color: #e6bd74;
-  color: #941d11;
+  background-color: #fff8dd;
+  color: #97231e;
   font-size: min(22px, max(14px, 1.08vw));
   font-weight: 600;
   text-decoration: none;
@@ -372,7 +372,7 @@ async function resendEmail() {
 }
 
 .backButton:hover {
-  background-color: #f0c982;
+  background-color: #ffffff;
   transform: translateX(-2px);
 }
 
@@ -383,7 +383,7 @@ async function resendEmail() {
 
 .eyebrow {
   margin: 0;
-  color: #e9c07a;
+  color: #97231e;
   font-size: clamp(13px, 1.05vw, 18px);
   font-weight: 600;
   letter-spacing: 0.14em;
@@ -392,13 +392,13 @@ async function resendEmail() {
 .eyebrowBar {
   width: clamp(64px, 9vw, 150px);
   height: 4px;
-  background-color: #e9c07a;
+  background-color: #97231e;
   margin: 7px 0 12px;
 }
 
 .headline {
   margin: 0 0 12px;
-  color: #fff;
+  color: #2b1b00;
   font-size: clamp(30px, 3.05vw, 52px);
   font-weight: 700;
   line-height: 1.24;
@@ -406,16 +406,16 @@ async function resendEmail() {
 }
 
 .goldText {
-  color: #e9c07a;
+  color: #97231e;
 }
 
 .whiteText {
-  color: #fff;
+  color: #2b1b00;
 }
 
 .subcopy {
   margin: 0;
-  color: #fff;
+  color: #2b1b00;
   font-size: clamp(14px, 1.15vw, 20px);
   font-weight: 400;
   line-height: 1.45;
@@ -484,7 +484,7 @@ async function resendEmail() {
 }
 
 .cedaLogo {
-  width: min(300px, 13vw, 20vh);
+  width: min(360px, 15.5vw, 24vh);
   height: auto;
   object-fit: contain;
   /* the artwork sits on a white sheet - multiply drops the white into the cream */
@@ -494,7 +494,7 @@ async function resendEmail() {
 
 .formTitle {
   margin: 0;
-  color: #941d11;
+  color: #2b1b00;
   font-size: min(56px, max(26px, 2.35vw), 4.7vh);
   font-weight: 700;
   letter-spacing: 0.01em;
@@ -503,13 +503,13 @@ async function resendEmail() {
 .formTitleUnderline {
   width: min(400px, 82%);
   height: 3px;
-  background-color: #e6bd74;
-  margin: 8px 0 clamp(10px, 1.8vh, 20px);
+  background-color: #f7c613;
+  margin: 10px 0 clamp(16px, 2.8vh, 34px);
 }
 
 .formSubtitle {
-  margin: 0 0 clamp(16px, 2.6vh, 30px);
-  color: #941d11;
+  margin: 0 0 clamp(26px, 4.3vh, 54px);
+  color: #2b1b00;
   font-size: min(28px, max(14px, 1.25vw), 2.4vh);
   font-weight: 500;
 }
@@ -526,27 +526,27 @@ async function resendEmail() {
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-bottom: clamp(10px, 1.9vh, 18px);
+  margin-bottom: clamp(16px, 2.9vh, 28px);
 }
 
 .inputLabel {
   font-size: min(24px, max(13.5px, 1.1vw), 2.2vh);
   font-weight: 600;
-  color: #941d11;
-  margin-bottom: 6px;
+  color: #2b1b00;
+  margin-bottom: 10px;
 }
 
 .textInput {
   width: 100%;
-  height: clamp(42px, 4.6vh, 52px);
+  height: clamp(44px, 5.2vh, 58px);
   border-radius: 8px;
-  border: 2px solid #941d11;
+  border: 2px solid #2b1b00;
   background-color: transparent;
   padding: 0 16px;
   box-sizing: border-box;
   font-size: 16px;
   font-family: inherit;
-  color: #941d11;
+  color: #2b1b00;
   text-align: center;
   outline: none;
   transition: border-color 0.2s, box-shadow 0.2s;
@@ -558,16 +558,16 @@ async function resendEmail() {
 }
 
 .textInput:focus {
-  border-color: #c47a44;
-  box-shadow: 0 0 0 3px rgba(196, 122, 68, 0.2);
+  border-color: #97231e;
+  box-shadow: 0 0 0 3px rgba(151, 35, 30, 0.18);
 }
 
 .forgotLink {
-  color: #941d11;
+  color: #2b1b00;
   font-size: min(24px, max(13.5px, 1.1vw), 2.2vh);
   font-weight: 600;
   text-decoration: none;
-  border-bottom: 3px solid #e6bd74;
+  border-bottom: 3px solid #f7c613;
   padding-bottom: 3px;
   margin: 6px auto clamp(18px, 3.2vh, 38px);
   display: inline-block;
@@ -579,10 +579,9 @@ async function resendEmail() {
 
 .submitButton {
   width: 100%;
-  margin-top: clamp(4px, 1vh, 12px);
-  height: clamp(46px, 5.2vh, 58px);
+  height: clamp(46px, 5.4vh, 60px);
   border-radius: 8px;
-  background-color: #941d11;
+  background-color: #2b1b00;
   border: none;
   color: #fff;
   font-size: min(26px, max(14.5px, 1.15vw), 2.2vh);
@@ -598,7 +597,7 @@ async function resendEmail() {
 }
 
 .submitButton:hover {
-  background-color: #ad2617;
+  background-color: #1f1300;
 }
 
 .submitButton:active {
@@ -612,30 +611,30 @@ async function resendEmail() {
 }
 
 .signupPrompt {
-  margin: clamp(14px, 2.4vh, 28px) 0 clamp(20px, 3.4vh, 40px);
-  color: #941d11;
+  margin: clamp(24px, 3.8vh, 46px) 0 clamp(28px, 4.6vh, 52px);
+  color: #2b1b00;
   font-size: min(24px, max(13.5px, 1.1vw), 2.2vh);
   font-weight: 500;
 }
 
 .signupLink {
-  color: #941d11;
+  color: #2b1b00;
   font-weight: 600;
   text-decoration: none;
-  border-bottom: 3px solid #e6bd74;
+  border-bottom: 3px solid #f7c613;
   padding-bottom: 2px;
   margin-left: 4px;
 }
 
 .supportPrompt {
   margin: 0 0 clamp(20px, 3.4vh, 40px);
-  color: #941d11;
+  color: #2b1b00;
   font-size: min(22px, max(13px, 1.05vw), 2.1vh);
   font-weight: 500;
 }
 
 .supportLink {
-  color: #941d11;
+  color: #2b1b00;
   font-weight: 600;
   text-decoration: none;
   margin-left: 4px;
@@ -655,17 +654,17 @@ async function resendEmail() {
 }
 
 .legalLink {
-  color: #941d11;
+  color: #2b1b00;
   font-weight: 600;
   white-space: nowrap;
   text-decoration: underline;
   text-underline-offset: 2px;
-  text-decoration-color: #e6bd74;
+  text-decoration-color: #f7c613;
   text-decoration-thickness: 2px;
 }
 
 .legalLink:hover {
-  text-decoration-color: #941d11;
+  text-decoration-color: #2b1b00;
 }
 
 /* Narrow desktops: let the hero copy wrap naturally instead of hard-breaking */
@@ -699,7 +698,7 @@ async function resendEmail() {
     margin: 3px auto 12px;
   }
   .signupPrompt {
-    margin: 13px 0 10px;
+    margin: 13px 0 18px;
   }
   .legalNote {
     margin-top: 18px;
@@ -707,68 +706,6 @@ async function resendEmail() {
   .cedaLogo {
     width: min(320px, 15.5vw, 19vh);
     margin-bottom: 8px;
-  }
-}
-
-/* Four fields need a tighter rhythm on 720-820px tall laptops */
-@media (max-height: 820px) {
-  .cedaLogo {
-    width: min(300px, 13vw, 18vh);
-    margin-bottom: 8px;
-  }
-  .formTitleUnderline {
-    margin: 6px 0 10px;
-  }
-  .formSubtitle {
-    margin-bottom: 12px;
-  }
-  .inputGroup {
-    margin-bottom: 8px;
-  }
-  .inputLabel {
-    margin-bottom: 4px;
-  }
-  .textInput {
-    height: clamp(38px, 4.2vh, 48px);
-  }
-  .signupPrompt {
-    margin: 10px 0 8px;
-  }
-  .legalNote {
-    margin-top: 10px;
-  }
-}
-
-/* Very short laptop windows (600px tall): keep all four fields on screen */
-@media (max-height: 660px) {
-  .cedaLogo {
-    width: min(280px, 13vw, 15vh);
-    margin-bottom: 6px;
-  }
-  .formTitle {
-    font-size: min(46px, max(24px, 2.2vw), 3.9vh);
-  }
-  .formTitleUnderline {
-    margin: 4px 0 8px;
-  }
-  .formSubtitle {
-    margin-bottom: 8px;
-  }
-  .inputGroup {
-    margin-bottom: 6px;
-  }
-  .inputLabel {
-    margin-bottom: 3px;
-  }
-  .textInput {
-    height: 36px;
-  }
-  .signupPrompt {
-    margin: 8px 0 6px;
-  }
-  .legalNote {
-    margin-top: 6px;
-    font-size: 10.5px;
   }
 }
 

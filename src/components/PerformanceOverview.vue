@@ -9,14 +9,14 @@
       <div :class="$style.grid">
         <div :class="$style.copy">
           <h2 :class="$style.title">
-            Elevate Your <span :class="$style.accent">Business Intelligence</span>
+            Elevate Your <span :class="$style.accent">Innovation Pipeline</span>
           </h2>
           <p :class="$style.subtitle">
-            Unlock real-time insights and make data-driven decisions with our unified analytics
-            platform. Start optimizing your operations today.
+            Track submissions, evaluations and approvals in one place. Start reviewing ideas
+            today.
           </p>
           <router-link :class="$style.cta" to="/signin">
-            Start Free Trial
+            Explore the Portal
             <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
               <path
                 d="M5 12h14M13 6l6 6-6 6"
@@ -43,7 +43,7 @@
 <style module>
   .section {
     width: 100%;
-    background-color: #ffffff;
+    background: linear-gradient(to bottom, #97231e 60%, #f7c613 100%);
     padding: 24px 40px 72px;
     box-sizing: border-box;
     font-family: var(--font-inter);

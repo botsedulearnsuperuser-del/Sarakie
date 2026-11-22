@@ -1,13 +1,13 @@
 <template>
   <section :class="$style.section" id="how-it-works">
     <div :class="$style.overlay">
-      <h2 :class="$style.title">Online Loan Application</h2>
+      <h2 :class="$style.title">Submit Your Innovation Idea</h2>
       <p :class="$style.subtitle">
-        Loan applications available online, use our mobile friendly website to
-        apply
+        Ideas can be submitted online through our mobile-friendly portal, from
+        anywhere in Botswana
       </p>
       <button :class="$style.button" type="button" @click="goToDashboard">
-        <span>Apply Online</span>
+        <span>Submit Online</span>
         <img alt="" src="/bitcoin-icons-arrow-right-filled.svg" />
       </button>
       <img

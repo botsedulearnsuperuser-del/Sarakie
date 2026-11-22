@@ -5,12 +5,12 @@
       <div :class="$style.textBlock">
         <h2 :class="$style.title">
           Your Next Step Starts<br />
-          With a Conversation
+          With an Idea
         </h2>
         <div :class="$style.line" />
       </div>
       <a :class="$style.button" href="#contact">
-        <span>Contact us for a free consultation</span>
+        <span>Start your submission today</span>
         <img alt="" src="/bitcoin-icons-arrow-right-filled.svg" />
       </a>
     </div>
@@ -21,7 +21,7 @@
   width: 100%;
   position: relative;
   isolation: isolate;
-  background-color: var(--color-goldenrod-100);
+  background: linear-gradient(to bottom, var(--color-goldenrod-100) 60%, #97231e 100%);
   overflow: hidden;
   min-height: 240px;
   display: flex;

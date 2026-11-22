@@ -85,7 +85,12 @@
               <div :class="$style.reviewLoadHint">{{ nextDue?.ref ?? 'No pending reviews' }}</div>
             </div>
             <div :class="$style.reviewActions">
-              <button :class="$style.reviewPrimaryBtn" type="button" @click="openReview('Irrigation Kit')">
+              <button
+                :class="$style.reviewPrimaryBtn"
+                type="button"
+                :disabled="!nextDue"
+                @click="nextDue && openReview(nextDue.applicationId)"
+              >
                 <b>Start review</b>
               </button>
               <button :class="$style.reviewGhostBtn" type="button" @click="scrollToQueue">
@@ -195,7 +200,7 @@
                     </span>
                   </td>
                   <td :class="$style.tdRight">
-                    <button :class="$style.evalBtn" type="button" @click="openReview(review.title)">
+                    <button :class="$style.evalBtn" type="button" @click="openReview(review.applicationId)">
                       {{ activeTab === "returned" ? "View" : "Evaluate" }}
                     </button>
                   </td>
@@ -346,6 +351,7 @@
         category: row.sector ?? row.innovation_type ?? "—",
         amount: row.funding_requested != null ? `P ${Number(row.funding_requested).toLocaleString()}` : "—",
         deadline: row.due_at ? formatShortDate(row.due_at) : "—",
+        dueAt: row.due_at ?? "",
         status,
         statusClass,
         tab: tabFor(row),
@@ -363,11 +369,18 @@
     { id: "returned" as TabId, label: "Returned", count: reviews.value.filter((r) => r.tab === "returned").length },
   ])
 
+  const thisMonth = computed(() => {
+    const now = new Date()
+    return evaluations.value.filter((e) => {
+      const d = new Date(e.submitted_at ?? "")
+      return !Number.isNaN(d.getTime()) && d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear()
+    })
+  })
   const assignedCount = computed(() => queue.value.length)
   const awaitingCount = computed(() => reviews.value.filter((r) => r.tab === "awaiting").length)
-  const completedCount = computed(() => evaluations.value.filter((e) => e.submitted_at).length)
+  const completedCount = computed(() => thisMonth.value.length)
   const averageScore = computed(() => {
-    const scored = evaluations.value.filter((e) => e.weighted_score != null)
+    const scored = thisMonth.value.filter((e) => e.weighted_score != null)
     if (!scored.length) return 0
     return Math.round(scored.reduce((a, e) => a + (e.weighted_score ?? 0), 0) / scored.length)
   })
@@ -379,13 +392,12 @@
 
   const nextDue = computed(() => {
     const awaiting = reviews.value.filter((r) => r.tab === "awaiting")
-    return awaiting.sort((a, b) => (a.deadline < b.deadline ? -1 : 1))[0] ?? null
+    return [...awaiting].sort((a, b) => a.dueAt.localeCompare(b.dueAt))[0] ?? null;
   })
 
-  function openReview(title: string) {
-    const row = reviews.value.find((r) => r.title === title)
-    if (row) router.push({ name: "ApplicationView", query: { id: row.applicationId } })
-    else router.push({ name: "ApplicationView", query: { name: title } })
+  function openReview(applicationId: string) {
+    if (!applicationId) return;
+    router.push({ name: "ApplicationView", query: { id: applicationId } });
   }
 
   function openFaq() {

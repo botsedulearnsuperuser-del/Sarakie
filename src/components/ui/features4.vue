@@ -1,20 +1,20 @@
 <template>
   <section :class="$style.features4">
-    <h2 :class="$style.heading">Understand faster, act smarter</h2>
+    <h2 :class="$style.heading">Track your innovation pipeline</h2>
 
     <p :class="$style.subtitle">
-      Get clarity on performance, uncover patterns, and take action with
-      insights that actually move things forward.
+      Get clarity on submissions, evaluations and approvals, and take action with
+      insights that move ideas forward.
     </p>
 
     <div :class="$style.grid">
-      <article :class="$style.card">
+      <article :class="$style.card" style="background-color: #2b1b00;">
         <div :class="$style.cardContent">
           <div :class="$style.cardHeader">
-            <h3 :class="$style.cardTitle">Activity stream</h3>
+            <h3 :class="$style.cardTitle">Submission activity</h3>
             <p :class="$style.cardText">
-              Track live system activity and event flow in real time, helping
-              you spot spikes and performance changes instantly.
+              Track live submission and evaluation activity in real time, helping
+              you spot trends and bottlenecks instantly.
             </p>
           </div>
 
@@ -40,8 +40,8 @@
             </div>
 
             <div :class="$style.valueRow">
-              <div :class="$style.bigValue">18,942</div>
-              <div :class="$style.delta">+12%</div>
+              <div :class="$style.bigValue">1,284</div>
+              <div :class="$style.delta">+8%</div>
             </div>
 
             <div :class="$style.bars">
@@ -70,9 +70,9 @@
                       stroke-linejoin="round"
                     />
                   </svg>
-                  Latency
+                  Avg. review time
                 </div>
-                <div :class="$style.statValue">1.2s</div>
+                <div :class="$style.statValue">4.2 days</div>
               </div>
               <div :class="$style.statBox">
                 <div :class="$style.statLabel">
@@ -90,22 +90,22 @@
                       stroke-linejoin="round"
                     />
                   </svg>
-                  Errors
+                  Pending
                 </div>
-                <div :class="$style.statValueError">-2.3%</div>
+                <div :class="$style.statValueError">312</div>
               </div>
             </div>
           </div>
         </div>
       </article>
 
-      <article :class="$style.card">
+      <article :class="$style.card" style="background-color: #2b1b00;">
         <div :class="$style.cardContent">
           <div :class="$style.cardHeader">
-            <h3 :class="$style.cardTitle">User segments</h3>
+            <h3 :class="$style.cardTitle">Innovator segments</h3>
             <p :class="$style.cardText">
-              Understand how different user groups behave and interact, so you
-              can identify patterns and high-impact segments quickly.
+              Understand how different innovator groups engage, so you can
+              identify high-impact segments quickly.
             </p>
           </div>
 
@@ -157,13 +157,13 @@
         </div>
       </article>
 
-      <article :class="$style.card">
+      <article :class="$style.card" style="background-color: #2b1b00;">
         <div :class="$style.cardContent">
           <div :class="$style.cardHeader">
-            <h3 :class="$style.cardTitle">Momentum score</h3>
+            <h3 :class="$style.cardTitle">Evaluation momentum</h3>
             <p :class="$style.cardText">
-              Monitor growth across key metrics with a unified score, revealing
-              trends and momentum shifts at a glance.
+              Monitor progress across submission, evaluation and approval with a
+              unified score at a glance.
             </p>
           </div>
 
@@ -186,10 +186,10 @@
                 </svg>
                 Growth score
               </span>
-              <span :class="$style.growthPill">+6.2%</span>
+                              <span :class="$style.growthPill">+8.4%</span>
             </div>
 
-            <div :class="$style.growthValue">78</div>
+            <div :class="$style.growthValue">82</div>
 
             <div :class="$style.metricList">
               <div
@@ -228,7 +228,7 @@
                 </svg>
                 Trend
               </span>
-              <span :class="$style.trendValue">Accelerating</span>
+              <span :class="$style.trendValue">On track</span>
             </div>
           </div>
         </div>
@@ -241,15 +241,15 @@
   const activityBars = [40, 60, 35, 80, 55, 90, 70]
 
   const segments = [
-    { name: "Power users", value: 48 },
-    { name: "New users", value: 32 },
-    { name: "Churn risk", value: 47 },
+    { name: "Submitted", value: 52 },
+    { name: "In review", value: 28 },
+    { name: "Approved", value: 20 },
   ]
 
   const metrics = [
-    { label: "Acquisition", value: 82 },
-    { label: "Engagement", value: 68 },
-    { label: "Retention", value: 74 },
+    { label: "Submission", value: 82 },
+    { label: "Evaluation", value: 68 },
+    { label: "Approval", value: 74 },
   ]
 </script>
 
@@ -265,7 +265,7 @@
   .heading {
     margin: 0;
     text-align: center;
-    color: var(--color-darkslategray-600);
+    color: #ffffff;
     font-family: var(--font-inter);
     font-size: 48px;
     line-height: 1.1;
@@ -276,7 +276,7 @@
     margin: 16px 0 0;
     max-width: 672px;
     text-align: center;
-    color: #525252;
+    color: #ffffff;
     font-family: var(--font-inter);
     font-size: 16px;
     line-height: 1.6;
@@ -311,7 +311,7 @@
   }
   .cardTitle {
     margin: 0;
-    color: var(--color-darkslategray-600);
+    color: #ffffff;
     font-family: var(--font-inter);
     font-size: 24px;
     font-weight: 600;
@@ -319,7 +319,7 @@
   }
   .cardText {
     margin: 8px 0 0;
-    color: #525252;
+    color: #ffffff;
     font-family: var(--font-inter);
     font-size: 16px;
     line-height: 1.5;

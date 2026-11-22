@@ -3,9 +3,9 @@
     <div :class="$style.inner">
       <div :class="$style.head">
         <span :class="$style.eyebrow">One workspace</span>
-        <h2 :class="$style.title">Everything your pipeline needs, in one place</h2>
+        <h2 :class="$style.title">Everything your innovation pipeline needs, in one place</h2>
         <p :class="$style.subtitle">
-          From the first submission to the funding decision, every founder, evaluator and
+          From the first submission to the funding decision, every innovator, evaluator and
           consultant works from the same source of truth.
         </p>
       </div>
@@ -69,9 +69,9 @@
             </svg>
           </span>
 
-          <h3 :class="$style.cardTitle">Invite team</h3>
+          <h3 :class="$style.cardTitle">Invite evaluators</h3>
           <p :class="$style.cardText">
-            Bring evaluators, consultants and founders into the same workspace.
+            Bring evaluators, consultants and innovators into the same workspace.
           </p>
 
           <div :class="$style.inviteRow">
@@ -149,9 +149,9 @@
 
 <script setup lang="ts">
   const steps = [
-    { kind: "Trigger", text: "When issue is created" },
-    { kind: "Action", text: "Assign to team member" },
-    { kind: "Action", text: "Notify in Slack" },
+    { kind: "Trigger", text: "Idea submitted online" },
+    { kind: "Action", text: "Evaluate on custom criteria" },
+    { kind: "Action", text: "Approve and award funding" },
   ];
 
   const avatars = [
@@ -165,7 +165,7 @@
 <style module>
   .section {
     width: 100%;
-    background-color: var(--color-seashell);
+    background: linear-gradient(to bottom, #2b1b00 60%, #97231e 100%);
     padding: 72px 40px 80px;
     box-sizing: border-box;
     font-family: var(--font-inter);
@@ -192,7 +192,7 @@
     padding: 5px 12px;
     border: 1px solid rgba(1, 53, 37, 0.14);
     border-radius: 999px;
-    color: #0b5641;
+    color: #ffffff;
     font-size: 12px;
     font-weight: 600;
     letter-spacing: 0.04em;
@@ -201,7 +201,7 @@
 
   .title {
     margin: 0;
-    color: var(--color-darkslategray-600);
+    color: #ffffff;
     font-family: var(--font-inter);
     font-size: 48px;
     line-height: 1.1;
@@ -212,7 +212,7 @@
   .subtitle {
     margin: 0;
     max-width: 560px;
-    color: #6b7f77;
+    color: #ffffff;
     font-size: 15px;
     line-height: 1.6;
   }

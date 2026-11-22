@@ -6,7 +6,7 @@
           <div :class="$style.brandRow">
             <img
               :class="$style.brandLogo"
-              src="/ceda-sun.png"
+              src="/ceda-logo-white.webp"
               alt=""
               aria-hidden="true"
             />
@@ -134,6 +134,12 @@
                   Careers
                 </router-link>
               </li>
+            </ul>
+          </div>
+
+          <div :class="$style.linkGroup">
+            <h3 :class="$style.groupTitle">Legal</h3>
+            <ul :class="$style.linkList">
               <li>
                 <router-link :class="$style.footerLink" to="/terms">
                   Legal
@@ -210,19 +216,19 @@
     width: 100%;
     padding: 20px;
     box-sizing: border-box;
-    background-color: var(--color-darkslategray-600);
+    background: linear-gradient(to bottom, transparent 0%, #f7c613 45%);
     font-family: var(--font-inter);
   }
   .inner {
     width: 100%;
-    max-width: 860px;
+    max-width: 920px;
     margin: 0 auto;
     display: flex;
     flex-direction: row;
     gap: 16px;
   }
   .brandPanel {
-    width: 300px;
+    width: 340px;
     flex-shrink: 0;
     min-height: 180px;
     display: flex;

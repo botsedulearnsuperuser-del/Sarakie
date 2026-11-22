@@ -3,10 +3,10 @@
     <div :class="$style.container">
       <div :class="$style.grid">
         <div :class="$style.copy">
-          <h2 :class="$style.title">Trusted by teams who move money</h2>
+          <h2 :class="$style.title">Trusted by innovators and evaluators</h2>
           <p :class="$style.subtitle">
-            Reduce risk, gain visibility, and help your finance team stay focused — not buried in
-            approvals.
+            Hear from innovators, evaluators and consultants using the CEDA Innovation Portal to
+            turn bold ideas into impactful solutions.
           </p>
         </div>
 
@@ -52,39 +52,39 @@
 <script setup lang="ts">
   const testimonials = [
     {
-      name: "Guillermo Rauch",
-      role: "CEO, Vercel",
+      name: "Mpho Kgosi",
+      role: "Innovator, Gaborone",
       avatar: "https://avatars.githubusercontent.com/u/13041",
       content:
-        "Shipping faster without sacrificing quality is what matters. Tools like this make that balance actually achievable.",
+        "The portal made submitting my idea straightforward — from upload to feedback, everything was clear.",
     },
     {
-      name: "Evan You",
-      role: "Creator of Vue.js",
+      name: "Keabetswe Molefe",
+      role: "Evaluator, CEDA",
       avatar: "https://avatars.githubusercontent.com/u/499550",
-      content: "Developer experience is everything. When things just work, teams move significantly faster.",
+      content: "Scoring and adjudication are transparent, so every idea gets a fair, consistent review.",
     },
     {
-      name: "Dan Abramov",
-      role: "React Core Team",
+      name: "Tshepo Modise",
+      role: "Consultant, Innovation Hub",
       avatar: "https://avatars.githubusercontent.com/u/810438",
-      content: "Good abstractions remove friction. This is the kind of tooling that helps teams focus on what actually matters.",
+      content: "Tracking an idea from submission to funding decision in one place saves our team hours.",
     },
     {
-      name: "Kent C. Dodds",
-      role: "Educator & OSS",
+      name: "Boitumelo Ramotswa",
+      role: "Innovator, Francistown",
       avatar: "https://avatars.githubusercontent.com/u/1500684",
       content: "The simplicity here is what stands out. It solves real problems without getting in your way.",
     },
     {
-      name: "Theo Browne",
-      role: "T3 Stack Creator",
+      name: "Kagiso Sechele",
+      role: "CEDA Programme Officer",
       avatar: "https://avatars.githubusercontent.com/u/11719236",
       content: "Speed, clarity, and solid defaults — that’s what good tools should deliver. This nails it.",
     },
     {
-      name: "Lee Robinson",
-      role: "VP, Vercel",
+      name: "Naledi Mokgweetsi",
+      role: "Innovation Coordinator",
       avatar: "https://avatars.githubusercontent.com/u/9113740",
       content: "Performance and developer experience go hand in hand. This setup gets both right.",
     },
@@ -96,7 +96,7 @@
 <style module>
   .section {
     width: 100%;
-    background-color: #ffffff;
+    background-color: #f7c613;
     padding: 64px 40px;
     box-sizing: border-box;
     font-family: var(--font-inter);
@@ -123,7 +123,7 @@
 
   .title {
     margin: 0;
-    color: var(--color-darkslategray-600);
+    color: #ffffff;
     font-size: 36px;
     line-height: 1.15;
     font-weight: 600;
@@ -133,7 +133,7 @@
   .subtitle {
     margin: 0;
     max-width: 360px;
-    color: #6b7f77;
+    color: #ffffff;
     font-size: 15px;
     line-height: 1.6;
   }
@@ -156,12 +156,12 @@
 
   .fadeTop {
     top: 0;
-    background: linear-gradient(to bottom, #ffffff 0%, transparent 100%);
+    background: linear-gradient(to bottom, #f7c613 0%, transparent 100%);
   }
 
   .fadeBottom {
     bottom: 0;
-    background: linear-gradient(to top, #ffffff 0%, transparent 100%);
+    background: linear-gradient(to top, #f7c613 0%, transparent 100%);
   }
 
   .track {

@@ -30,7 +30,7 @@ import FaqCategorized from "../components/ui/FaqCategorized.vue";
 .landingPage {
   width: 100%;
   min-height: 100vh;
-  background-color: var(--color-darkslategray-600);
+  background-color: #97231e;
   overflow-x: hidden;
   display: flex;
   flex-direction: column;
@@ -40,7 +40,7 @@ import FaqCategorized from "../components/ui/FaqCategorized.vue";
 }
 .loansSection {
   width: 100%;
-  background-color: var(--color-seashell);
+  background: linear-gradient(to bottom, #97231e 0%, #f7c613 35%, #f7c613 65%, #2b1b00 100%);
   display: flex;
   flex-direction: column;
   align-items: center;

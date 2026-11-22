@@ -62,10 +62,16 @@
   grid-template-columns: 56% 44%;
   align-items: stretch;
   min-height: clamp(520px, calc(100vh - 118px), 980px);
-  background-color: #b9bdbb;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='0.3'/%3E%3C/svg%3E");
+  background-color: #f7c613;
+  background-image: radial-gradient(ellipse at top center, #97231e 0%, transparent 70%);
+  -webkit-mask-image: linear-gradient(to bottom, black 96%, transparent 100%);
+  mask-image: linear-gradient(to bottom, black 96%, transparent 100%);
+  box-shadow: 0 -6px 24px rgba(151, 35, 30, 0.35), -10px 0 28px rgba(151, 35, 30, 0.35), 10px 0 28px rgba(151, 35, 30, 0.35);
   overflow: hidden;
   isolation: isolate;
+  border-radius: 24px;
+  max-width: 1280px;
+  margin: 0 auto 32px;
   font-family: var(--font-inter);
 }
 
@@ -73,19 +79,6 @@
   position: relative;
   z-index: 2;
   min-height: 100%;
-}
-
-/* grainy film speckle across the whole hero - background, rings and photo */
-.hero::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: 1;
-  pointer-events: none;
-  background-image: url("/noise.png");
-  background-size: 200px 200px;
-  background-repeat: repeat;
-  opacity: 0.22;
 }
 
 .circles {
@@ -123,18 +116,20 @@
 .title {
   margin: 0 0 clamp(10px, 1.2vw, 18px);
   color: #1b1b1b;
-  font-size: clamp(30px, 3.9vw, 62px);
-  font-weight: 800;
-  line-height: 1.16;
-  letter-spacing: -0.015em;
+  font-family: var(--font-inter);
+  font-size: 48px;
+  line-height: 1.1;
+  font-weight: 600;
+  letter-spacing: -0.02em;
 }
 
 .subtitle {
   margin: 0;
   color: #232323;
-  font-size: clamp(16px, 1.8vw, 29px);
-  font-weight: 500;
-  line-height: 1.3;
+  font-family: var(--font-inter);
+  font-size: var(--fs-18);
+  font-weight: 600;
+  line-height: 1.4;
 }
 
 .rule {

@@ -172,11 +172,15 @@
       })),
   );
 
+  const actionMap: Record<string, string> = {
+    application_status_changed: "Application status changed",
+    application_created: "Application submitted",
+  };
   const auditTrail = computed(() =>
     audit.value.map((e) => ({
       id: e.id,
       time: new Date(e.created_at).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" }),
-      action: e.action,
+      action: actionMap[e.action] ?? e.action,
       actor: e.actor_name ?? "System",
       ip: e.ip ?? "—",
     })),

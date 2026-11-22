@@ -119,15 +119,16 @@ const cards = [
 }
 .title {
   margin: 0;
-  color: var(--color-darkslategray-600);
-  font-size: clamp(32px, 5vw, 52px);
-  font-weight: 900;
+  color: #ffffff;
   font-family: var(--font-inter);
+  font-size: 48px;
   line-height: 1.1;
+  font-weight: 600;
+  letter-spacing: -0.02em;
 }
 .subtitle {
   margin: 0;
-  color: var(--color-darkslategray-600);
+  color: #ffffff;
   font-size: var(--fs-18);
   font-family: var(--font-inter);
   max-width: 640px;
@@ -207,6 +208,7 @@ const cards = [
   position: relative;
   z-index: 1;
   padding: 16px;
+  background-color: #ffffff;
 }
 
 /* my-4 text-lg font-bold text-zinc-700 */
@@ -253,7 +255,7 @@ const cards = [
   z-index: 10;
   display: block;
   border-radius: 12px;
-  background-color: #000000;
+  background-color: #2b1b00;
   padding: 8px 24px;
   font-size: 12px;
   line-height: 16px;
@@ -265,7 +267,7 @@ const cards = [
   transition: background-color 200ms ease;
 }
 .cardCta:hover {
-  background-color: #27272a;
+  background-color: #1f1300;
 }
 
 /* Cursor tag: flex items-center space-x-2 */
