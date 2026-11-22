@@ -415,6 +415,8 @@ function finish() {
 }
 
 .qrCard {
+  position: relative;
+  overflow: hidden;
   background-color: #faf6f0;
   border: 1px solid rgba(0, 0, 0, 0.03);
   border-radius: 16px;
@@ -423,6 +425,21 @@ function finish() {
   flex-direction: column;
   align-items: center;
   gap: 6px;
+}
+
+/* Brand chevron pattern behind the setup card, light enough to keep the QR crisp. */
+.qrCard::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: url("/pattern-2.webp");
+  background-size: 130px;
+  background-position: center;
+  opacity: 0.14;
+  pointer-events: none;
+}
+.qrCard > * {
+  position: relative;
 }
 
 .qrFrame {
