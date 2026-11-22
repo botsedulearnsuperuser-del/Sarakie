@@ -191,6 +191,18 @@
   import AIOrbFace, { type AIState } from "../components/ui/AIOrbFace.vue"
   import { usePageTheme } from "../composables/usePageTheme"
 import { THEME_EVENT, isGaboroneTheme } from "../components/themes"
+import { displayName, session } from "../lib/auth"
+import {
+  countDocumentsByApplication,
+  loadCorrections,
+  loadFeedback,
+  loadInnovatorApplications,
+  statusLabel,
+} from "../lib/portal-data"
+
+  onMounted(() => {
+    void loadLiveSummary()
+  })
 
   const pageBackground = usePageTheme()
   const isGaborone = ref(isGaboroneTheme())
@@ -223,7 +235,41 @@ import { THEME_EVENT, isGaboroneTheme } from "../components/themes"
 
   const greeting: ChatMessage = {
     role: "agent",
-    text: "Dumela! I'm the CEDA Innovation Assistant. Ask me about a submission, the scoring rubric, documents or what happens after you submit.",
+    text: `Dumela, ${displayName.value}! I'm the CEDA Innovation Assistant. Ask me about your submissions, the scoring rubric, documents or what happens after you submit.`,
+  }
+
+  /**
+   * Answers about "my account" are built from the innovator's own Supabase rows,
+   * so the assistant never invents a status or a document count.
+   */
+  const liveSummary = ref("")
+  const liveDocuments = ref(0)
+
+  async function loadLiveSummary() {
+    if (!session.value) {
+      liveSummary.value = "Sign in and I can read your submissions, feedback and documents."
+      return
+    }
+    const [apps, corrections, feedback, documents] = await Promise.all([
+      loadInnovatorApplications(),
+      loadCorrections(),
+      loadFeedback(),
+      countDocumentsByApplication(),
+    ])
+    liveDocuments.value = Object.values(documents).reduce((sum, n) => sum + n, 0)
+    if (!apps.length) {
+      liveSummary.value = "You have not submitted an innovation proposal yet. Start one from the dashboard and I can track it with you."
+      return
+    }
+    const lines = apps
+      .map((app) => `${app.title} (${app.reference}) is ${statusLabel(app.status).toLowerCase()}`)
+      .join("; ")
+    const openFixes = corrections.filter((fix) => !fix.resolved_at).length
+    liveSummary.value =
+      `You have ${apps.length} submission${apps.length === 1 ? "" : "s"}: ${lines}. ` +
+      `${openFixes} correction request${openFixes === 1 ? "" : "s"} still open, ` +
+      `${feedback.length} evaluator comment${feedback.length === 1 ? "" : "s"} on record and ` +
+      `${liveDocuments.value} document${liveDocuments.value === 1 ? "" : "s"} uploaded.`
   }
 
   const messages = ref<ChatMessage[]>([greeting])
@@ -281,6 +327,14 @@ import { THEME_EVENT, isGaboroneTheme } from "../components/themes"
 
   function replyTo(text: string): string {
     const query = text.toLowerCase()
+
+    const asksAboutAccount =
+      /\bmy\b|account|mine|submitted|submission status|progress|application status|how many/.test(query)
+    if (asksAboutAccount) {
+      if (liveSummary.value) return liveSummary.value
+      void loadLiveSummary()
+      return "One moment — I'm reading your latest submissions from the portal."
+    }
 
     if (query.includes("score") || query.includes("rubric") || query.includes("criteria")) {
       return "Submissions are scored out of 100 against five criteria: problem and market need (25%), solution and feasibility (25%), team and capability (20%), financial projections (20%), and impact with youth ownership (10%). Evaluators score each one and the panel reviews the total."
@@ -437,6 +491,7 @@ import { THEME_EVENT, isGaboroneTheme } from "../components/themes"
   }
 
   function sendMessage() {
+    void loadLiveSummary()
     const text = input.value.trim()
     if (!text) return
 
