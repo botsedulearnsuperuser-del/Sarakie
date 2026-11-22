@@ -25,22 +25,13 @@
 <script setup lang="ts">
 import { computed } from "vue"
 
-export interface AIResponseCitation {
-  id: string
-  index: number
-  title: string
-  url?: string
-}
-
 interface Props {
-  citations?: AIResponseCitation[]
   className?: string
   isStreaming?: boolean
   text: string
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  citations: () => [],
   className: "",
   isStreaming: false,
 })

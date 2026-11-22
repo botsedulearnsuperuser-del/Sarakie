@@ -241,21 +241,6 @@
     opacity: 0.45;
     cursor: not-allowed;
   }
-  .badge {
-    display: none;
-  }
-  .badge svg {
-    width: 24px;
-    height: 24px;
-  }
-  .plainIcon {
-    display: inline-grid;
-    color: var(--color-darkslategray-600);
-  }
-  .plainIcon svg {
-    width: 46px;
-    height: 46px;
-  }
   .title {
     margin: 4px 0 0;
     font-size: 18px;
@@ -267,31 +252,6 @@
     font-size: 13px;
     line-height: 1.5;
     color: #525252;
-  }
-  .label {
-    margin-top: 6px;
-    font-size: 12.5px;
-    font-weight: 700;
-    color: #374151;
-  }
-  .input {
-    width: 100%;
-    max-width: 220px;
-    padding: 11px 12px;
-    box-sizing: border-box;
-    border-radius: 10px;
-    border: 1px solid #d1d5db;
-    font-family: var(--font-inter);
-    font-size: 22px;
-    font-weight: 700;
-    letter-spacing: 7px;
-    text-align: center;
-    color: var(--color-darkslategray-600);
-    outline: none;
-  }
-  .input:focus {
-    border-color: var(--color-darkslategray-500);
-    box-shadow: 0 0 0 3px rgba(15, 46, 36, 0.1);
   }
   .error {
     margin: 0;

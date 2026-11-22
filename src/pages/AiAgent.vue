@@ -98,18 +98,6 @@
                     :text="message.text"
                     :is-streaming="!!message.streaming"
                   />
-                  <AIApproval
-                    v-if="message.approval"
-                    :class-name="$style.approvalCard"
-                    :question="message.approval.question"
-                    :options="message.approval.options"
-                    :resolved-id="message.approval.resolvedId"
-                    @decide="onApprovalDecide(message, $event)"
-                  >
-                    <template v-if="message.approval.detail">
-                      {{ message.approval.detail }}
-                    </template>
-                  </AIApproval>
                 </template>
                 <template v-else>{{ message.text }}</template>
               </div>
@@ -186,7 +174,6 @@
   import NotificationsPanel from "../components/NotificationsPanel.vue"
   import ComposerPanel from "../components/ui/ComposerPanel.vue"
   import AIResponse from "../components/ui/AIResponse.vue"
-  import AIApproval, { type AIApprovalOption } from "../components/ui/AIApproval.vue"
   import AIReasoning from "../components/ui/AIReasoning.vue"
   import AIOrbFace, { type AIState } from "../components/ui/AIOrbFace.vue"
   import { usePageTheme } from "../composables/usePageTheme"
@@ -210,13 +197,6 @@ import {
     window.addEventListener(THEME_EVENT, () => (isGaborone.value = isGaboroneTheme()))
   })
 
-  interface ApprovalRequest {
-    question: string
-    detail?: string
-    options: AIApprovalOption[]
-    resolvedId?: string
-  }
-
   interface ReasoningTrace {
     text: string
     streaming?: boolean
@@ -226,7 +206,6 @@ import {
     role: "agent" | "user"
     text: string
     streaming?: boolean
-    approval?: ApprovalRequest
     reasoning?: ReasoningTrace
   }
 
@@ -323,32 +302,6 @@ import {
       const el = chatBody.value
       if (el) el.scrollTop = el.scrollHeight
     })
-  }
-
-  function approvalFollowUp(option: AIApprovalOption): string {
-    const replies: Record<string, string> = {
-      full: "Done — the fuller pack is ready: problem statement, solution description, financial projections, business proposal, market research and founder CVs.",
-      minimum: "Done — the minimum pack is noted: problem statement, solution description and financial projections.",
-      "not-now": "No problem. The full document checklist stays on the FAQ page whenever you need it.",
-      start: "Opening the submission form for your draft now. You can move back a step at any time.",
-      draft: "Kept as a draft. You can reopen it from My Applications whenever you are ready.",
-      keep: "Kept — nothing was changed on the application.",
-      withdraw: "Understood. I have sent the withdrawal request to your analyst.",
-    }
-
-    return replies[option.id] ?? `Noted: ${option.label}.`
-  }
-
-  function onApprovalDecide(message: ChatMessage, option: AIApprovalOption) {
-    if (message.approval) message.approval.resolvedId = option.id
-
-    const reply: ChatMessage = {
-      role: "agent",
-      text: approvalFollowUp(option),
-      streaming: false,
-    }
-    messages.value.push(reply)
-    scrollToBottom()
   }
 
   function handleComposerSubmit(text: string) {
@@ -784,10 +737,6 @@ import {
     background-color: var(--color-darkslategray-500);
     color: var(--color-white);
     border-bottom-right-radius: 4px;
-  }
-  .bubbleAgent .approvalCard {
-    margin-top: 12px;
-    white-space: normal;
   }
   .bubbleAgent .reasoning {
     margin-bottom: 6px;
