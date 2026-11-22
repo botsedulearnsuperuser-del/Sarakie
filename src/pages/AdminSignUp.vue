@@ -83,15 +83,15 @@
 
           <div :class="$style.inputGroup">
             <label :class="$style.inputLabel" for="identifier">
-              Email or Phone Number
+              Email Address
             </label>
             <input
               id="identifier"
               v-model="identifier"
               :class="$style.textInput"
-              type="text"
-              placeholder="Enter Your Email or Phone Number"
-              autocomplete="username"
+              type="email"
+              placeholder="Enter Your Email Address"
+              autocomplete="email"
               required
             />
           </div>

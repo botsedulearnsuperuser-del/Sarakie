@@ -62,21 +62,21 @@
         <h2 :class="$style.formTitle">Reset Password</h2>
         <div :class="$style.formTitleUnderline" />
         <p :class="$style.formSubtitle">
-          Enter your email or phone number and we will send you a reset link
+          Enter your email address and we will send you a reset link
         </p>
 
         <form :class="$style.loginForm" @submit.prevent="handleReset">
           <div :class="$style.inputGroup">
             <label :class="$style.inputLabel" for="identifier">
-              Email or Phone Number
+              Email Address
             </label>
             <input
               id="identifier"
               v-model="identifier"
               :class="$style.textInput"
-              type="text"
-              placeholder="Enter Your Email or Phone Number"
-              autocomplete="username"
+              type="email"
+              placeholder="Enter Your Email Address"
+              autocomplete="email"
               required
             />
           </div>
