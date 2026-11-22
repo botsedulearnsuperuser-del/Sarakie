@@ -105,8 +105,24 @@
               type="password"
               placeholder="*****************"
               autocomplete="new-password"
+              minlength="8"
               required
+              aria-describedby="password-rules"
             />
+
+            <ul v-if="password" id="password-rules" :class="$style.rules">
+              <li
+                v-for="rule in rules"
+                :key="rule.label"
+                :class="[$style.rule, rule.met && $style.ruleMet]"
+              >
+                <span :class="$style.ruleMark" aria-hidden="true">
+                  {{ rule.met ? "✓" : "•" }}
+                </span>
+                <span>{{ rule.label }}</span>
+                <span :class="$style.srOnly">{{ rule.met ? "met" : "not met" }}</span>
+              </li>
+            </ul>
           </div>
 
           <div :class="$style.inputGroup">
@@ -136,7 +152,7 @@
             {{ formMessage }}
           </p>
 
-          <button :class="$style.submitButton" type="submit" :disabled="loading">
+          <button :class="$style.submitButton" type="submit" :disabled="loading || !requirementsMet || !passwordsMatch">
             <span>{{ loading ? "Creating account…" : "Create Account" }}</span>
             <svg
               :class="$style.btnArrow"
@@ -217,7 +233,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { computed, ref } from "vue";
 import { useRouter } from "vue-router";
 import {
   dashboardForRole,
@@ -225,6 +241,11 @@ import {
   signUpWithPassword,
 } from "../lib/auth";
 import { supabase } from "../lib/supabase";
+import {
+  PASSWORD_MIN_LENGTH,
+  PASSWORD_REQUIREMENT_MESSAGE,
+  passwordChecks,
+} from "../lib/password";
 
 const router = useRouter();
 
@@ -235,6 +256,24 @@ const fullName = ref("");
 const identifier = ref("");
 const password = ref("");
 const confirmPassword = ref("");
+
+/* Same password policy as the profile page and /reset-password. */
+const checks = computed(() => passwordChecks(password.value));
+const requirementsMet = computed(() => checks.value.valid);
+const passwordsMatch = computed(() =>
+  Boolean(
+    password.value &&
+      confirmPassword.value &&
+      password.value === confirmPassword.value,
+  ),
+);
+
+const rules = computed(() => [
+  { label: `At least ${PASSWORD_MIN_LENGTH} characters`, met: checks.value.minLength },
+  { label: "One uppercase letter", met: checks.value.upper },
+  { label: "One number", met: checks.value.number },
+  { label: "One special character", met: checks.value.special },
+]);
 const loading = ref(false);
 const formMessage = ref("");
 const signUpFailed = ref(false);
@@ -251,9 +290,9 @@ const handleSignUp = async () => {
     formMessage.value = "Passwords do not match.";
     return;
   }
-  if (password.value.length < 8) {
+  if (!passwordChecks(password.value).valid) {
     signUpFailed.value = true;
-    formMessage.value = "Use at least 8 characters for your password.";
+    formMessage.value = PASSWORD_REQUIREMENT_MESSAGE;
     return;
   }
 
@@ -560,6 +599,45 @@ async function resendEmail() {
 .textInput:focus {
   border-color: #97231e;
   box-shadow: 0 0 0 3px rgba(151, 35, 30, 0.18);
+}
+
+.rules {
+  list-style: none;
+  width: 100%;
+  margin: -6px 0 14px;
+  padding: 0;
+  display: grid;
+  gap: 4px;
+  text-align: left;
+}
+
+.rule {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #7a7a7a;
+  font-size: 12.5px;
+  line-height: 1.4;
+}
+
+.ruleMet {
+  color: #1c6b45;
+}
+
+.ruleMark {
+  width: 12px;
+  flex: none;
+  text-align: center;
+  font-weight: 700;
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
 }
 
 .forgotLink {

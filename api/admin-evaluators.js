@@ -192,7 +192,7 @@ export default async function handler(req, res) {
     }
 
     const origin = String(req.headers?.origin || "").replace(/\/$/, "");
-    const redirectTo = /^https?:\/\//.test(origin) ? `${origin}/login` : undefined;
+    const redirectTo = /^https?:\/\//.test(origin) ? `${origin}/reset-password` : undefined;
 
     const { data: invited, error: inviteError } = await admin.auth.admin.inviteUserByEmail(
       email,
