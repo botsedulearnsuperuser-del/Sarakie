@@ -85,7 +85,7 @@ function doOpen() {
   padding: 40px 24px;
   background: var(--color-darkslategray-600, #0b3b2c);
   color: #ffffff;
-  font-family: Poppins, var(--font-inter, sans-serif);
+  font-family: var(--font-inter, sans-serif);
 }
 .title {
   font-size: 28px;

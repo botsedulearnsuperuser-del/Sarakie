@@ -370,7 +370,7 @@
     z-index: 100;
     padding: 24px 0;
     box-sizing: border-box;
-    font-family: Poppins, var(--font-inter);
+    font-family: var(--font-inter);
   }
   .shell {
     width: 100%;

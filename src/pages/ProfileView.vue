@@ -1608,7 +1608,7 @@ function getActionClass(type: string) {
   min-width: 120px;
   color: #9ca3af;
   font-size: 12px;
-  font-family: monospace;
+  font-family: var(--font-inter);
   text-align: right;
 }
 

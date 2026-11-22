@@ -144,7 +144,6 @@ const handleReset = () => {
 </script>
 
 <style module>
-@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap");
 
 .page {
   width: 100%;
@@ -152,7 +151,7 @@ const handleReset = () => {
   display: grid;
   grid-template-columns: 44% 56%;
   background-color: #fff;
-  font-family: Poppins, var(--font-inter);
+  font-family: var(--font-inter);
   overflow: hidden;
   box-sizing: border-box;
 }

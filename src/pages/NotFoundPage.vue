@@ -79,7 +79,7 @@
     display: block;
   }
   .brandText {
-    font-family: Poppins, var(--font-inter);
+    font-family: var(--font-inter);
     font-size: 15px;
     font-weight: 700;
     letter-spacing: 0.01em;
@@ -102,7 +102,7 @@
     transform: translateY(-24px);
   }
   .ghost text {
-    font-family: Helvetica, Arial, sans-serif;
+    font-family: var(--font-inter);
     font-size: 24rem;
     font-weight: 700;
     letter-spacing: 0.04em;
@@ -136,7 +136,7 @@
   .heading {
     margin: 0;
     color: var(--color-darkslategray-600);
-    font-family: Poppins, var(--font-inter);
+    font-family: var(--font-inter);
     font-size: 34px;
     line-height: 1.15;
     font-weight: 600;

@@ -480,7 +480,7 @@ function finish() {
 }
 
 .setupKey {
-  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-family: var(--font-inter);
   font-size: 11.5px;
   letter-spacing: 1px;
   color: #0f2e24;

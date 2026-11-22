@@ -65,7 +65,7 @@
   background-color: #fff;
   padding: 18px clamp(24px, 4vw, 56px);
   box-sizing: border-box;
-  font-family: Poppins, var(--font-inter);
+  font-family: var(--font-inter);
 }
 
 .inner {

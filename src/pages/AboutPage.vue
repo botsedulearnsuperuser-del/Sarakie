@@ -112,7 +112,7 @@
   .heroEyebrow {
     margin: 0 0 20px;
     color: var(--color-goldenrod-200);
-    font-family: Poppins, var(--font-inter);
+    font-family: var(--font-inter);
     font-size: 12px;
     font-weight: 600;
     letter-spacing: 0.22em;
@@ -122,7 +122,7 @@
     margin: 0;
     max-width: 800px;
     color: #ffffff;
-    font-family: Poppins, var(--font-inter);
+    font-family: var(--font-inter);
     font-size: 64px;
     line-height: 1.06;
     font-weight: 600;
@@ -201,7 +201,7 @@
   .sectionTitle {
     margin: 0;
     color: var(--color-darkslategray-600);
-    font-family: Poppins, var(--font-inter);
+    font-family: var(--font-inter);
     font-size: 42px;
     line-height: 1.14;
     font-weight: 600;
@@ -230,7 +230,7 @@
   }
   .statValue {
     color: var(--color-darkslategray-600);
-    font-family: Poppins, var(--font-inter);
+    font-family: var(--font-inter);
     font-size: 34px;
     line-height: 1.1;
     font-weight: 600;
@@ -262,7 +262,7 @@
   .capabilitiesEyebrow {
     margin: 0;
     color: #7a5300;
-    font-family: Poppins, var(--font-inter);
+    font-family: var(--font-inter);
     font-size: 11px;
     font-weight: 600;
     letter-spacing: 0.18em;
@@ -272,7 +272,7 @@
     margin: 0;
     max-width: 640px;
     color: var(--color-darkslategray-600);
-    font-family: Poppins, var(--font-inter);
+    font-family: var(--font-inter);
     font-size: 38px;
     line-height: 1.16;
     font-weight: 600;

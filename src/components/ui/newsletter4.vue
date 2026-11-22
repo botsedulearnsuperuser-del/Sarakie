@@ -145,7 +145,7 @@
   .headline {
     margin: 0 0 12px;
     color: var(--color-darkslategray-600);
-    font-family: Poppins, var(--font-inter);
+    font-family: var(--font-inter);
     font-size: 44px;
     line-height: 1.05;
     font-weight: 800;
@@ -295,7 +295,7 @@
     margin: 0;
     max-width: 280px;
     color: #ffffff;
-    font-family: Poppins, var(--font-inter);
+    font-family: var(--font-inter);
     font-size: 44px;
     line-height: 1;
     font-weight: 800;

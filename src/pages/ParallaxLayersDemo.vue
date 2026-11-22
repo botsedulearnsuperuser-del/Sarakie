@@ -128,7 +128,7 @@
     padding: 2px 4px;
     border-radius: 4px;
     background-color: rgba(0, 0, 0, 0.06);
-    font-family: monospace;
+    font-family: var(--font-inter);
     font-size: 12px;
   }
   .sceneWrap {

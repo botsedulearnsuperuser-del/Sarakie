@@ -8,6 +8,14 @@ body,
 }
 body {
   line-height: normal;
+  font-family: var(--font-inter);
+}
+/* One typeface across the whole portal, including native form controls. */
+button,
+input,
+select,
+textarea {
+  font-family: inherit;
 }
 :root {
   /* Common Style Variables */

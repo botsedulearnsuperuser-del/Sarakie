@@ -434,7 +434,7 @@
   }
   .serviceValue {
     color: var(--color-darkslategray-600);
-    font-family: monospace;
+    font-family: var(--font-inter);
     font-size: 9px;
     opacity: 0;
     transform: translateX(-5px);

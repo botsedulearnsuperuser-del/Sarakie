@@ -211,7 +211,7 @@
     padding: 20px;
     box-sizing: border-box;
     background-color: var(--color-darkslategray-600);
-    font-family: Poppins, var(--font-inter);
+    font-family: var(--font-inter);
   }
   .inner {
     width: 100%;
@@ -245,7 +245,7 @@
     display: block;
   }
   .brandName {
-    font-family: Poppins, var(--font-inter);
+    font-family: var(--font-inter);
     font-size: 18px;
     font-weight: 800;
     letter-spacing: 0.02em;
@@ -253,7 +253,7 @@
   .tagline {
     margin: 12px 0 0;
     max-width: 320px;
-    font-family: Poppins, var(--font-inter);
+    font-family: var(--font-inter);
     font-size: 20px;
     line-height: 1.25;
     font-weight: 500;
@@ -341,7 +341,7 @@
   .groupTitle {
     margin: 0;
     color: #737373;
-    font-family: Poppins, var(--font-inter);
+    font-family: var(--font-inter);
     font-size: 14px;
     font-weight: 500;
   }
@@ -356,7 +356,7 @@
   .footerLink {
     width: fit-content;
     color: #404040;
-    font-family: Poppins, var(--font-inter);
+    font-family: var(--font-inter);
     font-size: 12px;
     font-weight: 500;
     line-height: 1.3;
@@ -378,7 +378,7 @@
   .copyright {
     order: 1;
     color: #737373;
-    font-family: Poppins, var(--font-inter);
+    font-family: var(--font-inter);
     font-size: 11px;
     line-height: 1.4;
     flex-shrink: 0;
@@ -399,14 +399,14 @@
   .newsletterSubtitle {
     margin: 0;
     color: #737373;
-    font-family: Poppins, var(--font-inter);
+    font-family: var(--font-inter);
     font-size: 12px;
     font-weight: 500;
   }
   .newsletterTitle {
     margin: 0;
     color: var(--color-darkslategray-600);
-    font-family: Poppins, var(--font-inter);
+    font-family: var(--font-inter);
     font-size: 13px;
     font-weight: 600;
   }
@@ -426,7 +426,7 @@
     outline: none;
     background-color: #e9e3d8;
     color: #171717;
-    font-family: Poppins, var(--font-inter);
+    font-family: var(--font-inter);
     font-size: 14px;
     box-shadow:
       0 0 0 0.5px rgba(0, 0, 0, 0.03),
@@ -454,7 +454,7 @@
     border-radius: 999px;
     background-color: var(--color-darkslategray-600);
     color: #ffffff;
-    font-family: Poppins, var(--font-inter);
+    font-family: var(--font-inter);
     font-size: 13px;
     font-weight: 600;
     cursor: pointer;
