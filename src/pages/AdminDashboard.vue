@@ -20,9 +20,9 @@
           <img :class="$style.notifications2New" alt="" src="/Notifications-2-new.svg" />
           <img :class="$style.notifications2New" alt="" src="/Help.svg" />
           <router-link to="/profile" :class="$style.userA" style="text-decoration: none;">
-            <img :class="$style.userAvatarImg" src="/innovator-man.webp" alt="Marion Lucas" />
+            <img :class="$style.userAvatarImg" src="/innovator-man.webp" :alt="displayName" />
             <div :class="$style.span3">
-              <div :class="$style.marionLucas">Marion Lucas</div>
+              <div :class="$style.marionLucas">{{ displayName }}</div>
             </div>
           </router-link>
         </div>
@@ -89,10 +89,20 @@
 </template>
 
 <script setup lang="ts">
-  import { ref, onMounted, onUnmounted } from "vue";
+  import { ref, onMounted, onUnmounted, computed } from "vue";
   import Main from "../components/Main.vue";
   import { usePageTheme } from "../composables/usePageTheme";
   import { THEME_EVENT, isGaboroneTheme } from "../components/themes";
+  import { authReady, displayName, session } from "../lib/auth";
+  import {
+    loadAllApplications,
+    loadAuditLog,
+    countInnovators,
+    statusLabel,
+    type AdminApplicationRow,
+    type AuditLogRow,
+  } from "../lib/portal-data";
+  import { watch } from "vue";
 
   const pageBackground = usePageTheme();
   const isGaborone = ref(isGaboroneTheme());
@@ -102,73 +112,85 @@
   onMounted(() => window.addEventListener(THEME_EVENT, syncTheme));
   onUnmounted(() => window.removeEventListener(THEME_EVENT, syncTheme));
 
-  const stats = [
-    { label: "Applications in the portal", value: "128" },
-    { label: "Awaiting assignment", value: "14" },
-    { label: "Approved this month", value: "23" },
-    { label: "Active innovators", value: "96" },
-  ];
+  // ── Live data ──
+  const apps = ref<AdminApplicationRow[]>([]);
+  const audit = ref<AuditLogRow[]>([]);
+  const innovatorCount = ref(0);
 
-  const applications = [
-    {
-      id: 1,
-      applicant: "Kabo Mothusi",
-      amount: "P 480,000",
-      type: "Loan",
-      stage: "Screening",
-      tone: "warn",
-      officer: "Mpho R.",
-      updated: "Updated 2 hours ago",
-    },
-    {
-      id: 2,
-      applicant: "Neo Kgang",
-      amount: "P 125,000",
-      type: "Idea",
-      stage: "Committee",
-      tone: "warn",
-      officer: "Lerato P.",
-      updated: "Updated yesterday",
-    },
-    {
-      id: 3,
-      applicant: "Refilwe Dube",
-      amount: "P 640,000",
-      type: "Loan",
-      stage: "Approved",
-      tone: "ok",
-      officer: "Thabo S.",
-      updated: "Updated 3 days ago",
-    },
-    {
-      id: 4,
-      applicant: "Tapiwa Ndlovu",
-      amount: "P 96,000",
-      type: "Idea",
-      stage: "Submitted",
-      tone: "neutral",
-      officer: "Unassigned",
-      updated: "Submitted yesterday",
-    },
-    {
-      id: 5,
-      applicant: "Mochudi Textiles",
-      amount: "P 250,000",
-      type: "Loan",
-      stage: "Due diligence",
-      tone: "neutral",
-      officer: "Mpho R.",
-      updated: "Updated 5 days ago",
-    },
-  ];
+  async function loadDashboard() {
+    if (!session.value) return;
+    const [a, l, c] = await Promise.all([
+      loadAllApplications(),
+      loadAuditLog(8),
+      countInnovators(),
+    ]);
+    apps.value = a;
+    audit.value = l;
+    innovatorCount.value = c;
+  }
 
-  const auditTrail = [
-    { id: 1, time: "08:42", action: "Signed in with password + 2FA", actor: "Marion Lucas", ip: "196.216.164.12" },
-    { id: 2, time: "08:55", action: "Assigned evaluator to SRK-L-10847", actor: "Marion Lucas", ip: "196.216.164.12" },
-    { id: 3, time: "09:12", action: "Approved SRK-L-10812 for P 10,000", actor: "Thabo S.", ip: "196.216.164.20" },
-    { id: 4, time: "09:40", action: "Updated scoring criteria (weighting)", actor: "Lerato P.", ip: "196.216.164.31" },
-    { id: 5, time: "10:05", action: "Exported participation report", actor: "Marion Lucas", ip: "196.216.164.12" },
-  ];
+  onMounted(loadDashboard);
+  watch([session, authReady], () => void loadDashboard());
+
+  const stats = computed(() => {
+    const total = apps.value.length;
+    const awaiting = apps.value.filter(
+      (a) => !a.evaluator_name && (a.status === "submitted" || a.status === "screening"),
+    ).length;
+    const approvedThisMonth = apps.value.filter((a) => {
+      if (a.status !== "approved") return false;
+      const d = new Date(a.updated_at);
+      const now = new Date();
+      return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+    }).length;
+    return [
+      { label: "Applications in the portal", value: String(total) },
+      { label: "Awaiting assignment", value: String(awaiting) },
+      { label: "Approved this month", value: String(approvedThisMonth) },
+      { label: "Active innovators", value: String(innovatorCount.value) },
+    ];
+  });
+
+  const applications = computed(() =>
+    apps.value
+      .filter((a) => a.status !== "approved" && a.status !== "rejected")
+      .slice(0, 8)
+      .map((a) => ({
+        id: a.id,
+        applicant: a.innovator_name ?? "Unknown applicant",
+        amount: `P ${Number(a.funding_requested ?? 0).toLocaleString()}`,
+        type: a.sector ?? "Idea",
+        stage: statusLabel(a.status),
+        tone:
+          a.status === "submitted" || a.status === "screening"
+            ? "warn"
+            : a.status === "approved"
+              ? "ok"
+              : "neutral",
+        officer: a.evaluator_name ?? "Unassigned",
+        updated: formatRelative(a.updated_at),
+      })),
+  );
+
+  const auditTrail = computed(() =>
+    audit.value.map((e) => ({
+      id: e.id,
+      time: new Date(e.created_at).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" }),
+      action: e.action,
+      actor: e.actor_name ?? "System",
+      ip: e.ip ?? "—",
+    })),
+  );
+
+  function formatRelative(iso: string) {
+    const d = new Date(iso);
+    const diff = Date.now() - d.getTime();
+    const days = Math.floor(diff / 86400000);
+    if (days <= 0) return "Updated today";
+    if (days === 1) return "Updated yesterday";
+    if (days < 7) return `Updated ${days} days ago`;
+    return `Updated ${d.toLocaleDateString("en-GB", { day: "numeric", month: "short" })}`;
+  }
 </script>
 
 <style module>

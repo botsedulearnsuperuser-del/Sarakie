@@ -15,7 +15,7 @@
           </div>
           <div :class="$style.p">
             <div :class="$style.sunday4October">
-              Friday 20 November 2026. You have 5 submissions waiting for your score.
+              {{ todayLine }}
             </div>
           </div>
         </div>
@@ -45,9 +45,9 @@
             </button>
           </div>
           <router-link to="/profile" :class="$style.a" style="text-decoration: none">
-            <img :class="$style.userAvatarImg" src="/innovator-man.webp" alt="Marion Lucas" />
+            <img :class="$style.userAvatarImg" src="/innovator-man.webp" :alt="displayName" />
             <div :class="$style.span3">
-              <div :class="$style.marionLucas">Marion Lucas</div>
+              <div :class="$style.marionLucas">{{ displayName }}</div>
             </div>
           </router-link>
         </div>
@@ -63,13 +63,13 @@
                 <div :class="$style.reviewPillText">Evaluation queue</div>
               </div>
               <button :class="$style.reviewPillGhost" type="button" @click="scrollToQueue">
-                <span>5 awaiting score</span>
+                <span>{{ awaitingCount }} awaiting score</span>
               </button>
             </div>
             <div :class="$style.reviewLoadLabel">Submissions assigned to you</div>
-            <div :class="$style.reviewLoadValue">05</div>
+            <div :class="$style.reviewLoadValue">{{ String(awaitingCount).padStart(2, '0') }}</div>
             <div :class="$style.reviewLoadMeta">
-              of 12 assigned this cycle, 2 are due today and 3 more this week
+              of {{ assignedCount }} assigned this cycle, {{ dueTodayCount }} due today
             </div>
             <div :class="$style.reviewTrack">
               <div :class="$style.reviewTrackFill" />
@@ -81,8 +81,8 @@
           </div>
           <div :class="$style.reviewLoadSide">
             <div>
-              <b :class="$style.reviewLoadLabel">Next: Irrigation Kit</b>
-              <div :class="$style.reviewLoadHint">SRK-IN-2026-0481 · due today</div>
+              <b :class="$style.reviewLoadLabel">Next: {{ nextDue?.title ?? '—' }}</b>
+              <div :class="$style.reviewLoadHint">{{ nextDue?.ref ?? 'No pending reviews' }}</div>
             </div>
             <div :class="$style.reviewActions">
               <button :class="$style.reviewPrimaryBtn" type="button" @click="openReview('Irrigation Kit')">
@@ -121,12 +121,12 @@
       <section :class="$style.accountSummary">
         <div :class="$style.summaryCell">
           <div :class="$style.summaryLabel">Assigned to me</div>
-          <h2 :class="$style.summaryValue">12</h2>
-          <div :class="$style.summaryMeta">3 new since Monday</div>
+          <h2 :class="$style.summaryValue">{{ assignedCount }}</h2>
+          <div :class="$style.summaryMeta">{{ newThisWeek }} new this week</div>
         </div>
         <div :class="[$style.summaryCell, $style.summaryDivider]">
           <div :class="$style.summaryLabel">Awaiting my score</div>
-          <h2 :class="$style.summaryValue">5 of 12</h2>
+          <h2 :class="$style.summaryValue">{{ awaitingCount }} of {{ assignedCount }}</h2>
           <div :class="$style.summaryDots">
             <span
               v-for="(item, index) in assignmentDots"
@@ -138,8 +138,8 @@
         </div>
         <div :class="[$style.summaryCell, $style.summaryDivider]">
           <div :class="$style.summaryLabel">Completed this month</div>
-          <h2 :class="$style.summaryValue">7</h2>
-          <div :class="$style.summaryMeta">Average score given 74 / 100</div>
+          <h2 :class="$style.summaryValue">{{ completedCount }}</h2>
+          <div :class="$style.summaryMeta">Average score given {{ averageScore }} / 100</div>
         </div>
       </section>
 
@@ -218,14 +218,14 @@
           <div :class="$style.rubricRows">
             <div v-for="criterion in rubric" :key="criterion.name" :class="$style.rubricRow">
               <div :class="$style.rubricName">{{ criterion.name }}</div>
-              <div :class="$style.rubricWeight">{{ criterion.weight }}</div>
+              <div :class="$style.rubricWeight">{{ criterion.weight }}%</div>
             </div>
           </div>
           <div :class="$style.scoreCard">
             <img :class="$style.scorePattern" alt="" src="/pattern-1.webp" />
             <div :class="$style.scoreLabel">My average score this month</div>
-            <h2 :class="$style.scoreValue">74</h2>
-            <div :class="$style.scoreMeta">out of 100 across 7 completed evaluations</div>
+            <h2 :class="$style.scoreValue">{{ averageScore }}</h2>
+            <div :class="$style.scoreMeta">out of 100 across {{ completedCount }} completed evaluations</div>
             <div :class="$style.scoreFooter">
               <div :class="$style.scoreStat">
                 <b>1.8 days</b>
@@ -245,7 +245,7 @@
 </template>
 
 <script setup lang="ts">
-  import { computed, onBeforeUnmount, onMounted, ref } from "vue"
+  import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue"
   import { useRouter } from "vue-router"
   import Main from "../components/Main.vue"
   import MaintenanceAnnouncement from "../components/ui/maintenance-announcement.vue"
@@ -261,174 +261,131 @@
     THEME_STORAGE_KEY,
   } from "../components/themes"
   import type { DashboardTheme } from "../components/themes"
+  import { authReady, displayName, session } from "../lib/auth"
+  import {
+    formatShortDate,
+    loadEvaluatorQueue,
+    loadMyEvaluations,
+    loadRubricCriteria,
+    type EvaluatorQueueRow,
+    type RubricCriterion,
+  } from "../lib/portal-data"
 
   const router = useRouter()
   const showNotifications = ref(false)
 
   type TabId = "awaiting" | "progress" | "returned"
 
-  const tabs: Array<{ id: TabId; label: string; count: number }> = [
-    { id: "awaiting", label: "Awaiting score", count: 5 },
-    { id: "progress", label: "In progress", count: 2 },
-    { id: "returned", label: "Returned", count: 7 },
-  ]
+  // ── Live data ──
+  const queue = ref<EvaluatorQueueRow[]>([])
+  const evaluations = ref<{ id: string; application_id: string; weighted_score: number | null; submitted_at: string | null }[]>([])
+  const rubric = ref<RubricCriterion[]>([])
 
-  interface ReviewItem {
-    ref: string
-    title: string
-    innovator: string
-    category: string
-    amount: string
-    deadline: string
-    status: string
-    statusClass: "badgeDue" | "badgeProgress" | "badgeReview" | "badgeDone"
-    tab: TabId
+  async function loadDashboard() {
+    if (!session.value) return
+    const [q, ev, rb] = await Promise.all([
+      loadEvaluatorQueue(),
+      loadMyEvaluations(),
+      loadRubricCriteria(),
+    ])
+    queue.value = q
+    evaluations.value = ev
+    rubric.value = rb.length
+      ? rb
+      : [
+          { key: "problem_market", name: "Problem and market need", weight: 25, hint: "Real, sizeable problem.", position: 1 },
+          { key: "solution_feasible", name: "Solution and feasibility", weight: 25, hint: "Works and is buildable.", position: 2 },
+          { key: "team_capability", name: "Team and capability", weight: 20, hint: "Who delivers it.", position: 3 },
+          { key: "financial", name: "Financial projections", weight: 20, hint: "Numbers add up.", position: 4 },
+          { key: "impact_youth", name: "Impact and youth ownership", weight: 10, hint: "Who benefits, who owns it.", position: 5 },
+        ]
   }
 
-  const reviews: ReviewItem[] = [
-    {
-      ref: "SRK-IN-2026-0481",
-      title: "Irrigation Kit",
-      innovator: "0481",
-      category: "Agri-Tech",
-      amount: "P 900.00",
-      deadline: "Today",
-      status: "Due today",
-      statusClass: "badgeDue",
-      tab: "awaiting",
-    },
-    {
-      ref: "SRK-IN-2026-0476",
-      title: "Solar Dryer",
-      innovator: "0476",
-      category: "Renewable energy",
-      amount: "P 1,000.00",
-      deadline: "24 Nov 2026",
-      status: "Due this week",
-      statusClass: "badgeProgress",
-      tab: "awaiting",
-    },
-    {
-      ref: "SRK-IN-2026-0468",
-      title: "Edu App",
-      innovator: "0468",
-      category: "EdTech",
-      amount: "P 3,000.00",
-      deadline: "26 Nov 2026",
-      status: "Awaiting score",
-      statusClass: "badgeReview",
-      tab: "awaiting",
-    },
-    {
-      ref: "SRK-IN-2026-0455",
-      title: "Agri Drone",
-      innovator: "0455",
-      category: "Agri-Tech",
-      amount: "P 6,000.00",
-      deadline: "30 Nov 2026",
-      status: "Awaiting score",
-      statusClass: "badgeReview",
-      tab: "awaiting",
-    },
-    {
-      ref: "SRK-IN-2026-0442",
-      title: "Cold-chain crate",
-      innovator: "0442",
-      category: "Logistics",
-      amount: "P 4,500.00",
-      deadline: "2 Dec 2026",
-      status: "Awaiting score",
-      statusClass: "badgeReview",
-      tab: "awaiting",
-    },
-    {
-      ref: "SRK-IN-2026-0468",
-      title: "Edu App",
-      innovator: "0468",
-      category: "EdTech",
-      amount: "P 3,000.00",
-      deadline: "26 Nov 2026",
-      status: "Scoring in progress",
-      statusClass: "badgeProgress",
-      tab: "progress",
-    },
-    {
-      ref: "SRK-IN-2026-0455",
-      title: "Agri Drone",
-      innovator: "0455",
-      category: "Agri-Tech",
-      amount: "P 6,000.00",
-      deadline: "30 Nov 2026",
-      status: "Clarification sent",
-      statusClass: "badgeReview",
-      tab: "progress",
-    },
-    {
-      ref: "SRK-IN-2026-0431",
-      title: "Solar Dryer",
-      innovator: "0431",
-      category: "Renewable energy",
-      amount: "P 1,000.00",
-      deadline: "10 Nov 2026",
-      status: "Score submitted",
-      statusClass: "badgeDone",
-      tab: "returned",
-    },
-    {
-      ref: "SRK-IN-2026-0429",
-      title: "Irrigation Kit",
-      innovator: "0429",
-      category: "Agri-Tech",
-      amount: "P 900.00",
-      deadline: "7 Nov 2026",
-      status: "Score submitted",
-      statusClass: "badgeDone",
-      tab: "returned",
-    },
-    {
-      ref: "SRK-IN-2026-0418",
-      title: "Edu App",
-      innovator: "0418",
-      category: "EdTech",
-      amount: "P 3,000.00",
-      deadline: "3 Nov 2026",
-      status: "Feedback returned",
-      statusClass: "badgeDone",
-      tab: "returned",
-    },
-  ]
+  onMounted(loadDashboard)
+  watch([session, authReady], () => void loadDashboard())
 
-  const activeTab = ref<TabId>("awaiting")
+  const isSubmitted = (row: EvaluatorQueueRow) =>
+    row.assignment_status === "submitted" ||
+    evaluations.value.some((e) => e.application_id === row.application_id && e.submitted_at)
 
-  const filteredReviews = computed(() =>
-    reviews.filter((review) => review.tab === activeTab.value),
+  const tabFor = (row: EvaluatorQueueRow): TabId => {
+    if (isSubmitted(row)) return "returned"
+    if (row.assignment_status === "in_progress") return "progress"
+    return "awaiting"
+  }
+
+  const reviews = computed(() =>
+    queue.value.map((row) => {
+      const due = row.due_at ? new Date(row.due_at) : null
+      const now = new Date()
+      const dueToday = !!due && due.toDateString() === now.toDateString()
+      const dueThisWeek =
+        !!due && !dueToday && due.getTime() - now.getTime() <= 7 * 86400000 && due >= now
+      let status = "Awaiting score"
+      let statusClass: "badgeDue" | "badgeProgress" | "badgeReview" | "badgeDone" = "badgeReview"
+      if (isSubmitted(row)) {
+        status = "Score submitted"
+        statusClass = "badgeDone"
+      } else if (row.assignment_status === "in_progress") {
+        status = "Scoring in progress"
+        statusClass = "badgeProgress"
+      } else if (row.assignment_status === "overdue") {
+        status = "Overdue"
+        statusClass = "badgeDue"
+      } else if (dueToday) {
+        status = "Due today"
+        statusClass = "badgeDue"
+      } else if (dueThisWeek) {
+        status = "Due this week"
+        statusClass = "badgeProgress"
+      }
+      return {
+        ref: row.reference,
+        title: row.title,
+        innovator: row.innovator_code,
+        category: row.sector ?? row.innovation_type ?? "—",
+        amount: row.funding_requested != null ? `P ${Number(row.funding_requested).toLocaleString()}` : "—",
+        deadline: row.due_at ? formatShortDate(row.due_at) : "—",
+        status,
+        statusClass,
+        tab: tabFor(row),
+        applicationId: row.application_id,
+      }
+    }),
   )
 
-  const assignmentDots = [
-    "dotDue",
-    "dotDue",
-    "dotWeek",
-    "dotWeek",
-    "dotWeek",
-    "dotDone",
-    "dotDone",
-    "dotDone",
-    "dotDone",
-    "dotDone",
-    "dotDone",
-    "dotDone",
-  ]
+  const activeTab = ref<TabId>("awaiting")
+  const filteredReviews = computed(() => reviews.value.filter((r) => r.tab === activeTab.value))
 
-  const rubric = [
-    { name: "Problem and market need", weight: "25%" },
-    { name: "Solution and feasibility", weight: "25%" },
-    { name: "Team and capability", weight: "20%" },
-    { name: "Financial projections", weight: "20%" },
-    { name: "Impact and youth ownership", weight: "10%" },
-  ]
+  const tabs = computed(() => [
+    { id: "awaiting" as TabId, label: "Awaiting score", count: reviews.value.filter((r) => r.tab === "awaiting").length },
+    { id: "progress" as TabId, label: "In progress", count: reviews.value.filter((r) => r.tab === "progress").length },
+    { id: "returned" as TabId, label: "Returned", count: reviews.value.filter((r) => r.tab === "returned").length },
+  ])
 
-  function openReview(name: string) {
-    router.push({ name: "ApplicationView", query: { name } })
+  const assignedCount = computed(() => queue.value.length)
+  const awaitingCount = computed(() => reviews.value.filter((r) => r.tab === "awaiting").length)
+  const completedCount = computed(() => evaluations.value.filter((e) => e.submitted_at).length)
+  const averageScore = computed(() => {
+    const scored = evaluations.value.filter((e) => e.weighted_score != null)
+    if (!scored.length) return 0
+    return Math.round(scored.reduce((a, e) => a + (e.weighted_score ?? 0), 0) / scored.length)
+  })
+  const dueTodayCount = computed(() => reviews.value.filter((r) => r.status === "Due today").length)
+  const newThisWeek = computed(() => queue.value.filter((r) => {
+    const d = new Date(r.submitted_at)
+    return Date.now() - d.getTime() <= 7 * 86400000
+  }).length)
+
+  const nextDue = computed(() => {
+    const awaiting = reviews.value.filter((r) => r.tab === "awaiting")
+    return awaiting.sort((a, b) => (a.deadline < b.deadline ? -1 : 1))[0] ?? null
+  })
+
+  function openReview(title: string) {
+    const row = reviews.value.find((r) => r.title === title)
+    if (row) router.push({ name: "ApplicationView", query: { id: row.applicationId } })
+    else router.push({ name: "ApplicationView", query: { name: title } })
   }
 
   function openFaq() {
@@ -439,7 +396,7 @@
     document.getElementById("evaluation-queue")?.scrollIntoView({ behavior: "smooth" })
   }
 
-  // Dashboard background theme, shared with the innovator dashboard.
+  // Theme handling (unchanged)
   const activeTheme = ref<DashboardTheme | null>(null)
   const isGaborone = ref(isGaboroneTheme())
 
@@ -456,7 +413,6 @@
 
   function loadTheme() {
     const themeId = localStorage.getItem(THEME_STORAGE_KEY)
-
     if (themeId === CUSTOM_THEME_ID) {
       const customImage = localStorage.getItem(CUSTOM_IMAGE_STORAGE_KEY)
       activeTheme.value = customImage
@@ -464,13 +420,11 @@
         : null
       return
     }
-
     activeTheme.value = dashboardThemes.find((theme) => theme.id === themeId) ?? null
   }
 
   function onThemeChange(event: Event) {
     const detail = (event as CustomEvent<{ id: string; image: string }>).detail
-
     if (detail?.image) {
       const preset = dashboardThemes.find((theme) => theme.id === detail.id)
       activeTheme.value = {
@@ -480,7 +434,6 @@
       }
       return
     }
-
     loadTheme()
   }
 
@@ -504,6 +457,24 @@
         }
       : undefined,
   )
+
+  const todayLine = computed(() => {
+    const now = new Date()
+    const day = now.toLocaleDateString("en-GB", { weekday: "long" })
+    const rest = now.toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })
+    const n = awaitingCount.value
+    return `${day} ${rest}. ${n === 0 ? "No submissions waiting for your score." : `You have ${n} submission${n === 1 ? "" : "s"} waiting for your score.`}`
+  })
+
+  const assignmentDots = computed(() => {
+    const dots: string[] = []
+    for (let i = 0; i < Math.max(assignedCount.value, 1); i++) {
+      if (i < awaitingCount.value) dots.push("dotDue")
+      else if (i < awaitingCount.value + Math.max(0, assignedCount.value - completedCount.value - awaitingCount.value)) dots.push("dotWeek")
+      else dots.push("dotDone")
+    }
+    return dots.length ? dots : ["dotDone"]
+  })
 </script>
 
 <style module>

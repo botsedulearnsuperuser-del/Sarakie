@@ -254,3 +254,172 @@ export async function countDocumentsByApplication(): Promise<Record<string, numb
   }
   return counts;
 }
+
+/** Evaluator's assigned queue (anonymised view). */
+export interface EvaluatorQueueRow {
+  assignment_id: string;
+  application_id: string;
+  reference: string;
+  title: string;
+  sector: string | null;
+  innovation_type: string | null;
+  maturity_level: string | null;
+  funding_requested: number | null;
+  expected_impact: string | null;
+  submitted_at: string;
+  status: DbStatus;
+  assignment_status: "assigned" | "in_progress" | "submitted" | "overdue";
+  due_at: string | null;
+  innovator_code: string;
+}
+
+export async function loadEvaluatorQueue(): Promise<EvaluatorQueueRow[]> {
+  if (!supabase) return [];
+  const { data, error } = await supabase
+    .from("evaluator_queue")
+    .select("*")
+    .order("submitted_at", { ascending: false });
+  if (error) {
+    console.warn("[portal] Could not load evaluator queue:", error.message);
+    return [];
+  }
+  return (data ?? []) as unknown as EvaluatorQueueRow[];
+}
+
+/** Rubric criteria (read by everyone signed in). */
+export interface RubricCriterion {
+  key: string;
+  name: string;
+  weight: number;
+  hint: string | null;
+  position: number;
+}
+
+export async function loadRubricCriteria(): Promise<RubricCriterion[]> {
+  if (!supabase) return [];
+  const { data, error } = await supabase
+    .from("rubric_criteria")
+    .select("key, name, weight, hint, position")
+    .eq("active", true)
+    .order("position", { ascending: true });
+  if (error) {
+    console.warn("[portal] Could not load rubric:", error.message);
+    return [];
+  }
+  return (data ?? []) as unknown as RubricCriterion[];
+}
+
+/** All applications, admin only (RLS). */
+export interface AdminApplicationRow {
+  id: string;
+  reference: string;
+  title: string;
+  status: DbStatus;
+  sector: string | null;
+  funding_requested: number | null;
+  updated_at: string;
+  submitted_at: string;
+  innovator_name: string | null;
+  evaluator_name: string | null;
+}
+
+export async function loadAllApplications(): Promise<AdminApplicationRow[]> {
+  if (!supabase) return [];
+  const { data, error } = await supabase
+    .from("applications")
+    .select(
+      "id, reference, title, status, sector, funding_requested, updated_at, submitted_at, innovator:profiles!innovator_id(full_name), assignments:evaluation_assignments(evaluator:profiles!evaluator_id(full_name))",
+    )
+    .order("submitted_at", { ascending: true });
+  if (error) {
+    console.warn("[portal] Could not load all applications:", error.message);
+    return [];
+  }
+  return ((data ?? []) as Record<string, any>[]).map((row) => {
+    const innovator = Array.isArray(row.innovator) ? row.innovator[0] : row.innovator;
+    const assignments = Array.isArray(row.assignments) ? row.assignments : [];
+    const evaluator = assignments[0]?.evaluator;
+    const ev = Array.isArray(evaluator) ? evaluator[0] : evaluator;
+    return {
+      id: row.id,
+      reference: row.reference,
+      title: row.title,
+      status: row.status,
+      sector: row.sector,
+      funding_requested: row.funding_requested,
+      updated_at: row.updated_at,
+      submitted_at: row.submitted_at,
+      innovator_name: innovator?.full_name ?? null,
+      evaluator_name: ev?.full_name ?? null,
+    };
+  });
+}
+
+/** Audit log entries, admin only. */
+export interface AuditLogRow {
+  id: number;
+  action: string;
+  actor_name: string | null;
+  ip: string | null;
+  created_at: string;
+  entity_table: string | null;
+  entity_id: string | null;
+}
+
+export async function loadAuditLog(limit = 10): Promise<AuditLogRow[]> {
+  if (!supabase) return [];
+  const { data, error } = await supabase
+    .from("audit_log")
+    .select("id, action, entity_table, entity_id, ip, created_at, actor:profiles!actor_id(full_name)")
+    .order("created_at", { ascending: false })
+    .limit(limit);
+  if (error) {
+    console.warn("[portal] Could not load audit log:", error.message);
+    return [];
+  }
+  return ((data ?? []) as Record<string, any>[]).map((row) => {
+    const actor = Array.isArray(row.actor) ? row.actor[0] : row.actor;
+    return {
+      id: row.id,
+      action: row.action,
+      actor_name: actor?.full_name ?? null,
+      ip: row.ip,
+      created_at: row.created_at,
+      entity_table: row.entity_table,
+      entity_id: row.entity_id,
+    };
+  });
+}
+
+/** Evaluations submitted by the signed-in evaluator. */
+export interface MyEvaluationRow {
+  id: string;
+  application_id: string;
+  weighted_score: number | null;
+  recommendation: string | null;
+  submitted_at: string | null;
+}
+
+export async function loadMyEvaluations(): Promise<MyEvaluationRow[]> {
+  if (!supabase) return [];
+  const { data, error } = await supabase
+    .from("evaluations")
+    .select("id, application_id, weighted_score, recommendation, submitted_at")
+    .order("submitted_at", { ascending: false });
+  if (error) {
+    console.warn("[portal] Could not load evaluations:", error.message);
+    return [];
+  }
+  return (data ?? []) as unknown as MyEvaluationRow[];
+}
+
+/** Count innovator profiles (admin only). */
+export async function countInnovators(): Promise<number> {
+  if (!supabase) return 0;
+  const { count, error } = await supabase
+    .from("profiles")
+    .select("id", { count: "exact", head: true })
+    .eq("role", "innovator");
+  if (error) return 0;
+  return count ?? 0;
+}
