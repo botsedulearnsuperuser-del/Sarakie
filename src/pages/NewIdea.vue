@@ -69,7 +69,7 @@
               </div>
               <div :class="$style.successRow">
                 <span>Recorded by</span>
-                <b>Marion Lucas (SRK-ADM-0042)</b>
+                <b>CEDA Branch Administrator</b>
               </div>
               <div v-if="assignedTeam.length" :class="$style.successRow">
                 <span>Team invited</span>
@@ -430,8 +430,8 @@
                 <div :class="$style.adminAuditNote">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0f2e24" stroke-width="2" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
                   <span>
-                    <b>Important:</b> this application will be officially recorded by Branch Administrator
-                    <b>Marion Lucas</b> (Employee ID: SRK-ADM-0042) and kept on file for review.
+                    <b>Important:</b> this application will be officially recorded by CEDA and kept on
+                    file for review.
                   </span>
                 </div>
               </div>
