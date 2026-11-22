@@ -3,32 +3,32 @@
     <!-- Signed in, authenticator connected: ask for the code -->
     <div v-if="needsCode" :class="$style.overlay">
       <form :class="$style.card" @submit.prevent="submit">
-        <span :class="$style.badge" aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5">
-            <path d="M9.5 15.25v.5m.5-.25a.5.5 0 1 1-1 0a.5.5 0 0 1 1 0m4.5-.25v.5m.5-.25a.5.5 0 1 1-1 0a.5.5 0 0 1 1 0M16.5 9V6.5a4.5 4.5 0 1 0-9 0V9" />
-            <path d="M4.268 18.845c.225 1.67 1.608 2.979 3.292 3.056c1.416.065 2.855.099 4.44.099s3.024-.034 4.44-.1c1.684-.076 3.067-1.385 3.292-3.055c.147-1.09.268-2.207.268-3.345s-.121-2.255-.268-3.345c-.225-1.67-1.608-2.979-3.292-3.056A95 95 0 0 0 12 9c-1.585 0-3.024.034-4.44.1c-1.684.076-3.067 1.385-3.292 3.055C4.12 13.245 4 14.362 4 15.5s.121 2.255.268 3.345" />
-          </svg>
-        </span>
-
         <h2 :class="$style.title">Two-step verification</h2>
         <p :class="$style.text">
           Open your authenticator app and enter the 6-digit code for
           <b>{{ accountEmail }}</b> to prove it is you.
         </p>
 
-        <label :class="$style.label" for="mfa-gate-code">Authenticator code</label>
-        <input
-          id="mfa-gate-code"
-          ref="inputRef"
-          :value="code"
-          :class="$style.input"
-          inputmode="numeric"
-          autocomplete="one-time-code"
-          maxlength="6"
-          placeholder="000000"
-          :disabled="busy"
-          @input="onInput"
-        />
+        <div :class="$style.slots" role="group" aria-label="Authenticator code">
+          <input
+            v-for="(d, i) in digits"
+            :key="i"
+            :ref="(el) => (slotRefs[i] = el as HTMLInputElement | null)"
+            :value="d"
+            :class="$style.slot"
+            type="text"
+            inputmode="numeric"
+            pattern="[0-9]*"
+            maxlength="1"
+            autocomplete="one-time-code"
+            :aria-label="`Digit ${i + 1} of 6`"
+            :disabled="busy"
+            @input="onSlotInput(i, $event)"
+            @keydown="onSlotKeyDown(i, $event)"
+            @paste="onSlotPaste"
+            @focus="onSlotFocus(i)"
+          />
+        </div>
 
         <p v-if="error" :class="$style.error" role="alert">{{ error }}</p>
 
@@ -44,15 +44,6 @@
     <!-- Signed in, no authenticator yet: 2FA is not optional -->
     <div v-else-if="needsEnrollment" :class="$style.overlay">
       <div :class="$style.card" role="dialog" aria-modal="true" aria-labelledby="mfa-setup-title">
-        <span :class="$style.plainIcon" aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5">
-            <path d="M5 11.5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2Z" />
-            <path d="M8 7a4 4 0 0 1 8 0" />
-            <path d="M8 15.5h8" />
-            <path d="m13.5 13 2.5 2.5-2.5 2.5" />
-          </svg>
-        </span>
-
         <h2 id="mfa-setup-title" :class="$style.title">Add two-factor authentication</h2>
         <p :class="$style.text">
           Your CEDA account must be protected with an authenticator app. Add one now
@@ -88,10 +79,11 @@
   } from "../lib/mfa";
 
   const router = useRouter();
-  const code = ref("");
+  const digits = ref<string[]>(Array(6).fill(""));
+  const slotRefs = ref<(HTMLInputElement | null)[]>(Array(6).fill(null));
+  const code = computed(() => digits.value.join(""));
   const error = ref("");
   const busy = ref(false);
-  const inputRef = ref<HTMLInputElement | null>(null);
 
   const accountEmail = computed(() => session.value?.user.email ?? "your account");
 
@@ -113,10 +105,10 @@
     if (!authReady.value) return;
     await refreshMfa();
     if (mfaRequired.value) {
-      code.value = "";
+      digits.value = Array(6).fill("");
       error.value = "";
       await nextTick();
-      inputRef.value?.focus();
+      slotRefs.value[0]?.focus();
     }
   }
 
@@ -128,12 +120,36 @@
     if (!open) await sync();
   });
 
-  function onInput(event: Event) {
+  function onSlotInput(i: number, event: Event) {
     const input = event.target as HTMLInputElement;
-    const digits = input.value.replace(/\D/g, "").slice(0, 6);
-    input.value = digits;
-    code.value = digits;
+    const val = input.value.replace(/\D/g, "").slice(-1);
+    input.value = val;
+    digits.value[i] = val;
     error.value = "";
+    if (val && i < 5) {
+      nextTick(() => slotRefs.value[i + 1]?.focus());
+    }
+  }
+
+  function onSlotKeyDown(i: number, event: KeyboardEvent) {
+    if (event.key === "Backspace" && !digits.value[i] && i > 0) {
+      digits.value[i - 1] = "";
+      nextTick(() => slotRefs.value[i - 1]?.focus());
+    }
+  }
+
+  function onSlotPaste(event: ClipboardEvent) {
+    const text = event.clipboardData?.getData("text") ?? "";
+    const nums = text.replace(/\D/g, "").slice(0, 6);
+    if (!nums) return;
+    event.preventDefault();
+    for (let i = 0; i < 6; i++) digits.value[i] = nums[i] ?? "";
+    const next = Math.min(nums.length, 5);
+    nextTick(() => slotRefs.value[next]?.focus());
+  }
+
+  function onSlotFocus(i: number) {
+    slotRefs.value[i]?.select();
   }
 
   function startSetup() {
@@ -149,8 +165,8 @@
     busy.value = false;
     if (!result.ok) {
       error.value = result.error ?? "That code could not be verified.";
-      code.value = "";
-      inputRef.value?.focus();
+      digits.value = Array(6).fill("");
+      nextTick(() => slotRefs.value[0]?.focus());
       return;
     }
     await refreshMfa();
@@ -195,14 +211,38 @@
     flex-direction: column;
     gap: 10px;
   }
-  .badge {
-    display: grid;
-    place-items: center;
-    width: 46px;
-    height: 46px;
-    border-radius: 50%;
-    background: rgba(1, 53, 37, 0.08);
+  .slots {
+    display: flex;
+    gap: 8px;
+    margin-top: 4px;
+    justify-content: center;
+  }
+  .slot {
+    width: 40px;
+    height: 48px;
+    border-radius: 8px;
+    border: 1px solid #d1d5db;
+    background-color: #ffffff;
+    text-align: center;
+    font-family: var(--font-inter);
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: 0;
     color: var(--color-darkslategray-600);
+    outline: none;
+    box-sizing: border-box;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .slot:focus {
+    border-color: var(--color-darkslategray-500);
+    box-shadow: 0 0 0 3px rgba(15, 46, 36, 0.1);
+  }
+  .slot:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+  .badge {
+    display: none;
   }
   .badge svg {
     width: 24px;
