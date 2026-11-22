@@ -62,6 +62,9 @@
                 </div>
               </div>
             </div>
+            <button v-if="editMode" :class="$style.clearBtn" type="button" @click="disconnectEdit" style="margin-right:8px;color:#b42318;border-color:#fca5a5;">
+              Disconnect edit mode
+            </button>
             <button :class="$style.clearBtn" type="button" @click="resetChat">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M3 12a9 9 0 1 0 3-6.7" />
@@ -133,7 +136,10 @@
             v-model="input"
             placeholder="Ask about a submission, the rubric or CEDA requirements…"
             :reasoning="reasoningEnabled"
+            :edit-mode="editMode"
             @reasoning-change="reasoningEnabled = $event"
+            @edit-mode-change="editMode = $event"
+            @request-edit-consent="consentOpen = true"
             @submit="handleComposerSubmit"
           />
         </section>
@@ -152,6 +158,12 @@
             </div>
           </section>
 
+          <TaskList
+            v-if="editMode"
+            title="Edit mode tasks"
+            :tasks="editTasks"
+          />
+
           <div :class="$style.tipCard">
             <img :class="$style.tipPattern" alt="" src="/pattern-1.webp" />
             <div :class="$style.tipLabel">Review window</div>
@@ -168,6 +180,14 @@
         </aside>
       </section>
     </main>
+
+    <EditConsentModal
+      :open="consentOpen"
+      :edit-mode-active="editMode"
+      @agree="agreeEdit"
+      @decline="declineEdit"
+      @disconnect="disconnectEdit"
+    />
   </div>
 </template>
 
@@ -179,11 +199,14 @@
   import ComposerPanel from "../components/ui/ComposerPanel.vue"
   import AIResponse from "../components/ui/AIResponse.vue"
   import WebSearchTrail, { type WebSearchStep } from "../components/ui/WebSearchTrail.vue"
+  import EditConsentModal from "../components/ui/EditConsentModal.vue"
+  import TaskList from "../components/ui/TaskList.vue"
   import AIReasoning from "../components/ui/AIReasoning.vue"
   import AIOrbFace, { type AIState } from "../components/ui/AIOrbFace.vue"
   import { usePageTheme } from "../composables/usePageTheme"
 import { THEME_EVENT, isGaboroneTheme } from "../components/themes"
 import { displayName, session } from "../lib/auth"
+import { supabase } from "../lib/supabase"
 import {
   countDocumentsByApplication,
   loadCorrections,
@@ -230,6 +253,39 @@ import {
   const liveSummary = ref("")
   const liveDocuments = ref(0)
 
+  async function loadEditContext() {
+    if (!session.value || !supabase) {
+      editContext.value = "No signed-in session; cannot read documents."
+      return
+    }
+    try {
+      const { data: apps } = await supabase
+        .from("applications")
+        .select("id, reference, title, problem_statement, proposed_solution, summary, target_beneficiaries, expected_impact")
+        .order("submitted_at", { ascending: false })
+        .limit(5)
+      const lines: string[] = []
+      for (const app of (apps ?? []) as Record<string, any>[]) {
+        lines.push(`Application ${app.reference} — ${app.title}`)
+        if (app.summary) lines.push(`  Summary: ${String(app.summary).slice(0, 600)}`)
+        if (app.problem_statement) lines.push(`  Problem: ${String(app.problem_statement).slice(0, 600)}`)
+        if (app.proposed_solution) lines.push(`  Solution: ${String(app.proposed_solution).slice(0, 600)}`)
+        if (app.target_beneficiaries) lines.push(`  Beneficiaries: ${String(app.target_beneficiaries).slice(0, 400)}`)
+        if (app.expected_impact) lines.push(`  Impact: ${String(app.expected_impact).slice(0, 400)}`)
+        const { data: docs } = await supabase
+          .from("application_documents")
+          .select("file_name, mime_type, size_bytes")
+          .eq("application_id", app.id)
+        const docNames = (docs ?? []).map((d: any) => d.file_name).join(", ")
+        if (docNames) lines.push(`  Uploaded documents: ${docNames}`)
+      }
+      editContext.value = lines.length ? lines.join("\n") : "No applications or documents found."
+      editTasks.value = editTasks.value.map((t, i) => ({ ...t, done: i === 0 }))
+    } catch (e) {
+      editContext.value = "Could not load documents."
+    }
+  }
+
   async function loadLiveSummary() {
     if (!session.value) {
       liveSummary.value = "Sign in and I can read your submissions, feedback and documents."
@@ -261,6 +317,15 @@ import {
   const input = ref("")
   const typing = ref(false)
   const reasoningEnabled = ref(false)
+  const editMode = ref(false)
+  const consentOpen = ref(false)
+  const editContext = ref("")
+  const editTasks = ref([
+    { id: "read", label: "Read your uploaded documents", done: false },
+    { id: "analyse", label: "Analyse content and gaps", done: false },
+    { id: "propose", label: "Propose refined edits", done: false },
+    { id: "apply", label: "Apply edits you approve", done: false },
+  ])
 
   // The header avatar mirrors whatever the assistant is doing right now.
   const assistantState = computed<AIState>(() => {
@@ -397,8 +462,14 @@ import {
           .slice(0, msgIndex)
           .filter((m) => m.role === "user" || m.role === "agent")
           .map((m) => ({ role: m.role === "agent" ? "assistant" : "user", content: m.text }))
-        const contextMsg = liveSummary.value
-          ? [{ role: "system", content: `Live portal data for this innovator: ${liveSummary.value}` }]
+        const contextParts: string[] = []
+        if (liveSummary.value) contextParts.push(`Live portal data for this innovator: ${liveSummary.value}`)
+        if (editMode.value && editContext.value) {
+          contextParts.push(`EDIT MODE ENABLED. The user has consented to the assistant reading and proposing edits to their uploaded documents. Their document/application content (private to this chat):\n${editContext.value}`)
+          contextParts.push("In edit mode: when asked, propose concrete revised text for the user's problem statement, solution, summary, beneficiaries or impact. Present edits clearly with before/after or a single refined version. Never claim an edit was applied to the database; the user applies it. Keep data private to this chat.")
+        }
+        const contextMsg = contextParts.length
+          ? [{ role: "system", content: contextParts.join("\n\n") }]
           : []
         const res = await fetch("/api/chat", {
           method: "POST",
@@ -473,6 +544,24 @@ import {
 
   function openFaq() {
     router.push("/faq")
+  }
+
+  function agreeEdit() {
+    consentOpen.value = false
+    editMode.value = true
+    void loadEditContext()
+  }
+
+  function declineEdit() {
+    consentOpen.value = false
+    editMode.value = false
+  }
+
+  function disconnectEdit() {
+    consentOpen.value = false
+    editMode.value = false
+    editContext.value = ""
+    editTasks.value = editTasks.value.map((t) => ({ ...t, done: false }))
   }
 
   onBeforeUnmount(() => {

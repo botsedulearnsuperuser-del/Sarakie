@@ -13,6 +13,25 @@
         @keydown="onKeydown"
       />
 
+      <!-- Edit documents control, sits above the reasoning control -->
+      <button
+        v-if="permissionOpen || editMode"
+        :class="[$style.reasonChip, editMode ? $style.reasonChipOn : '']"
+        type="button"
+        data-picker
+        :aria-pressed="editMode"
+        @click="toggleEdit"
+      >
+        <span :class="$style.chipGlyph" aria-hidden="true">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+          </svg>
+        </span>
+        <span>Edit docs</span>
+        <span :class="$style.chipState">{{ editMode ? "On" : "Off" }}</span>
+      </button>
+
       <!-- Reasoning control, sits directly above the Auto button -->
       <button
         v-if="permissionOpen || reasoning"
@@ -50,6 +69,14 @@
             </svg>
           </button>
           <div v-if="permissionOpen" :class="$style.pickerMenu">
+            <button
+              :class="[$style.pickerOption, editMode ? $style.pickerOptionActive : '']"
+              type="button"
+              @click="requestEdit"
+            >
+              <span :class="$style.optName">Edit documents</span>
+              <span :class="$style.optDesc">Read & propose edits to your files</span>
+            </button>
             <button
               v-for="opt in permissions"
               :key="opt.value"
@@ -91,6 +118,7 @@ const props = withDefaults(defineProps<{
   effort?: number;
   status?: StatusTab | null;
   reasoning?: boolean;
+  editMode?: boolean;
 }>(), {
   modelValue: "",
   placeholder: "Ask about a submission, the rubric or CEDA requirements…",
@@ -100,6 +128,7 @@ const props = withDefaults(defineProps<{
   effort: 1,
   status: null,
   reasoning: false,
+  editMode: false,
 });
 
 const emit = defineEmits<{
@@ -109,6 +138,8 @@ const emit = defineEmits<{
   "model-change": [value: string];
   "effort-change": [value: number];
   "reasoning-change": [value: boolean];
+  "edit-mode-change": [value: boolean];
+  "request-edit-consent": [];
 }>();
 
 const textareaRef = ref<HTMLTextAreaElement | null>(null);
@@ -162,6 +193,23 @@ function selectPermission(v: string) {
 
 function toggleReasoning() {
   emit("reasoning-change", !props.reasoning);
+}
+
+function toggleEdit() {
+  if (props.editMode) {
+    emit("edit-mode-change", false);
+  } else {
+    emit("request-edit-consent");
+  }
+}
+
+function requestEdit() {
+  if (props.editMode) {
+    emit("edit-mode-change", false);
+  } else {
+    emit("request-edit-consent");
+  }
+  permissionOpen.value = false;
 }
 
 function closeMenus(e: MouseEvent) {
