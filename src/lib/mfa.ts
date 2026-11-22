@@ -23,6 +23,12 @@ export interface TotpFactorInfo {
 
 export const mfaFactors = ref<TotpFactorInfo[]>([]);
 export const mfaLoaded = ref(false);
+/** The authenticator setup dialog is open (one instance, mounted in App.vue). */
+export const mfaSetupOpen = ref(false);
+
+export function openMfaSetup(): void {
+  mfaSetupOpen.value = true;
+}
 /** A signed-in session that still needs its authenticator code. */
 export const mfaRequired = ref(false);
 

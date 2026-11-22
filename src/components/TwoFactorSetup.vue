@@ -305,7 +305,7 @@ function finish() {
 .overlay {
   position: fixed;
   inset: 0;
-  z-index: 10001;
+  z-index: 95000;
   background-color: rgba(0, 0, 0, 0.55);
   display: flex;
   align-items: center;

@@ -1,6 +1,7 @@
 <template>
   <Teleport to="body">
-    <div v-if="mfaRequired" :class="$style.overlay">
+    <!-- Signed in, authenticator connected: ask for the code -->
+    <div v-if="needsCode" :class="$style.overlay">
       <form :class="$style.card" @submit.prevent="submit">
         <span :class="$style.badge" aria-hidden="true">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5">
@@ -12,7 +13,7 @@
         <h2 :class="$style.title">Two-step verification</h2>
         <p :class="$style.text">
           Open your authenticator app and enter the 6-digit code for
-          <b>{{ accountEmail }}</b>.
+          <b>{{ accountEmail }}</b> to prove it is you.
         </p>
 
         <label :class="$style.label" for="mfa-gate-code">Authenticator code</label>
@@ -39,6 +40,34 @@
         </button>
       </form>
     </div>
+
+    <!-- Signed in, no authenticator yet: 2FA is not optional -->
+    <div v-else-if="needsEnrollment" :class="$style.overlay">
+      <div :class="$style.card" role="dialog" aria-modal="true" aria-labelledby="mfa-setup-title">
+        <span :class="$style.badge" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5">
+            <path d="M12 3l7 3v5.5c0 4.2-2.9 7.9-7 9.5-4.1-1.6-7-5.3-7-9.5V6l7-3Z" />
+            <path d="m9 12 2.2 2.2L15.5 10" />
+          </svg>
+        </span>
+
+        <h2 id="mfa-setup-title" :class="$style.title">Add two-factor authentication</h2>
+        <p :class="$style.text">
+          Your CEDA account must be protected with an authenticator app. Add one now
+          and confirm a code, so every sign-in proves it is really you before your
+          applications are shown.
+        </p>
+
+        <p v-if="error" :class="$style.error" role="alert">{{ error }}</p>
+
+        <button :class="$style.primary" type="button" :disabled="busy" @click="startSetup">
+          Add authenticator app
+        </button>
+        <button :class="$style.secondary" type="button" :disabled="busy" @click="useAnotherAccount">
+          Use a different account
+        </button>
+      </div>
+    </div>
   </Teleport>
 </template>
 
@@ -46,7 +75,15 @@
   import { computed, nextTick, onMounted, ref, watch } from "vue";
   import { useRouter } from "vue-router";
   import { authReady, session, signOutNow } from "../lib/auth";
-  import { mfaLoaded, mfaRequired, refreshMfa, verifyMfaCode } from "../lib/mfa";
+  import {
+    mfaEnabled,
+    mfaLoaded,
+    mfaRequired,
+    mfaSetupOpen,
+    openMfaSetup,
+    refreshMfa,
+    verifyMfaCode,
+  } from "../lib/mfa";
 
   const router = useRouter();
   const code = ref("");
@@ -55,6 +92,19 @@
   const inputRef = ref<HTMLInputElement | null>(null);
 
   const accountEmail = computed(() => session.value?.user.email ?? "your account");
+
+  /** Signed in with no verified factor: enrolment is mandatory. */
+  const needsEnrollment = computed(
+    () =>
+      Boolean(session.value) &&
+      authReady.value &&
+      mfaLoaded.value &&
+      !mfaEnabled.value &&
+      !mfaRequired.value &&
+      !mfaSetupOpen.value,
+  );
+
+  const needsCode = computed(() => Boolean(session.value) && mfaRequired.value);
 
   /** The assurance level decides whether the code prompt is needed. */
   async function sync() {
@@ -69,7 +119,12 @@
   }
 
   onMounted(sync);
-  watch([authReady, session, mfaLoaded], sync);
+  watch([authReady, session], sync);
+
+  /* Re-check after the setup dialog closes, in case it was abandoned. */
+  watch(mfaSetupOpen, async (open) => {
+    if (!open) await sync();
+  });
 
   function onInput(event: Event) {
     const input = event.target as HTMLInputElement;
@@ -77,6 +132,11 @@
     input.value = digits;
     code.value = digits;
     error.value = "";
+  }
+
+  function startSetup() {
+    error.value = "";
+    openMfaSetup();
   }
 
   async function submit() {

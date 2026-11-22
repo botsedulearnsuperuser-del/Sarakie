@@ -129,13 +129,6 @@
       </Transition>
     </Teleport>
 
-    <!-- Authenticator app setup opened from the 2FA toast -->
-    <TwoFactorSetup
-      :open="showTwoFactorSetup"
-      @close="closeTwoFactorSetup"
-      @enabled="onTwoFactorEnabled"
-    />
-
     <!-- Dashboard background picker opened from the sidebar settings icon -->
     <ThemePicker
       :open="showThemePicker"
@@ -150,9 +143,8 @@
 <script setup lang="ts">
   import { ref, computed, onMounted, onUnmounted } from "vue";
   import { useRouter } from "vue-router";
-  import TwoFactorSetup from "./TwoFactorSetup.vue";
   import { session } from "../lib/auth";
-  import { mfaEnabled, mfaLoaded, mfaRequired, refreshMfa } from "../lib/mfa";
+  import { mfaEnabled, mfaLoaded, mfaRequired, openMfaSetup } from "../lib/mfa";
   import { ROLE_STORAGE_KEY, type DashboardRole } from "./dashboardRole";
   import ThemePicker from "./ThemePicker.vue";
   import {
@@ -296,18 +288,12 @@
       !mfaRequired.value &&
       !toastDismissed.value,
   );
-  const showTwoFactorSetup = ref(false);
-
   function dismissToast() {
     toastDismissed.value = true;
   }
 
   function enable2FA() {
-    showTwoFactorSetup.value = true;
-  }
-
-  function closeTwoFactorSetup() {
-    showTwoFactorSetup.value = false;
+    openMfaSetup();
   }
 
   const showThemePicker = ref(false);
@@ -345,16 +331,10 @@
     showThemePicker.value = false;
   }
 
-  function onTwoFactorEnabled() {
-    void refreshMfa();
-    showTwoFactorSetup.value = false;
-    window.dispatchEvent(new CustomEvent("sarka-2fa-changed"));
-  }
-
   /* Pages can ask for the authenticator setup, e.g. the profile security card. */
   function openTwoFactorSetupFromPage() {
     toastDismissed.value = true;
-    showTwoFactorSetup.value = true;
+    openMfaSetup();
   }
 
   onMounted(() => {

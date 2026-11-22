@@ -12,14 +12,14 @@
       <div :class="$style.head">
         <h2 id="legal-notice-title" :class="$style.title">Before you continue</h2>
         <p :class="$style.subtitle">
-          Please read and understand these terms — they explain how your data is handled.
+          Please read and understand these terms. They explain how your data is handled.
         </p>
       </div>
 
       <p id="legal-notice-desc" :class="$style.text">
         CEDA processes your personal information in line with Botswana's Data
         Protection Act, 2024. Your idea, identity documents and contact details
-        are used only to review and manage your submission — never sold or used
+        are used only to review and manage your submission, never sold or used
         for advertising.
       </p>
 
