@@ -200,11 +200,6 @@
 import { THEME_EVENT, isGaboroneTheme } from "../components/themes"
 import { displayName, session } from "../lib/auth"
 import { supabase } from "../lib/supabase"
-import * as pdfjsLib from "pdfjs-dist"
-import pdfWorkerSrc from "pdfjs-dist/build/pdf.worker.min.mjs?url"
-import mammoth from "mammoth"
-
-pdfjsLib.GlobalWorkerOptions.workerSrc = pdfWorkerSrc
 import {
   countDocumentsByApplication,
   loadCorrections,
@@ -267,6 +262,9 @@ import {
 
   async function extractPdfText(buffer: ArrayBuffer): Promise<string> {
     try {
+      const pdfjsLib = await import("pdfjs-dist")
+      const workerSrc = (await import("pdfjs-dist/build/pdf.worker.min.mjs?url")).default
+      pdfjsLib.GlobalWorkerOptions.workerSrc = workerSrc
       const doc = await pdfjsLib.getDocument({ data: buffer }).promise
       const pages: string[] = []
       for (let i = 1; i <= doc.numPages; i++) {
@@ -283,6 +281,7 @@ import {
 
   async function extractDocxText(buffer: ArrayBuffer): Promise<string> {
     try {
+      const mammoth = (await import("mammoth")).default
       const result = await mammoth.extractRawText({ arrayBuffer: buffer })
       return (result.value || "").trim()
     } catch (e) {
