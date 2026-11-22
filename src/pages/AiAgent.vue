@@ -80,10 +80,14 @@
               :key="index"
               :class="[$style.messageRow, message.role === 'user' ? $style.messageRowUser : '']"
             >
-              <div v-if="message.role === 'agent'" :class="$style.msgAvatar">
+              <div v-if="message.role === 'agent' && !message.plain" :class="$style.msgAvatar">
                 <AIOrbFace :size="28" :state="messageState(message)" />
               </div>
+              <div v-if="message.plain" :class="$style.plainGreeting">
+                {{ message.text }}
+              </div>
               <div
+                v-else
                 :class="[
                   $style.bubble,
                   message.role === 'user' ? $style.bubbleUser : $style.bubbleAgent,
@@ -229,6 +233,7 @@ import {
     streaming?: boolean
     reasoning?: ReasoningTrace
     searches?: WebSearchStep[]
+    plain?: boolean
   }
 
   const router = useRouter()
@@ -236,6 +241,7 @@ import {
 
   const greeting: ChatMessage = {
     role: "agent",
+    plain: true,
     text: `Dumela, ${displayName.value}! I'm the CEDA Innovation Assistant. Ask me about your submissions, the scoring rubric, documents or what happens after you submit.`,
   }
 
@@ -903,9 +909,16 @@ import {
     border-bottom-left-radius: 4px;
   }
   .bubbleUser {
-    background-color: var(--color-darkslategray-500);
-    color: var(--color-white);
+    background-color: var(--color-white);
+    color: var(--color-darkslategray-500);
+    border: 1px solid var(--color-antiquewhite-200);
     border-bottom-right-radius: 4px;
+  }
+  .plainGreeting {
+    font-size: var(--fs-16);
+    line-height: 1.5;
+    color: var(--color-darkslategray-500);
+    padding: 4px 0;
   }
   .bubbleAgent .reasoning {
     margin-bottom: 6px;
