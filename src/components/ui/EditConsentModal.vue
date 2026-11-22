@@ -9,7 +9,8 @@
           approval.
         </p>
         <ul :class="$style.list">
-          <li>Your document content stays in this chat session and is never shared, stored or sent anywhere else.</li>
+          <li>Your document content is sent to the AI assistant (the configured model provider) to generate replies; it is not published by the portal, but it does leave this chat to that provider.</li>
+          <li>Do not enable this mode for documents you are not comfortable sharing with the model provider.</li>
           <li>You can disconnect and stop editing at any time.</li>
           <li>The assistant only proposes edits; you decide what to keep.</li>
         </ul>

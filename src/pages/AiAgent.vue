@@ -466,7 +466,7 @@ import {
         if (liveSummary.value) contextParts.push(`Live portal data for this innovator: ${liveSummary.value}`)
         if (editMode.value && editContext.value) {
           contextParts.push(`EDIT MODE ENABLED. The user has consented to the assistant reading and proposing edits to their uploaded documents. Their document/application content (private to this chat):\n${editContext.value}`)
-          contextParts.push("In edit mode: when asked, propose concrete revised text for the user's problem statement, solution, summary, beneficiaries or impact. Present edits clearly with before/after or a single refined version. Never claim an edit was applied to the database; the user applies it. Keep data private to this chat.")
+          contextParts.push("In edit mode: when asked, propose concrete revised text for the user's problem statement, solution, summary, beneficiaries or impact. Present edits clearly with before/after or a single refined version. Never claim an edit was applied to the database; the user applies it. Remind the user that document content is processed by the model provider to generate replies.")
         }
         const contextMsg = contextParts.length
           ? [{ role: "system", content: contextParts.join("\n\n") }]
