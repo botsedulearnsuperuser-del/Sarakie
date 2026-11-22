@@ -99,7 +99,7 @@
           <p
             v-if="error"
             role="alert"
-            style="margin: 0 0 8px; font-size: 13px; color: #b42318;"
+            style="margin: 0 0 8px; font-size: 13px; color: #97231e;"
           >
             {{ error }}
           </p>
@@ -207,7 +207,7 @@ const handleLogin = async () => {
 /* ---------- Left hero column ---------- */
 .heroAside {
   position: relative;
-  background-color: #941d11;
+  background-color: #f7c613;
   height: calc(100vh - 20px);
   margin-top: 20px;
   border-radius: 0 20px 0 0;
@@ -223,7 +223,7 @@ const handleLogin = async () => {
   left: 0;
   width: 100px;
   height: 100%;
-  background-color: #d18a4e;
+  background-color: #97231e;
   -webkit-mask-image: url("/pattern-3.webp");
   mask-image: url("/pattern-3.webp");
   -webkit-mask-size: 100px auto;
@@ -250,10 +250,10 @@ const handleLogin = async () => {
   align-items: center;
   gap: 0.6em;
   padding: 0.5em 1.2em 0.5em 1em;
-  border: 2px solid #941d11;
+  border: 2px solid #97231e;
   border-radius: 999px;
-  background-color: #e6bd74;
-  color: #941d11;
+  background-color: #fff8dd;
+  color: #97231e;
   font-size: min(22px, max(14px, 1.08vw));
   font-weight: 600;
   text-decoration: none;
@@ -262,7 +262,7 @@ const handleLogin = async () => {
 }
 
 .backButton:hover {
-  background-color: #f0c982;
+  background-color: #ffffff;
   transform: translateX(-2px);
 }
 
@@ -273,7 +273,7 @@ const handleLogin = async () => {
 
 .eyebrow {
   margin: 0;
-  color: #e9c07a;
+  color: #97231e;
   font-size: clamp(13px, 1.05vw, 18px);
   font-weight: 600;
   letter-spacing: 0.14em;
@@ -282,13 +282,13 @@ const handleLogin = async () => {
 .eyebrowBar {
   width: clamp(64px, 9vw, 150px);
   height: 4px;
-  background-color: #e9c07a;
+  background-color: #97231e;
   margin: 7px 0 12px;
 }
 
 .headline {
   margin: 0 0 12px;
-  color: #fff;
+  color: #2b1b00;
   font-size: clamp(30px, 3.05vw, 52px);
   font-weight: 700;
   line-height: 1.24;
@@ -296,16 +296,16 @@ const handleLogin = async () => {
 }
 
 .goldText {
-  color: #e9c07a;
+  color: #97231e;
 }
 
 .whiteText {
-  color: #fff;
+  color: #2b1b00;
 }
 
 .subcopy {
   margin: 0;
-  color: #fff;
+  color: #2b1b00;
   font-size: clamp(14px, 1.15vw, 20px);
   font-weight: 400;
   line-height: 1.45;
@@ -384,7 +384,7 @@ const handleLogin = async () => {
 
 .formTitle {
   margin: 0;
-  color: #941d11;
+  color: #2b1b00;
   font-size: min(56px, max(26px, 2.35vw), 4.7vh);
   font-weight: 700;
   letter-spacing: 0.01em;
@@ -393,13 +393,13 @@ const handleLogin = async () => {
 .formTitleUnderline {
   width: min(400px, 82%);
   height: 3px;
-  background-color: #e6bd74;
+  background-color: #f7c613;
   margin: 10px 0 clamp(16px, 2.8vh, 34px);
 }
 
 .formSubtitle {
   margin: 0 0 clamp(26px, 4.3vh, 54px);
-  color: #941d11;
+  color: #2b1b00;
   font-size: min(28px, max(14px, 1.25vw), 2.4vh);
   font-weight: 500;
 }
@@ -422,7 +422,7 @@ const handleLogin = async () => {
 .inputLabel {
   font-size: min(24px, max(13.5px, 1.1vw), 2.2vh);
   font-weight: 600;
-  color: #941d11;
+  color: #2b1b00;
   margin-bottom: 10px;
 }
 
@@ -430,13 +430,13 @@ const handleLogin = async () => {
   width: 100%;
   height: clamp(44px, 5.2vh, 58px);
   border-radius: 8px;
-  border: 2px solid #941d11;
+  border: 2px solid #2b1b00;
   background-color: transparent;
   padding: 0 16px;
   box-sizing: border-box;
   font-size: 16px;
   font-family: inherit;
-  color: #941d11;
+  color: #2b1b00;
   text-align: center;
   outline: none;
   transition: border-color 0.2s, box-shadow 0.2s;
@@ -448,16 +448,16 @@ const handleLogin = async () => {
 }
 
 .textInput:focus {
-  border-color: #c47a44;
-  box-shadow: 0 0 0 3px rgba(196, 122, 68, 0.2);
+  border-color: #97231e;
+  box-shadow: 0 0 0 3px rgba(151, 35, 30, 0.18);
 }
 
 .forgotLink {
-  color: #941d11;
+  color: #2b1b00;
   font-size: min(24px, max(13.5px, 1.1vw), 2.2vh);
   font-weight: 600;
   text-decoration: none;
-  border-bottom: 3px solid #e6bd74;
+  border-bottom: 3px solid #f7c613;
   padding-bottom: 3px;
   margin: 6px auto clamp(18px, 3.2vh, 38px);
   display: inline-block;
@@ -471,7 +471,7 @@ const handleLogin = async () => {
   width: 100%;
   height: clamp(46px, 5.4vh, 60px);
   border-radius: 8px;
-  background-color: #941d11;
+  background-color: #2b1b00;
   border: none;
   color: #fff;
   font-size: min(26px, max(14.5px, 1.15vw), 2.2vh);
@@ -487,7 +487,7 @@ const handleLogin = async () => {
 }
 
 .submitButton:hover {
-  background-color: #ad2617;
+  background-color: #1f1300;
 }
 
 .submitButton:active {
@@ -502,29 +502,29 @@ const handleLogin = async () => {
 
 .signupPrompt {
   margin: clamp(24px, 3.8vh, 46px) 0 clamp(28px, 4.6vh, 52px);
-  color: #941d11;
+  color: #2b1b00;
   font-size: min(24px, max(13.5px, 1.1vw), 2.2vh);
   font-weight: 500;
 }
 
 .signupLink {
-  color: #941d11;
+  color: #2b1b00;
   font-weight: 600;
   text-decoration: none;
-  border-bottom: 3px solid #e6bd74;
+  border-bottom: 3px solid #f7c613;
   padding-bottom: 2px;
   margin-left: 4px;
 }
 
 .supportPrompt {
   margin: 0 0 clamp(20px, 3.4vh, 40px);
-  color: #941d11;
+  color: #2b1b00;
   font-size: min(22px, max(13px, 1.05vw), 2.1vh);
   font-weight: 500;
 }
 
 .supportLink {
-  color: #941d11;
+  color: #2b1b00;
   font-weight: 600;
   text-decoration: none;
   margin-left: 4px;
@@ -544,17 +544,17 @@ const handleLogin = async () => {
 }
 
 .legalLink {
-  color: #941d11;
+  color: #2b1b00;
   font-weight: 600;
   white-space: nowrap;
   text-decoration: underline;
   text-underline-offset: 2px;
-  text-decoration-color: #e6bd74;
+  text-decoration-color: #f7c613;
   text-decoration-thickness: 2px;
 }
 
 .legalLink:hover {
-  text-decoration-color: #941d11;
+  text-decoration-color: #2b1b00;
 }
 
 /* Narrow desktops: let the hero copy wrap naturally instead of hard-breaking */
