@@ -27,6 +27,7 @@ import CloudShaderHero from "./pages/CloudShaderHero.vue";
 import FaqPage from "./pages/FaqPage.vue";
 import ParallaxLayersDemo from "./pages/ParallaxLayersDemo.vue";
 import FolderRevealDemo from "./pages/FolderRevealDemo.vue";
+import AssigneesDemo from "./pages/AssigneesDemo.vue";
 import LegalPage from "./pages/LegalPage.vue";
 import NotFoundPage from "./pages/NotFoundPage.vue";
 import "./global.css";
@@ -143,6 +144,11 @@ const routes: RouteRecordRaw[] = [
     path: "/folder-reveal",
     name: "FolderRevealDemo",
     component: FolderRevealDemo,
+  },
+  {
+    path: "/assignees-demo",
+    name: "AssigneesDemo",
+    component: AssigneesDemo,
   },
   {
     path: "/new-idea",

@@ -376,9 +376,51 @@
                 <label :class="$style.checkboxRow">
                   <input v-model="ideaAuthorization" type="checkbox" :class="$style.checkboxInput" />
                   <span :class="$style.checkboxLabel">
-                    <b>I confirm the information provided is accurate and complete.</b>
+                    <b>I, {{ applicantName }}, confirm the information provided is accurate and complete.</b>
+                    <span :class="$style.checkboxIdea">Submitted for my idea “{{ ideaTitle }}”.</span>
                   </span>
                 </label>
+
+                <!-- Team / collaborators -->
+                <div :class="$style.teamBlock">
+                  <div :class="$style.teamHead">
+                    <div :class="$style.teamHeadText">
+                      <span :class="$style.teamLabel">Team &amp; collaborators</span>
+                      <p :class="$style.teamSub">
+                        Bring in the people who worked on {{ ideaTitle }} and let them follow this application.
+                      </p>
+                    </div>
+                    <button :class="$style.assignBtn" type="button" @click="showTeamPicker = !showTeamPicker">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M0 0h24v24H0z" fill="none" />
+                        <path fill="currentColor" d="M17.5 12a5.5 5.5 0 1 1 0 11a5.5 5.5 0 0 1 0-11m0 2l-.09.007a.5.5 0 0 0-.402.402L17 14.5V17h-2.502l-.09.008a.5.5 0 0 0-.402.402l-.008.09l.008.09a.5.5 0 0 0 .402.402l.09.008H17v2.503l.008.09a.5.5 0 0 0 .402.402l.09.008l.09-.008a.5.5 0 0 0 .402-.402l.008-.09V18l2.504.001l.09-.008a.5.5 0 0 0 .402-.402l.008-.09l-.008-.09a.5.5 0 0 0-.403-.402l-.09-.008H18v-2.5l-.008-.09a.5.5 0 0 0-.402-.403zm-3.246-4a2.25 2.25 0 0 1 1.951 1.13A6.502 6.502 0 0 0 12.023 21l-.02-.001a4.5 4.5 0 0 1-4.501-4.501V12.25A2.25 2.25 0 0 1 9.752 10zm-6.848 0a3.24 3.24 0 0 0-.897 2.034l-.007.216v4.249c0 .847.191 1.649.533 2.365Q6.539 18.999 6 19a4 4 0 0 1-4-4.001V12.25a2.25 2.25 0 0 1 2.096-2.245L4.25 10zm12.344 0A2.25 2.25 0 0 1 22 12.25v.56A6.48 6.48 0 0 0 17.5 11l-.243.005A3.3 3.3 0 0 0 16.599 10zM18.5 4a2.5 2.5 0 1 1 0 5a2.5 2.5 0 0 1 0-5M12 3a3 3 0 1 1 0 6a3 3 0 0 1 0-6M5.5 4a2.5 2.5 0 1 1 0 5a2.5 2.5 0 0 1 0-5" />
+                      </svg>
+                      {{ showTeamPicker ? "Done" : "Assign team" }}
+                    </button>
+                  </div>
+
+                  <Assignees
+                    v-if="showTeamPicker"
+                    :members="teamMembers"
+                    v-model="assignedTeamIds"
+                    inline
+                  />
+
+                  <div v-if="assignedTeam.length" :class="$style.teamChips">
+                    <span v-for="member in assignedTeam" :key="member.id" :class="$style.teamChip">
+                      <img :src="member.avatar || '/innovator-man.webp'" :alt="member.name" />
+                      {{ member.name }}
+                    </span>
+                  </div>
+
+                  <label v-if="assignedTeam.length" :class="$style.checkboxRow">
+                    <input v-model="teamConsent" type="checkbox" :class="$style.checkboxInput" />
+                    <span :class="$style.checkboxLabel">
+                      I understand that everyone I assign to this team will be able to see this
+                      application and its documents, and will be assigned to it as a collaborator.
+                    </span>
+                  </label>
+                </div>
 
                 <!-- Admin Officer Signature Note -->
                 <div :class="$style.adminAuditNote">
@@ -405,7 +447,7 @@
               </button>
 
               <!-- Final Submission Button only on Step 6 -->
-              <button v-else :class="[$style.submitBtn, $style.recordBtn]" type="button" :disabled="documents.length === 0 || !ideaAuthorization" @click="submitIdeaRecord">
+              <button v-else :class="[$style.submitBtn, $style.recordBtn]" type="button" :disabled="documents.length === 0 || !ideaAuthorization || (assignedTeam.length > 0 && !teamConsent)" @click="submitIdeaRecord">
                 Submit idea application
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                   <polyline points="20 6 9 17 4 12"/>
@@ -511,6 +553,8 @@ import { THEME_EVENT, isGaboroneTheme } from "../components/themes";
 
 import Main from "../components/Main.vue";
 import AIOrbFace, { type AIState, type ExpressionName } from "../components/ui/AIOrbFace.vue";
+import Assignees from "../components/ui/Assignees.vue";
+import { useTeamMembers } from "../composables/useTeamMembers";
 
 const steps = ["Idea overview", "Innovator details", "Contact & address", "Field / Industry", "Supporting documents", "Submission"];
 const currentStep = ref(1);
@@ -576,6 +620,20 @@ const timelineToMarket = ref("");
 const regulatoryRequirements = ref("");
 const ipProtection = ref("None");
 const ideaAuthorization = ref(false);
+
+/* Team assigned to this application — members come from Team & roles. */
+const { teamMembers } = useTeamMembers();
+const showTeamPicker = ref(false);
+const assignedTeamIds = ref<string[]>([]);
+const teamConsent = ref(false);
+
+const applicantName = computed(
+  () => `${customer.value.firstName} ${customer.value.lastName}`.trim() || "the applicant",
+);
+const ideaTitle = computed(() => selectedIdea.value || "my idea");
+const assignedTeam = computed(() =>
+  teamMembers.value.filter((member) => assignedTeamIds.value.includes(member.id)),
+);
 
 interface UploadedDocument {
   id: string;
@@ -767,6 +825,9 @@ function resetForm() {
   regulatoryRequirements.value = "";
   ipProtection.value = "None";
   ideaAuthorization.value = false;
+  showTeamPicker.value = false;
+  assignedTeamIds.value = [];
+  teamConsent.value = false;
 }
 </script>
 
@@ -992,6 +1053,130 @@ function resetForm() {
   border-radius: 18px;
   padding: 24px 28px;
   margin-bottom: 28px;
+}
+
+/* ── Step 6: authorization + team ── */
+.checkboxRow {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 8px 0;
+  cursor: pointer;
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: #374151;
+}
+
+.checkboxInput {
+  margin-top: 3px;
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+  accent-color: #013626;
+}
+
+.checkboxLabel {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.checkboxLabel b {
+  font-weight: 700;
+  color: #0f2e24;
+}
+
+.checkboxIdea {
+  font-size: 12.5px;
+  color: #6b7280;
+}
+
+.teamBlock {
+  margin-top: 14px;
+  padding: 16px 18px;
+  border: 1px solid #e3dccb;
+  border-radius: 14px;
+  background-color: #ffffff;
+}
+
+.teamHead {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.teamHeadText {
+  min-width: 0;
+  flex: 1;
+}
+
+.teamLabel {
+  display: block;
+  font-size: 13.5px;
+  font-weight: 800;
+  color: #0f2e24;
+}
+
+.teamSub {
+  margin: 4px 0 0;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: #6b7280;
+}
+
+.assignBtn {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  height: 36px;
+  padding: 0 14px;
+  border: none;
+  border-radius: 9999px;
+  background-color: #013626;
+  color: #ffffff;
+  font-family: var(--font-inter);
+  font-size: 12.5px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.assignBtn:hover {
+  background-color: #024a35;
+}
+
+.assignBtn svg {
+  font-size: 16px;
+}
+
+.teamChips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.teamChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 4px 12px 4px 4px;
+  border-radius: 9999px;
+  background-color: #f2efe8;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #0f2e24;
+}
+
+.teamChip img {
+  width: 22px;
+  height: 22px;
+  border-radius: 9999px;
+  object-fit: cover;
 }
 
 .amountLabel {

@@ -318,6 +318,7 @@ import Main from "../components/Main.vue";
 import ChatWithAgent from "../components/ChatWithAgent.vue";
 import TaskWidget from "../components/ui/task-widget.vue";
 import VoiceChatDisclosure from "../components/ui/voice-chat-disclosure.vue";
+import { useTeamMembers } from "../composables/useTeamMembers";
 
 // activePage not passed to Main since Team is no longer in the sidebar nav
 // Main defaults to "dashboard" when no matching page is found
@@ -342,7 +343,8 @@ const teamTask = {
   ],
 };
 
-const teamMembers = ref<Array<{ id: number; name: string; email: string; role: string; avatar?: string }>>([]);
+/* Shared with the application form so assigned teams show the same people. */
+const { teamMembers } = useTeamMembers();
 
 const showInvitePopup = ref(false);
 const showConfirmationPopup = ref(false);
@@ -350,13 +352,13 @@ const showEditPopup = ref(false);
 const showRemoveConfirmation = ref(false);
 const inviteEmail = ref("");
 const sentEmail = ref("");
-const editMember = ref<{ id: number; name: string; email: string; role: string; avatar?: string }>({
-  id: 0,
+const editMember = ref<{ id: string; name: string; email: string; role: string; avatar?: string }>({
+  id: "",
   name: "",
   email: "",
   role: "Member",
 });
-const pendingRemoveMember = ref<{ id: number; name: string; email: string; role: string } | null>(null);
+const pendingRemoveMember = ref<{ id: string; name: string; email: string; role: string } | null>(null);
 
 function openInvitePopup() {
   inviteEmail.value = "";
@@ -375,7 +377,7 @@ function sendInvite() {
   sentEmail.value = email;
   // Simulate sending invite — inviter is Owner, invitee is Member
   teamMembers.value.push({
-    id: Date.now(),
+    id: `tm-${Date.now()}`,
     name: email.split("@")[0].replace(/[^a-zA-Z]/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()),
     email: email,
     role: "Member",
@@ -390,14 +392,14 @@ function closeConfirmationPopup() {
   sentEmail.value = "";
 }
 
-function openEditPopup(member: { id: number; name: string; email: string; role: string; avatar?: string }) {
+function openEditPopup(member: { id: string; name: string; email: string; role: string; avatar?: string }) {
   editMember.value = { ...member };
   showEditPopup.value = true;
 }
 
 function closeEditPopup() {
   showEditPopup.value = false;
-  editMember.value = { id: 0, name: "", email: "", role: "Member" };
+  editMember.value = { id: "", name: "", email: "", role: "Member" };
 }
 
 function saveEdit() {
@@ -432,7 +434,7 @@ function removeAvatar() {
   if (input) input.value = "";
 }
 
-function confirmRemoveMember(member: { id: number; name: string; email: string; role: string }) {
+function confirmRemoveMember(member: { id: string; name: string; email: string; role: string }) {
   pendingRemoveMember.value = member;
   showRemoveConfirmation.value = true;
 }
@@ -442,7 +444,7 @@ function cancelRemoveMember() {
   pendingRemoveMember.value = null;
 }
 
-function removeMember(id: number) {
+function removeMember(id: string) {
   teamMembers.value = teamMembers.value.filter((m) => m.id !== id);
   showRemoveConfirmation.value = false;
   pendingRemoveMember.value = null;
