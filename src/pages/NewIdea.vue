@@ -424,8 +424,11 @@
 
                 <!-- Admin Officer Signature Note -->
                 <div :class="$style.adminAuditNote">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0f2e24" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
-                  <span>Recorded by Branch Administrator <b>Marion Lucas</b> (Employee ID: SRK-ADM-0042)</span>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0f2e24" stroke-width="2" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+                  <span>
+                    <b>Important:</b> this application will be officially recorded by Branch Administrator
+                    <b>Marion Lucas</b> (Employee ID: SRK-ADM-0042) and kept on file for review.
+                  </span>
                 </div>
               </div>
             </div>
@@ -1177,6 +1180,30 @@ function resetForm() {
   height: 22px;
   border-radius: 9999px;
   object-fit: cover;
+}
+
+.adminAuditNote {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-top: 26px;
+  padding: 12px 14px;
+  border: 1px solid #e3dccb;
+  border-radius: 12px;
+  background-color: #f7f5ee;
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: #4b5563;
+}
+
+.adminAuditNote svg {
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.adminAuditNote b {
+  color: #0f2e24;
+  font-weight: 700;
 }
 
 .amountLabel {
