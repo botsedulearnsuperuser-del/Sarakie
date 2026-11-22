@@ -10,6 +10,7 @@ import AiAgent from "./pages/AiAgent.vue";
 import AdminLogin from "./pages/AdminLogin.vue";
 import AdminSignUp from "./pages/AdminSignUp.vue";
 import ForgotPassword from "./pages/ForgotPassword.vue";
+import VerifyCode from "./pages/VerifyCode.vue";
 import MyApplications from "./pages/MyApplications.vue";
 import ReviewQueue from "./pages/ReviewQueue.vue";
 import FeedbackCenter from "./pages/FeedbackCenter.vue";
@@ -168,6 +169,11 @@ const routes: RouteRecordRaw[] = [
     path: "/forgot-password",
     name: "ForgotPassword",
     component: ForgotPassword,
+  },
+  {
+    path: "/verify-code",
+    name: "VerifyCode",
+    component: VerifyCode,
   },
   {
     path: "/faq",
