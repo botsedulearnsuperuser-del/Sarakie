@@ -22,7 +22,9 @@ Answer account-specific questions (status, counts) only from data the client pro
 
 Formatting: Use Markdown. Put a blank line between paragraphs. Use **bold** for headings, labels and key terms. Use "- " bullet lists for multiple items. Keep lists short. Do not use HTML.
 
-Always end your reply with a short "**Next steps:**" section listing 2-3 concrete actions the user can take right now, tailored to their question and their live portal data. Do the work for them: give the actual checklist/answer, not a vague offer to prepare one.`;
+Always end your reply with a short "**Next steps:**" section listing 2-3 concrete actions the user can take right now, tailored to their question and their live portal data. Do the work for them: give the actual checklist/answer, not a vague offer to prepare one.
+
+Web search: When you are unsure about a fact, or the user asks for current/external information, use the provided Google Search tool to look it up. Only search and cite publicly available, reputable sources. Never access, reproduce or summarize paywalled, private, copyrighted or restricted content, and never attempt to bypass authentication, paywalls or access controls. Paraphrase and cite sources; do not fabricate URLs. If a search returns nothing reliable, say so instead of guessing.`;
 
 export default async function handler(req, res) {
   if (req.method !== "POST") {
@@ -38,7 +40,7 @@ export default async function handler(req, res) {
 
   const model = process.env.GEMINI_MODEL || "gemini-2.5-flash";
 
-  const { messages = [] } = req.body || {};
+  const { messages = [], search = false } = req.body || {};
 
   // Separate client-provided context (system) from the conversation.
   const contextParts = [];
@@ -59,18 +61,23 @@ export default async function handler(req, res) {
 
   const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(apiKey)}`;
 
+  const body = {
+    systemInstruction: { parts: [{ text: systemText }] },
+    contents,
+    generationConfig: {
+      temperature: 0.4,
+      maxOutputTokens: 900,
+    },
+  };
+  if (search) {
+    body.tools = [{ googleSearch: {} }];
+  }
+
   try {
     const geminiRes = await fetch(url, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        systemInstruction: { parts: [{ text: systemText }] },
-        contents,
-        generationConfig: {
-          temperature: 0.4,
-          maxOutputTokens: 600,
-        },
-      }),
+      body: JSON.stringify(body),
     });
 
     const data = await geminiRes.json().catch(() => ({}));
@@ -82,9 +89,46 @@ export default async function handler(req, res) {
       return;
     }
 
+    const candidate = data?.candidates?.[0] || {};
     const reply =
-      data?.candidates?.[0]?.content?.parts?.map((p) => p.text).join("")?.trim() || "";
-    res.status(200).json({ reply, model });
+      candidate?.content?.parts?.map((p) => p.text).join("")?.trim() || "";
+
+    // Parse Google Search grounding metadata into a research trail.
+    const gm = candidate?.groundingMetadata || {};
+    const queries = Array.isArray(gm.webSearchQueries) ? gm.webSearchQueries : [];
+    const chunks = Array.isArray(gm.groundingChunks) ? gm.groundingChunks : [];
+    const sources = [];
+    const seen = new Set();
+    for (const c of chunks) {
+      const web = c?.web;
+      if (!web?.uri) continue;
+      let domain = "";
+      try {
+        domain = new URL(web.uri).hostname.replace(/^www\./, "");
+      } catch {
+        domain = web.uri;
+      }
+      const key = web.uri;
+      if (seen.has(key)) continue;
+      seen.add(key);
+      sources.push({ title: web.title || domain, domain, href: web.uri });
+    }
+    const searches = [];
+    if (queries.length) {
+      searches.push({ label: `Ran ${queries.length} search${queries.length === 1 ? "" : "es"}`, heading: true });
+      for (const q of queries) {
+        searches.push({ label: "Searched the web for", query: q });
+      }
+    }
+    if (sources.length) {
+      searches.push({
+        label: "Sources opened",
+        meta: `${sources.length} result${sources.length === 1 ? "" : "s"}`,
+        sources,
+      });
+    }
+
+    res.status(200).json({ reply, model, searches });
   } catch (err) {
     res.status(500).json({ error: err?.message || "Failed to reach Gemini." });
   }

@@ -98,6 +98,10 @@
                     :text="message.text"
                     :is-streaming="!!message.streaming"
                   />
+                  <WebSearchTrail
+                    v-if="message.searches && message.searches.length"
+                    :steps="message.searches"
+                  />
                 </template>
                 <template v-else>{{ message.text }}</template>
               </div>
@@ -174,6 +178,7 @@
   import NotificationsPanel from "../components/NotificationsPanel.vue"
   import ComposerPanel from "../components/ui/ComposerPanel.vue"
   import AIResponse from "../components/ui/AIResponse.vue"
+  import WebSearchTrail, { type WebSearchStep } from "../components/ui/WebSearchTrail.vue"
   import AIReasoning from "../components/ui/AIReasoning.vue"
   import AIOrbFace, { type AIState } from "../components/ui/AIOrbFace.vue"
   import { usePageTheme } from "../composables/usePageTheme"
@@ -207,6 +212,7 @@ import {
     text: string
     streaming?: boolean
     reasoning?: ReasoningTrace
+    searches?: WebSearchStep[]
   }
 
   const router = useRouter()
@@ -385,6 +391,7 @@ import {
       const startAnswer = (full: string) => streamAnswer(full, msgIndex)
 
       let full = ""
+      let searches: WebSearchStep[] = []
       try {
         const history = messages.value
           .slice(0, msgIndex)
@@ -396,13 +403,17 @@ import {
         const res = await fetch("/api/chat", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ messages: [...contextMsg, ...history, { role: "user", content: text }] }),
+          body: JSON.stringify({
+            messages: [...contextMsg, ...history, { role: "user", content: text }],
+            search: reasoningEnabled.value,
+          }),
         })
         const data = await res.json().catch(() => ({}))
         if (!res.ok) {
           full = data?.error || "Sorry, I couldn't reach the assistant right now. Please try again."
         } else {
           full = data?.reply || "I'm here, but I didn't get a reply. Please try again."
+          searches = Array.isArray(data?.searches) ? data.searches : []
         }
       } catch {
         full = "Sorry, I couldn't reach the assistant right now. Please try again."
@@ -410,6 +421,7 @@ import {
 
       const finish = () => {
         if (msg.reasoning) msg.reasoning.streaming = false
+        if (searches.length) msg.searches = searches
         startAnswer(full)
       }
 
