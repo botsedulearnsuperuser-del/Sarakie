@@ -88,9 +88,12 @@
 
             <!-- Funding requested -->
             <span :class="$style.balanceLabel">Total funding requested</span>
-            <div :class="$style.balanceAmount">P 10,900.00</div>
+            <div :class="$style.balanceAmount">{{ totalFunding }}</div>
             <div :class="$style.borrowedInfo">
-              across 4 applications · last submitted 2 October 2026
+              across {{ applicationsData.length }} applications
+              <template v-if="applicationsData.length > 0">
+                · last submitted {{ applicationsData[0]?.submitted }}
+              </template>
               <button :class="$style.teamBtn" type="button" @click="goToTeam">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -324,6 +327,8 @@ import { useRouter } from "vue-router";
 import Main from "../components/Main.vue";
 import ChatWithAgent from "../components/ChatWithAgent.vue";
 import FolderReveal from "../components/ui/FolderReveal.vue";
+import { supabase } from "../lib/supabase";
+import { session } from "../lib/auth";
 
 const router = useRouter();
 const activeFilter = ref("all");
@@ -341,10 +346,19 @@ function openRenamePopup(app: ApplicationRecord) {
 function closeRenamePopup() {
   renamePopupApp.value = null;
 }
-function saveRenamePopup() {
+async function saveRenamePopup() {
   const app = renamePopupApp.value;
   const v = renameDraft.value.trim();
-  if (app && v) app.name = v;
+  if (app && v) {
+    app.name = v;
+    if (app.dbId && supabase) {
+      const { error } = await supabase
+        .from("applications")
+        .update({ title: v })
+        .eq("id", app.dbId);
+      if (error) loadError.value = error.message;
+    }
+  }
   closeRenamePopup();
 }
 
@@ -372,9 +386,12 @@ type ApplicationStatus =
   | "APPROVED"
   | "FEEDBACK"
   | "AWARDED"
-  | "DECLINED";
+  | "DECLINED"
+  | "DRAFT";
 
 interface ApplicationRecord {
+  /** Supabase row id, present once the list is loaded from the database. */
+  dbId?: string;
   applicationId: string;
   name: string;
   funding: string;
@@ -383,8 +400,8 @@ interface ApplicationRecord {
   submitted: string;
 }
 
-// The innovator's own submissions, matching the applications on the dashboard.
-const applicationsData: ApplicationRecord[] = [
+// Shown until Supabase answers (or when nobody is signed in).
+const applicationsData = ref<ApplicationRecord[]>([
   {
     applicationId: "CEDA-IN-2026-0481",
     name: "Irrigation Kit",
@@ -417,10 +434,82 @@ const applicationsData: ApplicationRecord[] = [
     status: "AWARDED",
     submitted: "2 Oct 2026",
   },
-];
+]);
+
+const loadingApplications = ref(false);
+const loadError = ref("");
+
+function mapStatus(status: string): ApplicationStatus {
+  switch (status) {
+    case "approved":
+      return "APPROVED";
+    case "rejected":
+      return "DECLINED";
+    case "returned":
+      return "FEEDBACK";
+    case "draft":
+      return "DRAFT";
+    default:
+      return "UNDER REVIEW";
+  }
+}
+
+function mapRow(row: Record<string, any>): ApplicationRecord {
+  return {
+    dbId: row.id,
+    applicationId: row.reference ?? row.id,
+    name: row.title ?? "Untitled submission",
+    funding: `P ${Number(row.funding_requested ?? 0).toLocaleString("en-US", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    })}`,
+    duration: row.duration_months ? `${row.duration_months} months` : "—",
+    status: mapStatus(String(row.status)),
+    submitted: row.submitted_at
+      ? new Date(row.submitted_at).toLocaleDateString("en-GB", {
+          day: "numeric",
+          month: "short",
+          year: "numeric",
+        })
+      : "Not submitted yet",
+  };
+}
+
+async function loadApplications() {
+  if (!supabase || !session.value) return;
+
+  loadingApplications.value = true;
+  loadError.value = "";
+  const { data, error } = await supabase
+    .from("applications")
+    .select("*")
+    .order("submitted_at", { ascending: false });
+  loadingApplications.value = false;
+
+  if (error) {
+    loadError.value = error.message;
+    return;
+  }
+  if (data) applicationsData.value = data.map(mapRow);
+}
+
+onMounted(() => {
+  void loadApplications();
+});
+
+const totalFunding = computed(() => {
+  const total = applicationsData.value.reduce((sum, application) => {
+    const value = Number(application.funding.replace(/[^0-9.]/g, ""));
+    return sum + (Number.isFinite(value) ? value : 0);
+  }, 0);
+  return `P ${total.toLocaleString("en-US", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  })}`;
+});
 
 const statusKey = (status: ApplicationStatus) =>
-  status === "UNDER REVIEW"
+  status === "UNDER REVIEW" || status === "DRAFT"
     ? "review"
     : status === "APPROVED"
       ? "approved"
@@ -432,10 +521,10 @@ const statusKey = (status: ApplicationStatus) =>
 
 const filterOptions = computed(() => {
   const countFor = (key: string) =>
-    applicationsData.filter((application) => statusKey(application.status) === key).length;
+    applicationsData.value.filter((application) => statusKey(application.status) === key).length;
 
   return [
-    { key: "all", label: "All", count: applicationsData.length },
+    { key: "all", label: "All", count: applicationsData.value.length },
     { key: "review", label: "Under review", count: countFor("review") },
     { key: "approved", label: "Approved", count: countFor("approved") },
     { key: "feedback", label: "Feedback", count: countFor("feedback") },
@@ -445,8 +534,12 @@ const filterOptions = computed(() => {
 
 function openApplication(application: ApplicationRecord) {
   const target = application.status === "FEEDBACK"
-    ? { name: "ApplicationView", query: { name: application.name }, hash: "#corrections" }
-    : { name: "ApplicationView", query: { name: application.name } };
+    ? {
+        name: "ApplicationView",
+        query: { name: application.name, id: application.dbId },
+        hash: "#corrections",
+      }
+    : { name: "ApplicationView", query: { name: application.name, id: application.dbId } };
   router.push(target);
 }
 
@@ -455,7 +548,7 @@ function goToTeam() {
 }
 
 const filteredApplications = computed(() => {
-  let list = applicationsData;
+  let list = applicationsData.value;
 
   if (activeView.value === "awaiting") {
     list = list.filter(
@@ -496,6 +589,7 @@ const getStatusClass = (status: string) => {
     case "APPROVED":
       return style.statusActive;
     case "UNDER REVIEW":
+    case "DRAFT":
       return style.statusReview;
     case "FEEDBACK":
       return style.statusReturn;

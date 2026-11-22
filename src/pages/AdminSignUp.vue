@@ -33,10 +33,10 @@
         </h1>
 
         <p :class="$style.subcopy">
-          Apply For a Loan , Keep Track of your application,<br
+          Submit your idea, keep track of your application,<br
             :class="$style.subcopyBreak"
           />
-          and manage active loans
+          and manage your submissions
         </p>
       </div>
 
@@ -63,7 +63,11 @@
         <div :class="$style.formTitleUnderline" />
         <p :class="$style.formSubtitle">Register for your CEDA Account</p>
 
-        <form :class="$style.loginForm" @submit.prevent="handleSignUp">
+        <form
+          v-if="!signUpComplete"
+          :class="$style.loginForm"
+          @submit.prevent="handleSignUp"
+        >
           <div :class="$style.inputGroup">
             <label :class="$style.inputLabel" for="fullName">Full Name</label>
             <input
@@ -120,8 +124,20 @@
             />
           </div>
 
-          <button :class="$style.submitButton" type="submit">
-            <span>Create Account</span>
+          <p
+            v-if="formMessage"
+            role="alert"
+            :style="{
+              margin: '0 0 8px',
+              fontSize: '13px',
+              color: signUpFailed ? '#b42318' : '#0f6b3f',
+            }"
+          >
+            {{ formMessage }}
+          </p>
+
+          <button :class="$style.submitButton" type="submit" :disabled="loading">
+            <span>{{ loading ? "Creating account…" : "Create Account" }}</span>
             <svg
               :class="$style.btnArrow"
               viewBox="0 0 24 24"
@@ -160,6 +176,57 @@
             <router-link :class="$style.legalLink" to="/terms">Terms &amp; Conditions</router-link>.
           </p>
         </form>
+
+        <!-- Shown after a successful registration -->
+        <div v-else :class="$style.successPanel">
+          <div :class="$style.successIcon" aria-hidden="true">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="2.5" y="4.5" width="19" height="15" rx="2.5" />
+              <path d="m3.5 7 7.3 5.4a2 2 0 0 0 2.4 0L20.5 7" />
+            </svg>
+          </div>
+
+          <h3 :class="$style.successTitle">Check your inbox</h3>
+          <p :class="$style.successText">
+            We sent a confirmation link to
+            <strong>{{ submittedEmail }}</strong>. Open it to activate your CEDA
+            Innovation Portal account.
+          </p>
+
+          <ol :class="$style.successSteps">
+            <li>
+              <b>Confirm your email</b>
+              <span>The link is valid for 24 hours.</span>
+            </li>
+            <li>
+              <b>Complete your innovator profile</b>
+              <span>Add your organisation and contact details.</span>
+            </li>
+            <li>
+              <b>Start your first submission</b>
+              <span>Describe your idea and upload supporting documents.</span>
+            </li>
+          </ol>
+
+          <router-link
+            :class="$style.submitButton"
+            to="/login"
+            style="text-decoration: none; display: flex;"
+          >
+            <span>Go to sign in</span>
+            <svg :class="$style.btnArrow" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M4 12h15M13 5.5 19.5 12 13 18.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+          </router-link>
+
+          <p :class="$style.successHint">
+            Didn't receive it? Check your spam folder, or
+            <button :class="$style.successLink" type="button" @click="resendEmail">
+              send the email again
+            </button>.
+          </p>
+          <p v-if="resendMessage" :class="$style.successHint">{{ resendMessage }}</p>
+        </div>
       </div>
     </main>
   </div>
@@ -168,6 +235,12 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { useRouter } from "vue-router";
+import {
+  dashboardForRole,
+  isSupabaseConfigured,
+  signUpWithPassword,
+} from "../lib/auth";
+import { supabase } from "../lib/supabase";
 
 const router = useRouter();
 
@@ -178,11 +251,70 @@ const fullName = ref("");
 const identifier = ref("");
 const password = ref("");
 const confirmPassword = ref("");
+const loading = ref(false);
+const formMessage = ref("");
+const signUpFailed = ref(false);
+const signUpComplete = ref(false);
+const submittedEmail = ref("");
+const resendMessage = ref("");
 
-const handleSignUp = () => {
-  // Send the new account to the sign in page after registering
-  router.push({ name: "Login" });
+const handleSignUp = async () => {
+  formMessage.value = "";
+  signUpFailed.value = false;
+
+  if (password.value !== confirmPassword.value) {
+    signUpFailed.value = true;
+    formMessage.value = "Passwords do not match.";
+    return;
+  }
+  if (password.value.length < 8) {
+    signUpFailed.value = true;
+    formMessage.value = "Use at least 8 characters for your password.";
+    return;
+  }
+
+  // No backend configured: keep the previous demo behaviour.
+  if (!isSupabaseConfigured) {
+    router.push({ name: "Login" });
+    return;
+  }
+
+  loading.value = true;
+  const result = await signUpWithPassword({
+    fullName: fullName.value,
+    email: identifier.value,
+    password: password.value,
+  });
+  loading.value = false;
+
+  if (!result.ok) {
+    signUpFailed.value = true;
+    formMessage.value = result.error ?? "Could not create the account.";
+    return;
+  }
+
+  if (result.needsConfirmation) {
+    submittedEmail.value = identifier.value.trim();
+    signUpComplete.value = true;
+    return;
+  }
+
+  router.push(dashboardForRole("innovator"));
 };
+
+async function resendEmail() {
+  resendMessage.value = "";
+  if (!supabase) return;
+
+  const { error } = await supabase.auth.resend({
+    type: "signup",
+    email: submittedEmail.value,
+  });
+
+  resendMessage.value = error
+    ? `Could not resend the email: ${error.message}`
+    : "Confirmation email sent again. It can take a minute to arrive.";
+}
 </script>
 
 <style module>
@@ -203,7 +335,9 @@ const handleSignUp = () => {
 .heroAside {
   position: relative;
   background-color: #941d11;
-  height: 100vh;
+  height: calc(100vh - 20px);
+  margin-top: 20px;
+  border-radius: 0 20px 0 0;
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -664,6 +798,8 @@ const handleSignUp = () => {
   .heroAside {
     height: auto;
     min-height: 520px;
+    margin-top: 16px;
+    border-radius: 0 20px 0 0;
   }
   .asideContent {
     padding: 32px 24px 0 124px;
@@ -688,5 +824,98 @@ const handleSignUp = () => {
     height: auto;
     padding: 44px 24px 56px;
   }
+}
+/* ---------- Post-registration confirmation ---------- */
+.successPanel {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 10px;
+  padding: 4px 0 0;
+  box-sizing: border-box;
+}
+.successIcon {
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 999px;
+  background: rgba(1, 53, 37, 0.08);
+  color: var(--color-darkslategray-600);
+}
+.successTitle {
+  margin: 4px 0 0;
+  font-size: 22px;
+  font-weight: 800;
+  color: #1f2933;
+}
+.successText {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #525252;
+  max-width: 46ch;
+}
+.successSteps {
+  list-style: none;
+  counter-reset: step;
+  margin: 6px 0 4px;
+  padding: 0;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  text-align: left;
+}
+.successSteps li {
+  counter-increment: step;
+  position: relative;
+  padding: 10px 12px 10px 42px;
+  border: 1px solid #eceae4;
+  border-radius: 10px;
+  background: #faf9f5;
+}
+.successSteps li::before {
+  content: counter(step);
+  position: absolute;
+  left: 12px;
+  top: 11px;
+  width: 20px;
+  height: 20px;
+  border-radius: 999px;
+  background: var(--color-darkslategray-500);
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 700;
+  display: grid;
+  place-items: center;
+}
+.successSteps b {
+  display: block;
+  font-size: 13.5px;
+  color: #1f2933;
+}
+.successSteps span {
+  display: block;
+  margin-top: 2px;
+  font-size: 12.5px;
+  color: #616161;
+}
+.successHint {
+  margin: 2px 0 0;
+  font-size: 12.5px;
+  color: #616161;
+}
+.successLink {
+  border: none;
+  background: none;
+  padding: 0;
+  font: inherit;
+  font-weight: 700;
+  color: var(--color-darkslategray-600);
+  text-decoration: underline;
+  cursor: pointer;
 }
 </style>

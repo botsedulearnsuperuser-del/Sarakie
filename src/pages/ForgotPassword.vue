@@ -33,10 +33,10 @@
         </h1>
 
         <p :class="$style.subcopy">
-          Apply For a Loan , Keep Track of your application,<br
+          Submit your idea, keep track of your application,<br
             :class="$style.subcopyBreak"
           />
-          and manage active loans
+          and manage your submissions
         </p>
       </div>
 
@@ -161,7 +161,9 @@ const handleReset = () => {
 .heroAside {
   position: relative;
   background-color: #941d11;
-  height: 100vh;
+  height: calc(100vh - 20px);
+  margin-top: 20px;
+  border-radius: 0 20px 0 0;
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -559,6 +561,8 @@ const handleReset = () => {
   .heroAside {
     height: auto;
     min-height: 520px;
+    margin-top: 16px;
+    border-radius: 0 20px 0 0;
   }
   .asideContent {
     padding: 32px 24px 0 124px;

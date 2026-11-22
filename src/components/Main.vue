@@ -266,7 +266,11 @@
       openAiAgent();
       return;
     }
-    if (item.route) router.push({ name: item.route });
+    if (item.route) {
+      /* Shared pages read this so they speak the language of the dashboard you came from. */
+      const query = role.value === "innovator" ? {} : { role: role.value };
+      router.push({ name: item.route, query });
+    }
   }
 
   function signOut() {

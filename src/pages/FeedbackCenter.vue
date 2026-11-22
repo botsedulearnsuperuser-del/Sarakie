@@ -375,9 +375,9 @@
 
 import { onMounted, ref, computed } from "vue";
 import { THEME_EVENT, isGaboroneTheme } from "../components/themes";
-import { useRouter, type RouteLocationRaw } from "vue-router";
+import { useRoute, useRouter, type RouteLocationRaw } from "vue-router";
 import Main from "../components/Main.vue";
-import { readDashboardRole } from "../components/dashboardRole";
+import { resolveDashboardRole } from "../components/dashboardRole";
 import ChatWithAgent from "../components/ChatWithAgent.vue";
 
 const router = useRouter();
@@ -385,13 +385,15 @@ const router = useRouter();
 const activeFilter = ref<"all" | "unread" | "answered">("all" as const);
 const searchQuery = ref("");
 
-/* The page is shared by all three dashboards, so the intro line follows the signed-in role. */
-const role = readDashboardRole();
+/* The page is shared by all three dashboards, so the intro line follows the signed-in role.
+   The sidebar puts that role on the URL; with no role this is the innovator's own page. */
+const route = useRoute();
+const role = computed(() => resolveDashboardRole(route.query.role));
 const feedbackSubtitle = computed(() => {
-  if (role === "admin") {
+  if (role.value === "admin") {
     return "Review the feedback exchanged between evaluators and innovators";
   }
-  if (role === "evaluator") {
+  if (role.value === "evaluator") {
     return "Read and reply to the feedback you have left on innovator ideas";
   }
   return "View and respond to every evaluator comment across all your ideas";

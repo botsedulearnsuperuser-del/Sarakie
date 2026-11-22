@@ -575,36 +575,39 @@
 
 import { onMounted, onUnmounted, ref, computed, useCssModule } from "vue";
 import { THEME_EVENT, isGaboroneTheme } from "../components/themes";
+import { useRoute } from "vue-router";
 import Main from "../components/Main.vue";
 import ChatWithAgent from "../components/ChatWithAgent.vue";
-import { readDashboardRole } from "../components/dashboardRole";
+import { resolveDashboardRole } from "../components/dashboardRole";
 
-/* Shared by all three dashboards, so the profile copy follows the signed-in role. */
-const role = readDashboardRole();
+/* Shared by all three dashboards, so the profile copy follows the role the sidebar put on
+   the URL; with no role this is the innovator's own profile. */
+const route = useRoute();
+const role = computed(() => resolveDashboardRole(route.query.role));
 const profileTitle = computed(() =>
-  role === "admin" ? "Admin Profile" : role === "evaluator" ? "Evaluator Profile" : "My Profile",
+  role.value === "admin" ? "Admin Profile" : role.value === "evaluator" ? "Evaluator Profile" : "My Profile",
 );
 const profileSubtitle = computed(() =>
-  role === "admin"
+  role.value === "admin"
     ? "Manage your administrator account and view system activity."
-    : role === "evaluator"
+    : role.value === "evaluator"
       ? "Manage your evaluator account and review activity."
       : "Manage your innovator account and follow your applications.",
 );
 const roleLine = computed(() =>
-  role === "admin"
+  role.value === "admin"
     ? "Branch Administrator · Gaborone Main Branch"
-    : role === "evaluator"
+    : role.value === "evaluator"
       ? "Innovator Evaluator · Gaborone"
       : "Innovator · Gaborone",
 );
 const roleBadge = computed(() =>
-  role === "admin" ? "Administrator" : role === "evaluator" ? "Evaluator" : "Innovator",
+  role.value === "admin" ? "Administrator" : role.value === "evaluator" ? "Evaluator" : "Innovator",
 );
 const roleTitle = computed(() =>
-  role === "admin" ? "Branch Administrator" : role === "evaluator" ? "Evaluator" : "Innovator",
+  role.value === "admin" ? "Branch Administrator" : role.value === "evaluator" ? "Evaluator" : "Innovator",
 );
-const roleNoun = computed(() => (role === "admin" ? "administrator" : role));
+const roleNoun = computed(() => (role.value === "admin" ? "administrator" : role.value));
 
 const auditFilter = ref("all");
 const lastChangedDate = ref("22 September 2026");

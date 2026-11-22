@@ -56,7 +56,8 @@
 <script setup lang="ts">
   import { onMounted, ref } from "vue"
 
-  const CONSENT_KEY = "ceda-cookie-consent"
+  /* v2 so anyone who answered the earlier notice is asked once more. */
+  const CONSENT_KEY = "ceda-cookie-consent-v2"
   const visible = ref(false)
 
   onMounted(() => {
@@ -92,8 +93,8 @@
   }
   .card {
     width: 100%;
-    max-width: 768px;
-    padding: 20px 24px;
+    max-width: 860px;
+    padding: 12px 18px;
     box-sizing: border-box;
     border-radius: 12px;
     border: 1px solid var(--color-antiquewhite-200);
@@ -128,8 +129,8 @@
   .text {
     margin: 0;
     color: #525252;
-    font-size: 15px;
-    line-height: 1.65;
+    font-size: 13.5px;
+    line-height: 1.45;
     letter-spacing: 0.01em;
   }
   .text a {
@@ -145,8 +146,8 @@
     display: flex;
     align-items: center;
     justify-content: flex-end;
-    gap: 12px;
-    margin-top: 16px;
+    gap: 10px;
+    margin-top: 10px;
   }
   .accept,
   .reject {
@@ -194,16 +195,33 @@
     transform: translateY(1px);
   }
 
+  /* Wide enough screens: text and buttons share one short row. */
+  @media screen and (min-width: 641px) {
+    .card {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+    }
+    .body {
+      flex: 1;
+    }
+    .actions {
+      flex-shrink: 0;
+      margin-top: 0;
+    }
+  }
+
   @media screen and (max-width: 640px) {
     .overlay {
       bottom: 12px;
       padding: 0 12px;
     }
     .card {
-      padding: 16px;
+      padding: 12px 14px;
     }
     .text {
-      font-size: 14px;
+      font-size: 12.5px;
+      line-height: 1.4;
     }
     .actions {
       gap: 8px;

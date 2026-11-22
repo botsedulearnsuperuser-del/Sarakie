@@ -42,8 +42,24 @@
           placeholder="your@email.com"
           required
         />
-        <button :class="$style.submitButton" type="submit">
-          Continue with email
+        <input
+          id="auth6-password"
+          v-model="password"
+          :class="$style.input"
+          type="password"
+          autocomplete="current-password"
+          placeholder="Your password"
+          required
+        />
+        <p
+          v-if="error"
+          role="alert"
+          style="margin: 0; font-size: 13px; color: #b42318; text-align: left;"
+        >
+          {{ error }}
+        </p>
+        <button :class="$style.submitButton" type="submit" :disabled="loading">
+          {{ loading ? "Signing in…" : "Continue with email" }}
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
             <path
               d="M5 12h14M13 6l6 6-6 6"
@@ -71,9 +87,17 @@
 <script setup lang="ts">
   import { ref } from "vue";
   import { useRouter } from "vue-router";
+  import {
+    dashboardForRole,
+    isSupabaseConfigured,
+    signInWithPassword,
+  } from "../lib/auth";
 
   const router = useRouter();
   const email = ref("");
+  const password = ref("");
+  const error = ref("");
+  const loading = ref(false);
 
   const socialProviders = [
     {
@@ -99,8 +123,24 @@
     },
   ];
 
-  function submitEmail() {
-    continueToPortal();
+  async function submitEmail() {
+    error.value = "";
+
+    // No backend configured (e.g. a static preview): keep the old behaviour.
+    if (!isSupabaseConfigured) {
+      continueToPortal();
+      return;
+    }
+
+    loading.value = true;
+    const result = await signInWithPassword(email.value, password.value);
+    loading.value = false;
+
+    if (!result.ok) {
+      error.value = result.error ?? "Could not sign in.";
+      return;
+    }
+    router.push(dashboardForRole(result.role ?? "innovator"));
   }
 
   function continueToPortal() {

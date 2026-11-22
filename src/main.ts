@@ -22,7 +22,6 @@ import BlogPage from "./pages/BlogPage.vue";
 import ArticlePage from "./pages/ArticlePage.vue";
 import DeadlinesView from "./pages/DeadlinesView.vue";
 import NewIdea from "./pages/NewIdea.vue";
-import LoanView from "./pages/LoanView.vue";
 import ApplicationView from "./pages/ApplicationView.vue";
 import CloudShaderHero from "./pages/CloudShaderHero.vue";
 import FaqPage from "./pages/FaqPage.vue";
@@ -31,6 +30,7 @@ import FolderRevealDemo from "./pages/FolderRevealDemo.vue";
 import LegalPage from "./pages/LegalPage.vue";
 import NotFoundPage from "./pages/NotFoundPage.vue";
 import "./global.css";
+import { initAuth } from "./lib/auth";
 
 const routes: RouteRecordRaw[] = [
   {
@@ -78,16 +78,6 @@ const routes: RouteRecordRaw[] = [
     path: "/feedback-center",
     name: "FeedbackCenter",
     component: FeedbackCenter,
-  },
-  {
-    path: "/loan-view",
-    name: "LoanView",
-    component: LoanView,
-  },
-  {
-    path: "/loan-view/:id",
-    name: "LoanViewWithId",
-    component: LoanView,
   },
   {
     path: "/application",
@@ -198,13 +188,9 @@ const routes: RouteRecordRaw[] = [
   },
   // Older URLs kept working for bookmarks and shared links.
   { path: "/dashboard-sample", redirect: "/innovator-dashboard" },
-  { path: "/customers", redirect: "/feedback-center" },
   { path: "/admin-profile", redirect: "/profile" },
   { path: "/idea-view", redirect: "/application" },
   { path: "/idea-view/:id", redirect: (to: RouteLocation) => `/application/${to.params.id}` },
-  { path: "/loans-sheet", redirect: "/my-applications" },
-  { path: "/loans", redirect: "/my-applications" },
-  { path: "/new-loan", redirect: "/new-idea" },
   {
     path: "/404",
     name: "NotFound",
@@ -243,5 +229,8 @@ const addMetaTag = (value: string) => {
 };
 
 createApp(App).use(router).mount("#app");
+
+// Restore any saved Supabase session so pages can load real data on first paint.
+void initAuth();
 
 export default router;

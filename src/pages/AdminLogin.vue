@@ -33,10 +33,10 @@
         </h1>
 
         <p :class="$style.subcopy">
-          Apply For a Loan , Keep Track of your application,<br
+          Submit your idea, keep track of your application,<br
             :class="$style.subcopyBreak"
           />
-          and manage active loans
+          and manage your submissions
         </p>
       </div>
 
@@ -96,8 +96,16 @@
             Forgot Password?
           </router-link>
 
-          <button :class="$style.submitButton" type="submit">
-            <span>Sign In</span>
+          <p
+            v-if="error"
+            role="alert"
+            style="margin: 0 0 8px; font-size: 13px; color: #b42318;"
+          >
+            {{ error }}
+          </p>
+
+          <button :class="$style.submitButton" type="submit" :disabled="loading">
+            <span>{{ loading ? "Signing in…" : "Sign In" }}</span>
             <svg
               :class="$style.btnArrow"
               viewBox="0 0 24 24"
@@ -144,6 +152,11 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { useRouter } from "vue-router";
+import {
+  dashboardForRole,
+  isSupabaseConfigured,
+  signInWithPassword,
+} from "../lib/auth";
 
 const router = useRouter();
 
@@ -152,10 +165,28 @@ const womanImageSrc = encodeURI("/hero-client.webp");
 
 const identifier = ref("");
 const password = ref("");
+const error = ref("");
+const loading = ref(false);
 
-const handleLogin = () => {
-  // Navigate to Dashboard upon successful login
-  router.push({ name: "InnovatorDashboard" });
+const handleLogin = async () => {
+  error.value = "";
+
+  // No backend configured: keep the previous demo behaviour.
+  if (!isSupabaseConfigured) {
+    router.push({ name: "InnovatorDashboard" });
+    return;
+  }
+
+  loading.value = true;
+  const result = await signInWithPassword(identifier.value, password.value);
+  loading.value = false;
+
+  if (!result.ok) {
+    error.value = result.error ?? "Could not sign in.";
+    return;
+  }
+
+  router.push(dashboardForRole(result.role ?? "innovator"));
 };
 </script>
 
@@ -177,7 +208,9 @@ const handleLogin = () => {
 .heroAside {
   position: relative;
   background-color: #941d11;
-  height: 100vh;
+  height: calc(100vh - 20px);
+  margin-top: 20px;
+  border-radius: 0 20px 0 0;
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -575,6 +608,8 @@ const handleLogin = () => {
   .heroAside {
     height: auto;
     min-height: 520px;
+    margin-top: 16px;
+    border-radius: 0 20px 0 0;
   }
   .asideContent {
     padding: 32px 24px 0 124px;

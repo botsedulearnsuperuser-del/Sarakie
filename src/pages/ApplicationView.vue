@@ -583,6 +583,8 @@ import { THEME_EVENT, isGaboroneTheme } from "../components/themes";
 import { useRoute } from "vue-router";
 import { useCssModule } from "vue";
 import Main from "../components/Main.vue";
+import { supabase } from "../lib/supabase";
+import { session } from "../lib/auth";
 
 const route = useRoute();
 const style = useCssModule();
@@ -612,7 +614,13 @@ interface IdeaDetail {
   fundingAmount: string;
   category: string;
   stage: string;
-  status: "Draft" | "Under Review" | "Approved" | "Feedback Required" | "Awarded";
+  status:
+    | "Draft"
+    | "Under Review"
+    | "Approved"
+    | "Feedback Required"
+    | "Awarded"
+    | "Declined";
   officer: string;
   description: string;
   problem: string;
@@ -792,6 +800,142 @@ function loadIdea(key: string): IdeaDetail {
 const ideaKey = ref(resolveKey());
 const currentIdea = ref<IdeaDetail>(loadIdea(ideaKey.value));
 const savedNotice = ref("");
+/** Supabase row id when this page was opened from a real application. */
+const dbId = ref<string | null>(null);
+
+function mapApplicationStatus(status: string): IdeaDetail["status"] {
+  switch (status) {
+    case "draft":
+      return "Draft";
+    case "approved":
+      return "Approved";
+    case "rejected":
+      return "Declined";
+    case "returned":
+      return "Feedback Required";
+    default:
+      return "Under Review";
+  }
+}
+
+function formatSubmitted(value: string | null): string {
+  if (!value) return "Not submitted yet";
+  return new Date(value).toLocaleDateString("en-GB", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
+}
+
+function mapApplication(row: Record<string, any>): IdeaDetail {
+  const innovator = Array.isArray(row.innovator) ? row.innovator[0] : row.innovator;
+  return {
+    ideaId: row.reference ?? row.id,
+    title: row.title ?? "Untitled submission",
+    innovator: innovator?.full_name ?? "You",
+    email: innovator?.email ?? "",
+    phone: innovator?.phone ?? "",
+    location: innovator?.city ?? "",
+    submittedDate: formatSubmitted(row.submitted_at),
+    fundingAmount: Number(row.funding_requested ?? 0).toLocaleString("en-US", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }),
+    category: row.sector ?? "Uncategorised",
+    stage: row.innovation_type ?? "Idea",
+    status: mapApplicationStatus(String(row.status)),
+    officer: "Unassigned",
+    description: row.summary ?? "",
+    problem: row.problem_statement ?? "",
+    solution: row.proposed_solution ?? "",
+    beneficiaries: row.target_beneficiaries ?? "",
+    impact: row.expected_impact ?? "",
+    documents: [],
+    corrections: [],
+  };
+}
+
+async function hydrateFromRoute() {
+  savedNotice.value = "";
+  const id = typeof route.query.id === "string" ? route.query.id : "";
+
+  if (id && supabase && session.value) {
+    const { data, error } = await supabase
+      .from("applications")
+      .select("*, innovator:profiles(full_name, email, phone, city)")
+      .eq("id", id)
+      .maybeSingle();
+
+    if (!error && data) {
+      dbId.value = data.id;
+      currentIdea.value = mapApplication(data);
+
+      const [{ data: docs }, { data: fixes }] = await Promise.all([
+        supabase
+          .from("application_documents")
+          .select("file_name, mime_type, size_bytes, created_at")
+          .eq("application_id", data.id),
+        supabase
+          .from("application_corrections")
+          .select("body, created_at")
+          .eq("application_id", data.id)
+          .is("resolved_at", null),
+      ]);
+
+      currentIdea.value.documents = (docs ?? []).map((doc: Record<string, any>) => ({
+        name: doc.file_name,
+        type: (doc.mime_type?.split("/").pop() ?? "FILE").toUpperCase(),
+        size: formatFileSize(Number(doc.size_bytes ?? 0)),
+        uploaded: formatSubmitted(doc.created_at),
+      }));
+
+      currentIdea.value.corrections = (fixes ?? []).map((fix: Record<string, any>) => ({
+        field: "Reviewer note",
+        issue: fix.body,
+        severity: "Required",
+      }));
+
+      activeTab.value = route.hash === "#corrections" ? "corrections" : "application";
+      return;
+    }
+  }
+
+  // Not opened from the database (or signed out): fall back to the sample record.
+  dbId.value = null;
+  ideaKey.value = resolveKey();
+  currentIdea.value = loadIdea(ideaKey.value);
+  activeTab.value = route.hash === "#corrections" ? "corrections" : "application";
+}
+
+/** Column values for the row behind this page. */
+function applicationPatch(): Record<string, unknown> {
+  const idea = currentIdea.value;
+  return {
+    title: idea.title,
+    sector: idea.category,
+    innovation_type: idea.stage,
+    summary: idea.description,
+    problem_statement: idea.problem,
+    proposed_solution: idea.solution,
+    target_beneficiaries: idea.beneficiaries,
+    expected_impact: idea.impact,
+    funding_requested:
+      Number(idea.fundingAmount.replace(/[^0-9.]/g, "")) || null,
+  };
+}
+
+async function persistApplication(patch: Record<string, unknown>): Promise<boolean> {
+  if (!supabase || !dbId.value) return false;
+  const { error } = await supabase
+    .from("applications")
+    .update(patch)
+    .eq("id", dbId.value);
+  if (error) {
+    savedNotice.value = `Could not save: ${error.message}`;
+    return false;
+  }
+  return true;
+}
 
 const isDraft = computed(() => currentIdea.value.status === "Draft");
 
@@ -841,16 +985,9 @@ onMounted(() => nextTick(resizeDraftTextareas));
 watch(currentIdea, () => nextTick(resizeDraftTextareas));
 
 watch(
-  () => [route.query.name, route.params.id, route.hash],
+  () => [route.query.id, route.query.name, route.params.id, route.hash],
   () => {
-    ideaKey.value = resolveKey();
-    currentIdea.value = loadIdea(ideaKey.value);
-    savedNotice.value = "";
-    if (route.hash === "#corrections") {
-      activeTab.value = "corrections";
-    } else {
-      activeTab.value = "application";
-    }
+    void hydrateFromRoute();
   },
   { immediate: true }
 );
@@ -873,9 +1010,15 @@ function scrollToCorrections() {
   });
 }
 
-function saveDraft() {
+async function saveDraft() {
   draftStore[ideaKey.value] = snapshot(currentIdea.value);
-  savedNotice.value = `Draft saved — ${currentIdea.value.title}`;
+  const saved = await persistApplication({
+    ...applicationPatch(),
+    ...(currentIdea.value.status === "Draft" ? { status: "draft" } : {}),
+  });
+  savedNotice.value = saved
+    ? `Draft saved — ${currentIdea.value.title}`
+    : savedNotice.value || `Draft saved — ${currentIdea.value.title}`;
 }
 
 function startCorrectionEdit() {
@@ -892,17 +1035,31 @@ function cancelCorrectionEdit() {
   savedNotice.value = "";
 }
 
-function submitCorrections() {
+async function submitCorrections() {
   draftStore[ideaKey.value] = snapshot(currentIdea.value);
+  const now = new Date();
   currentIdea.value.status = "Under Review";
-  currentIdea.value.submittedDate = new Date().toLocaleDateString("en-GB", {
-    day: "numeric",
-    month: "long",
-    year: "numeric",
+  currentIdea.value.submittedDate = formatSubmitted(now.toISOString());
+
+  const saved = await persistApplication({
+    ...applicationPatch(),
+    status: "submitted",
+    submitted_at: now.toISOString(),
   });
+
+  if (saved && supabase && dbId.value) {
+    await supabase
+      .from("application_corrections")
+      .update({ resolved_at: now.toISOString() })
+      .eq("application_id", dbId.value)
+      .is("resolved_at", null);
+  }
+
   currentIdea.value.corrections = [];
   editingCorrections.value = false;
-  savedNotice.value = "Corrections submitted. The proposal is back under review.";
+  savedNotice.value = saved
+    ? "Corrections submitted. The proposal is back under review."
+    : savedNotice.value;
 }
 
 function formatFileSize(bytes: number) {
@@ -934,15 +1091,23 @@ function handleFiles(event: Event) {
   nextTick(resizeDraftTextareas);
 }
 
-function submitDraft() {
+async function submitDraft() {
   draftStore[ideaKey.value] = snapshot(currentIdea.value);
+  const now = new Date();
   currentIdea.value.status = "Under Review";
-  currentIdea.value.submittedDate = new Date().toLocaleDateString("en-GB", {
-    day: "numeric",
-    month: "long",
-    year: "numeric",
+  currentIdea.value.submittedDate = formatSubmitted(now.toISOString());
+
+  const saved = await persistApplication({
+    ...applicationPatch(),
+    status: "submitted",
+    submitted_at: now.toISOString(),
+    decided_at: null,
+    decision_note: null,
   });
-  savedNotice.value = "Proposal submitted for review.";
+
+  savedNotice.value = saved
+    ? "Proposal submitted for review."
+    : savedNotice.value || "Proposal submitted for review.";
 }
 
 function getStatusClass(status: string) {
@@ -953,6 +1118,7 @@ function getStatusClass(status: string) {
     case "Under Review":
       return style.statusReview;
     case "Feedback Required":
+    case "Declined":
       return style.statusReturn;
     case "Draft":
       return style.statusDraft;
