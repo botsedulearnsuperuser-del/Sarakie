@@ -29,7 +29,7 @@ You can also demo the evaluator workflow: sign in as the **admin** or **adjudica
 
 **Platform Demo Video Walkthrough**
 
-<iframe width="560" height="315" src="https://www.youtube.com/embed/videoseries?si=CKOmmY9NheR6LMjz&amp;list=PLEoyFKtrou3I" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+[![Platform Demo Video Walkthrough](docs/demo-video-thumbnail.svg)](https://www.youtube.com/playlist?list=PLEoyFKtrou3I)
 
 ---
 
