@@ -21,6 +21,9 @@
         </div>
       </header>
 
+      <!-- Floating, draggable audio guide for the whole application -->
+      <AudioGuideButton />
+
       <!-- Step Progress Bar inside White Container -->
       <div :class="$style.stepsBar">
         <div
@@ -566,6 +569,7 @@ import { onMounted, ref, computed, watch } from "vue";
 import { THEME_EVENT, isGaboroneTheme } from "../components/themes";
 
 import Main from "../components/Main.vue";
+import AudioGuideButton from "../components/AudioGuideButton.vue";
 import AIOrbFace, { type AIState, type ExpressionName } from "../components/ui/AIOrbFace.vue";
 import Assignees from "../components/ui/Assignees.vue";
 import { useTeamMembers } from "../composables/useTeamMembers";

@@ -125,7 +125,7 @@ const goToDashboard = () => {
 }
 .subcopy {
   margin: 6px 0 0;
-  color: #f2a81d;
+  color: #ffffff;
   font-size: var(--fs-18);
   font-weight: 500;
   font-family: var(--font-inter);
@@ -143,7 +143,7 @@ const goToDashboard = () => {
   height: 47px;
   border: none;
   border-radius: var(--br-12);
-  background: linear-gradient(120deg, #8e1b2b 0%, #eb6a30 55%, #f2a81d 100%);
+  background-color: #97231e;
   display: inline-flex;
   align-items: center;
   gap: 10px;
