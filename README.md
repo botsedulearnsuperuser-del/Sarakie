@@ -14,6 +14,25 @@ Live prototype: <https://cedainnovationportal.vercel.app>
 
 ---
 
+## Demo accounts (temporary)
+
+> These are **demo accounts** created for reviewing the platform. They will be taken down in **10 days**.
+
+| Role | Email | Password |
+|---|---|---|
+| **Innovator** | `Tlhalefangntshilane@gmail.com` | `Thalefang2021.` |
+| **Admin** | `Devgenbotswana@gmail.com` | `Thalefang` |
+| **Adjudicator** | `Thalefangn121@gmail.com` | `Thalefang2021.` |
+
+You can also demo the evaluator workflow: sign in as the **admin** or **adjudicator**, open the
+**Admin dashboard → Evaluator accounts**, and create an evaluator account from there.
+
+**Platform Demo Video Walkthrough**
+
+[![Platform Demo Video Walkthrough](docs/demo-video-thumbnail.svg)](https://www.youtube.com/playlist?list=PLEoyFKtrou3I)
+
+---
+
 ## Contents
 
 1. [What the system does](#1-what-the-system-does)
