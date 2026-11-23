@@ -1414,12 +1414,20 @@ function openChat() {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
+  min-width: 0;
+  max-width: 100%;
 }
 
 .titleRow {
   display: flex;
   align-items: center;
   gap: 14px;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.titleRow > span {
+  flex-shrink: 0;
 }
 
 .dumelaMarion {
@@ -1430,6 +1438,11 @@ function openChat() {
   font-weight: 800;
   font-family: inherit;
   color: var(--color-darkslategray-500);
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .pWrap {
@@ -2886,24 +2899,19 @@ function openChat() {
     line-height: 1.45;
   }
 
-  /* Gaborone theme: white header text only on this preset. */
-  .isGaborone .dumelaMarion {
-    color: #ffffff;
-  }
-  .isGaborone .sunday4October {
-    color: #ffffff;
-  }
-  .isGaborone .sunday4October b {
-    color: #ffffff;
-  }
-  .isGaborone .backLink {
-    color: #ffffff;
-  }
-  .isGaborone .navCurrent {
-    color: #ffffff;
-  }
-  .isGaborone .navDivider {
-    color: rgba(255, 255, 255, 0.6);
-  }
+}
+
+/* Gaborone theme: white header text only on this preset. */
+.isGaborone .dumelaMarion,
+.isGaborone .sunday4October,
+.isGaborone .sunday4October b,
+.isGaborone .backLink,
+.isGaborone .navCurrent {
+  color: #ffffff;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.45);
+}
+
+.isGaborone .navDivider {
+  color: rgba(255, 255, 255, 0.6);
 }
 </style>
