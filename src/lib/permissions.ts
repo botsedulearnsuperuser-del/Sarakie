@@ -16,6 +16,7 @@ export const PUBLIC_ROUTE_NAMES = new Set<string>([
   "NotFoundCatchAll",
   "Login",
   "SignUp",
+  "AdminSignUp",
   "ForgotPassword",
   "ResetPassword",
   "CloudShaderHero",

@@ -74,21 +74,26 @@ const goToDashboard = () => router.push({ name: "DashboardSample" });
   height: 47px;
   border: none;
   border-radius: var(--br-12);
-  background-color: var(--color-goldenrod-300);
+  background-color: #97231e;
   display: inline-flex;
   align-items: center;
   gap: 10px;
   padding: 10px 14px;
-  color: var(--color-darkslategray-600);
+  color: #ffffff;
+  transition: background-color 0.2s ease;
   font-size: var(--fs-18);
   font-weight: 600;
   font-family: var(--font-inter);
   cursor: pointer;
   flex-shrink: 0;
 }
+.actionButton:hover {
+  background-color: #7d1b17;
+}
 .actionButton img {
   width: 24px;
   height: 24px;
+  filter: brightness(0) invert(1);
 }
 .menuToggle {
   display: none;

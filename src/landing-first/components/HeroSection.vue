@@ -154,6 +154,12 @@ const goToDashboard = () => {
   font-family: var(--font-inter);
   cursor: pointer;
 }
+.primaryBtn {
+  transition: background-color 0.2s ease;
+}
+.primaryBtn:hover {
+  background-color: #7d1b17;
+}
 .primaryBtn img {
   width: 24px;
   height: 24px;

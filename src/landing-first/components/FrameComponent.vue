@@ -10,12 +10,16 @@
         <span>Start your application</span>
         <img alt="" src="/bitcoin-icons-arrow-right-filled.svg" />
       </button>
-      <img
-        :class="$style.mockup"
-        loading="lazy"
-        alt="Desktop and mobile application preview"
-        src="/Group-3@2x.png"
-      />
+      <div :class="$style.mockupWrap">
+        <img
+          :class="$style.mockup"
+          loading="lazy"
+          alt="Desktop and mobile application preview"
+          src="/Group-3@2x.png"
+        />
+        <!-- Frosted band over the top of the previews, fading out downwards -->
+        <div :class="$style.mockupTopBlur" aria-hidden="true" />
+      </div>
     </div>
   </section>
 </template>
@@ -66,27 +70,60 @@ const goToDashboard = () => router.push({ name: "DashboardSample" });
   height: 47px;
   border: none;
   border-radius: var(--br-12);
-  background-color: var(--color-goldenrod-300);
+  background-color: #97231e;
   display: inline-flex;
   align-items: center;
   gap: 10px;
   padding: 10px 16px;
-  color: var(--color-darkslategray-600);
+  color: #ffffff;
+  transition: background-color 0.2s ease;
   font-size: var(--fs-18);
   font-weight: 600;
   font-family: var(--font-inter);
   cursor: pointer;
 }
+.button:hover {
+  background-color: #7d1b17;
+}
 .button img {
   width: 24px;
   height: 24px;
+  filter: brightness(0) invert(1);
 }
-.mockup {
+.mockupWrap {
+  position: relative;
   width: 100%;
   max-width: 920px;
-  height: auto;
   margin-top: 20px;
+}
+.mockup {
+  display: block;
+  width: 100%;
+  height: auto;
   object-fit: contain;
+}
+.mockupTopBlur {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 28%;
+  pointer-events: none;
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 1) 0%,
+    rgba(0, 0, 0, 0.85) 45%,
+    rgba(0, 0, 0, 0) 100%
+  );
+  mask-image: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 1) 0%,
+    rgba(0, 0, 0, 0.85) 45%,
+    rgba(0, 0, 0, 0) 100%
+  );
+  border-radius: 16px 16px 0 0;
 }
 @media screen and (max-width: 450px) {
   .overlay {
