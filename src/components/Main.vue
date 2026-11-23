@@ -44,7 +44,9 @@
         @click="handleNav(item)"
       >
         <span :class="$style.frameIcon" v-html="item.icon" />
-        <div :class="$style.dashboard">{{ item.label }}</div>
+        <div :class="$style.dashboard">
+          <span v-if="item.id === 'applications'" :class="$style.myPrefix">My </span>{{ item.id === 'applications' ? 'Applications' : item.label }}
+        </div>
       </div>
     </div>
 
@@ -171,7 +173,7 @@
   interface Props {
     activePage?: ActivePage;
     /** Which role's navigation the sidebar shows. */
-    role?: "innovator" | "evaluator" | "admin";
+    role?: "innovator" | "evaluator" | "adjudicator" | "admin";
   }
 
   const props = withDefaults(defineProps<Props>(), {
@@ -226,6 +228,7 @@
     { id: "dashboard", label: "Dashboard", page: "dashboard", route: "InnovatorDashboard", icon: ICONS.home },
     { id: "applications", label: "My Applications", page: "my-applications", route: "MyApplications", icon: ICONS.applications },
     { id: "feedback", label: "Feedback Center", page: "feedback-center", route: "FeedbackCenter", icon: ICONS.feedback },
+    { id: "chat", label: "Messages", page: "feedback-center", route: "ChatPage", icon: ICONS.chat },
     { id: "profile", label: "My Profile", page: "profile", route: "ProfileView", icon: ICONS.person },
     { id: "ai", label: "AI Agent", action: "ai", icon: ICONS.aiAgent },
   ];
@@ -236,6 +239,7 @@
     { id: "queue", label: "Review queue", page: "my-applications", route: "ReviewQueue", icon: ICONS.document },
     { id: "innovator-ideas", label: "Innovator ideas", page: "ideas", route: "IdeasView", icon: ICONS.innovatorIdeas },
     { id: "feedback", label: "Feedback Centre", page: "feedback-center", route: "FeedbackCenter", icon: ICONS.feedback },
+    { id: "chat", label: "Messages", page: "feedback-center", route: "ChatPage", icon: ICONS.chat },
     { id: "team", label: "Evaluation team", page: "team", route: "TeamView", icon: ICONS.person },
     { id: "profile", label: "Evaluator profile", page: "profile", route: "ProfileView", icon: ICONS.evaluatorProfile },
   ];
@@ -245,13 +249,19 @@
     { id: "evaluators", label: "Evaluator accounts", page: "admin-evaluators", route: "AdminEvaluators", icon: ICONS.users },
     { id: "applications", label: "All applications", page: "my-applications", route: "AllApplications", icon: ICONS.document },
     { id: "feedback", label: "Feedback Centre", page: "feedback-center", route: "FeedbackCenter", icon: ICONS.feedback },
+    { id: "chat", label: "Messages", page: "feedback-center", route: "ChatPage", icon: ICONS.chat },
     { id: "ideas", label: "Idea repository", page: "ideas", route: "IdeasView", icon: ICONS.chat },
     { id: "deadlines", label: "Deadlines", page: "deadlines", route: "DeadlinesView", icon: ICONS.calendar },
     { id: "team", label: "Team & roles", page: "team", route: "TeamView", icon: ICONS.person },
   ];
 
+  const adjudicatorNav: NavItem[] = adminNav.map((item) =>
+    item.id === "overview" ? { ...item, label: "Adjudicator overview" } : item,
+  );
+
   const navItems = computed(() => {
     if (role.value === "admin") return adminNav;
+    if (role.value === "adjudicator") return adjudicatorNav;
     if (role.value === "evaluator") return evaluatorNav;
     return innovatorNav;
   });
@@ -271,7 +281,7 @@
 
   function signOut() {
     mobileOpen.value = false;
-    router.push({ name: "AdminLogin" });
+    router.push({ name: "Login" });
   }
 
   function openAiAgent() {
@@ -678,6 +688,10 @@
     .main {
       width: 200px;
       padding-top: 68px;
+    }
+
+    .myPrefix {
+      display: none;
     }
   }
 

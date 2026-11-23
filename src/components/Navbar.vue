@@ -51,7 +51,7 @@
 
         <span :class="$style.divider" aria-hidden="true" />
 
-        <router-link :class="$style.login" to="/admin-login">Login</router-link>
+        <router-link :class="$style.login" to="/login">Login</router-link>
       </div>
     </div>
   </header>

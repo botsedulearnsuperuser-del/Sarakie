@@ -408,7 +408,7 @@ const searchQuery = ref("");
 const route = useRoute();
 const role = computed(() => resolveDashboardRole(route.query.role));
 const feedbackSubtitle = computed(() => {
-  if (role.value === "admin") {
+  if (role.value === "admin" || role.value === "adjudicator") {
     return "Review the feedback exchanged between evaluators and innovators";
   }
   if (role.value === "evaluator") {

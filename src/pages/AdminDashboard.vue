@@ -1,18 +1,22 @@
 <template>
   <div :class="[$style.page, isGaborone ? $style.isGaborone : '']" :style="pageBackground">
-    <Main :active-page="'admin'" role="admin" />
+    <Main :active-page="'admin'" :role="viewerRole" />
 
     <main :class="$style.mainContent">
       <header :class="$style.div">
         <div :class="$style.div2">
           <div :class="$style.h2actH">
             <div :class="$style.titleRow">
-              <h2 :class="$style.dumelaMarion">Admin overview</h2>
+              <h2 :class="$style.dumelaMarion">
+                {{ viewerRole === "adjudicator" ? "Adjudicator overview" : "Admin overview" }}
+              </h2>
             </div>
           </div>
           <div :class="$style.pWrap">
             <div :class="$style.sunday4October">
-              Agency-wide view of submissions, reviewers and decisions
+              {{ viewerRole === "adjudicator"
+                ? "Evaluator reports, decisions and the applications behind them"
+                : "Agency-wide view of submissions, reviewers and decisions" }}
             </div>
           </div>
         </div>
@@ -33,6 +37,54 @@
         <div v-for="stat in stats" :key="stat.label" :class="$style.statCard">
           <span :class="$style.statValue">{{ stat.value }}</span>
           <span :class="$style.statLabel">{{ stat.label }}</span>
+        </div>
+      </section>
+
+      <section :class="$style.reportPanel">
+        <div :class="[$style.panelHead, $style.reportHead]">
+          <div>
+            <h3 :class="$style.panelTitle">Evaluator reports to adjudicate</h3>
+            <p :class="$style.panelSub">
+              Final summaries, scores and comments submitted by evaluators
+            </p>
+          </div>
+          <span :class="$style.reportCount">{{ reports.length }} submitted</span>
+        </div>
+
+        <div v-if="reports.length === 0" :class="$style.reportEmpty">
+          No evaluator reports have been submitted yet.
+        </div>
+        <div v-else :class="$style.reportList">
+          <button
+            v-for="report in reports"
+            :key="report.id"
+            :class="$style.reportRow"
+            type="button"
+            @click="openReport(report)"
+          >
+            <span :class="$style.reportMain">
+              <span :class="$style.reportTitle">{{ report.application_title }}</span>
+              <span :class="$style.reportMeta">
+                {{ report.application_reference }} · {{ report.evaluator_name || "Evaluator" }}
+              </span>
+            </span>
+            <span :class="$style.reportScore">
+              {{ report.weighted_score ?? "—" }}<small>/100</small>
+            </span>
+            <span
+              :class="[
+                $style.badge,
+                report.recommendation === 'fund'
+                  ? $style.ok
+                  : report.recommendation === 'decline'
+                    ? $style.warn
+                    : $style.neutral,
+              ]"
+            >
+              {{ recommendationLabel(report.recommendation) }}
+            </span>
+            <span :class="$style.reportOpen">Open →</span>
+          </button>
         </div>
       </section>
 
@@ -94,16 +146,24 @@
   import Main from "../components/Main.vue";
   import { usePageTheme } from "../composables/usePageTheme";
   import { THEME_EVENT, isGaboroneTheme } from "../components/themes";
-  import { authReady, displayName, session } from "../lib/auth";
+  import { authReady, currentRole, displayName, session } from "../lib/auth";
   import {
+    loadAdjudicationReports,
     loadAllApplications,
     loadAuditLog,
     countInnovators,
     statusLabel,
+    type AdjudicationReportRow,
     type AdminApplicationRow,
     type AuditLogRow,
   } from "../lib/portal-data";
   import { watch } from "vue";
+  import { useRouter } from "vue-router";
+
+  const router = useRouter();
+  const viewerRole = computed(() =>
+    currentRole.value === "adjudicator" ? "adjudicator" : "admin",
+  );
 
   const pageBackground = usePageTheme();
   const isGaborone = ref(isGaboroneTheme());
@@ -117,17 +177,20 @@
   const apps = ref<AdminApplicationRow[]>([]);
   const audit = ref<AuditLogRow[]>([]);
   const innovatorCount = ref(0);
+  const reports = ref<AdjudicationReportRow[]>([]);
 
   async function loadDashboard() {
     if (!session.value) return;
-    const [a, l, c] = await Promise.all([
+    const [a, l, c, r] = await Promise.all([
       loadAllApplications(),
       loadAuditLog(8),
       countInnovators(),
+      loadAdjudicationReports(),
     ]);
     apps.value = a;
     audit.value = l;
     innovatorCount.value = c;
+    reports.value = r;
   }
 
   onMounted(loadDashboard);
@@ -186,6 +249,17 @@
       ip: e.ip ?? "—",
     })),
   );
+
+  function openReport(report: AdjudicationReportRow) {
+    router.push({ name: "ApplicationView", query: { id: report.application_id } });
+  }
+
+  function recommendationLabel(value: string | null) {
+    if (value === "fund") return "Recommend funding";
+    if (value === "decline") return "Not recommended";
+    if (value === "revise") return "Revise";
+    return "No recommendation";
+  }
 
   function formatRelative(iso: string) {
     const d = new Date(iso);
@@ -360,6 +434,100 @@
     font-size: var(--fs-13);
     font-weight: 500;
     color: #737373;
+  }
+
+  .reportPanel {
+    padding: 20px 22px 14px;
+    border: 1px solid var(--color-lightgray-100);
+    border-radius: 18px;
+    background-color: var(--color-white);
+    box-shadow: 0 2px 10px rgba(15, 46, 36, 0.06);
+    box-sizing: border-box;
+    margin-bottom: 18px;
+  }
+  .reportHead {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .reportCount {
+    display: inline-flex;
+    align-items: center;
+    height: 30px;
+    padding: 0 12px;
+    border-radius: 999px;
+    background-color: #f3efe7;
+    color: #6b6355;
+    font-size: var(--fs-12);
+    font-weight: 700;
+    white-space: nowrap;
+  }
+  .reportEmpty {
+    padding: 18px 4px;
+    font-size: var(--fs-13);
+    color: #8f887c;
+  }
+  .reportList {
+    display: flex;
+    flex-direction: column;
+  }
+  .reportRow {
+    display: grid;
+    grid-template-columns: minmax(0, 1.8fr) auto auto auto;
+    align-items: center;
+    gap: 16px;
+    width: 100%;
+    padding: 12px 10px;
+    border: none;
+    border-bottom: 1px solid #f3efe7;
+    border-radius: 12px;
+    background: transparent;
+    text-align: left;
+    font-family: inherit;
+    cursor: pointer;
+  }
+  .reportRow:hover {
+    background-color: #fdfbf7;
+  }
+  .reportRow:last-child {
+    border-bottom: none;
+  }
+  .reportMain {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+  }
+  .reportTitle {
+    font-size: var(--fs-14);
+    font-weight: 600;
+    color: #171717;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .reportMeta {
+    font-size: var(--fs-12);
+    color: #8f887c;
+  }
+  .reportScore {
+    font-size: var(--fs-16);
+    font-weight: 800;
+    color: #013525;
+    white-space: nowrap;
+  }
+  .reportScore small {
+    font-size: var(--fs-11);
+    font-weight: 600;
+    color: #8f887c;
+  }
+  .reportOpen {
+    font-size: var(--fs-12);
+    font-weight: 700;
+    color: #013525;
+    white-space: nowrap;
   }
 
   .panels {
@@ -560,6 +728,16 @@
     }
     .panel {
       padding: 16px 14px 8px;
+    }
+    .reportPanel {
+      padding: 16px 14px 8px;
+    }
+    .reportRow {
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 6px 12px;
+    }
+    .reportOpen {
+      display: none;
     }
     .tableHead {
       display: none;

@@ -2,7 +2,7 @@ import { createApp } from "vue";
 import { createRouter, createWebHistory, type RouteLocation, type RouteRecordRaw } from "vue-router";
 import App from "./App.vue";
 
-import LandingPage from "./pages/LandingPage.vue";
+import LandingFirst from "./landing-first/pages/LandingPage.vue";
 import AboutPage from "./pages/AboutPage.vue";
 import InnovatorDashboard from "./pages/InnovatorDashboard.vue";
 import EvaluatorDashboard from "./pages/EvaluatorDashboard.vue";
@@ -17,7 +17,6 @@ import FeedbackCenter from "./pages/FeedbackCenter.vue";
 import ProfileView from "./pages/ProfileView.vue";
 import TeamView from "./pages/TeamView.vue";
 import IdeasView from "./pages/IdeasView.vue";
-import LoginPage from "./pages/LoginPage.vue";
 import AdminDashboard from "./pages/AdminDashboard.vue";
 import AdminEvaluators from "./pages/AdminEvaluators.vue";
 import BlogPage from "./pages/BlogPage.vue";
@@ -25,6 +24,8 @@ import ArticlePage from "./pages/ArticlePage.vue";
 import DeadlinesView from "./pages/DeadlinesView.vue";
 import NewIdea from "./pages/NewIdea.vue";
 import ApplicationView from "./pages/ApplicationView.vue";
+import ChatPage from "./pages/ChatPage.vue";
+import LandingPageUI from "./pages/LandingPageUI.vue";
 import CloudShaderHero from "./pages/CloudShaderHero.vue";
 import FaqPage from "./pages/FaqPage.vue";
 import ParallaxLayersDemo from "./pages/ParallaxLayersDemo.vue";
@@ -32,13 +33,19 @@ import FolderRevealDemo from "./pages/FolderRevealDemo.vue";
 import LegalPage from "./pages/LegalPage.vue";
 import NotFoundPage from "./pages/NotFoundPage.vue";
 import "./global.css";
-import { initAuth } from "./lib/auth";
+import { initAuth, authReady, currentRole, dashboardForRole, session } from "./lib/auth";
+import { isPublicRoute, canAccessRoute } from "./lib/permissions";
 
 const routes: RouteRecordRaw[] = [
   {
     path: "/",
     name: "LandingPage",
-    component: LandingPage,
+    component: LandingFirst,
+  },
+  {
+    path: "/landing-first",
+    name: "LandingFirst",
+    component: LandingFirst,
   },
   {
     path: "/about",
@@ -92,6 +99,21 @@ const routes: RouteRecordRaw[] = [
     component: ApplicationView,
   },
   {
+    path: "/chat",
+    name: "ChatPage",
+    component: ChatPage,
+  },
+  {
+    path: "/chat/:id",
+    name: "ChatPageWithId",
+    component: ChatPage,
+  },
+  {
+    path: "/landing-ui",
+    name: "LandingPageUI",
+    component: LandingPageUI,
+  },
+  {
     path: "/profile",
     name: "ProfileView",
     component: ProfileView,
@@ -108,8 +130,7 @@ const routes: RouteRecordRaw[] = [
   },
   {
     path: "/signin",
-    name: "LoginPage",
-    component: LoginPage,
+    redirect: "/login",
   },
   {
     path: "/admin-dashboard",
@@ -157,14 +178,14 @@ const routes: RouteRecordRaw[] = [
     component: NewIdea,
   },
   {
-    path: "/admin-login",
-    name: "AdminLogin",
-    component: AdminLogin,
-  },
-  {
     path: "/login",
     name: "Login",
     component: AdminLogin,
+    meta: { title: "Login — CEDA Innovation Portal" },
+  },
+  {
+    path: "/admin-login",
+    redirect: "/login",
   },
   {
     path: "/sign-up",
@@ -227,7 +248,7 @@ const router = createRouter({
   },
 });
 
-router.beforeEach((toRoute, _, next) => {
+router.beforeEach(async (toRoute, _, next) => {
   const metaTitle = toRoute?.meta?.title as string;
   const metaDesc = toRoute?.meta?.description as string;
 
@@ -235,6 +256,31 @@ router.beforeEach((toRoute, _, next) => {
   if (metaDesc) {
     addMetaTag(metaDesc);
   }
+
+  // Wait for the Supabase session to be restored before deciding access.
+  if (!authReady.value) {
+    await initAuth();
+  }
+
+  const name = (toRoute.name as string) ?? null;
+  if (isPublicRoute(name)) {
+    next();
+    return;
+  }
+
+  // Protected route: require an authenticated session.
+  if (!session.value) {
+    next({ name: "Login", query: { redirect: toRoute.fullPath } });
+    return;
+  }
+
+  // Enforce role-based access; bounce unauthorised users to their own dashboard.
+  const role = currentRole.value;
+  if (!canAccessRoute(role, name)) {
+    next(dashboardForRole(role));
+    return;
+  }
+
   next();
 });
 

@@ -97,11 +97,11 @@
               <div :class="$style.formCardInner">
                 <div :class="$style.formGrid2">
                   <div :class="$style.fieldGroup">
-                    <label :class="$style.fieldLabel">Idea name</label>
+                    <label :class="$style.fieldLabel">Idea name *</label>
                     <input v-model="selectedIdea" :class="$style.textInput" type="text" placeholder="e.g. Solar-powered irrigation system" />
                   </div>
                   <div :class="$style.fieldGroup">
-                    <label :class="$style.fieldLabel">Sector</label>
+                    <label :class="$style.fieldLabel">Sector *</label>
                     <select v-model="selectedSector" :class="$style.selectInput">
                       <option value="Agriculture">Agriculture</option>
                       <option value="Renewable energy">Renewable energy</option>
@@ -116,18 +116,18 @@
 
                 <div :class="$style.formGrid2">
                   <div :class="$style.fieldGroup">
-                    <label :class="$style.fieldLabel">Funding requested (P)</label>
+                    <label :class="$style.fieldLabel">Funding requested (P) *</label>
                     <input v-model.number="requestedAmount" :class="$style.textInput" type="text" placeholder="e.g. 50000" />
                   </div>
                   <div :class="$style.fieldGroup">
-                    <label :class="$style.fieldLabel">Expected impact</label>
+                    <label :class="$style.fieldLabel">Expected impact *</label>
                     <input v-model="expectedImpact" :class="$style.textInput" type="text" placeholder="Brief description of expected impact" />
                   </div>
                 </div>
 
                 <div :class="$style.formGrid2">
                   <div :class="$style.fieldGroup">
-                    <label :class="$style.fieldLabel">Innovation type</label>
+                    <label :class="$style.fieldLabel">Innovation type *</label>
                     <select v-model="innovationType" :class="$style.selectInput">
                       <option value="Product">New product</option>
                       <option value="Process">Improved process</option>
@@ -136,7 +136,7 @@
                     </select>
                   </div>
                   <div :class="$style.fieldGroup">
-                    <label :class="$style.fieldLabel">Maturity level</label>
+                    <label :class="$style.fieldLabel">Maturity level *</label>
                     <select v-model="maturityLevel" :class="$style.selectInput">
                       <option value="Concept">Concept stage</option>
                       <option value="Prototype">Prototype stage</option>
@@ -157,33 +157,33 @@
               <div :class="$style.formCardInner">
                 <div :class="$style.formGrid2">
                   <div :class="$style.fieldGroup">
-                    <label :class="$style.fieldLabel">First name</label>
+                    <label :class="$style.fieldLabel">First name *</label>
                     <input v-model="customer.firstName" :class="$style.textInput" type="text" placeholder="e.g. Tlhalefang" />
                   </div>
                   <div :class="$style.fieldGroup">
-                    <label :class="$style.fieldLabel">Last name</label>
+                    <label :class="$style.fieldLabel">Last name *</label>
                     <input v-model="customer.lastName" :class="$style.textInput" type="text" placeholder="e.g. Molefe" />
                   </div>
                 </div>
 
                 <div :class="$style.formGrid2">
                   <div :class="$style.fieldGroup">
-                    <label :class="$style.fieldLabel">Omang / National ID</label>
+                    <label :class="$style.fieldLabel">Omang / National ID *</label>
                     <input v-model="customer.omang" :class="$style.textInput" type="text" placeholder="e.g. 931528410" />
                   </div>
                   <div :class="$style.fieldGroup">
-                    <label :class="$style.fieldLabel">Email address</label>
+                    <label :class="$style.fieldLabel">Email address *</label>
                     <input v-model="customer.email" :class="$style.textInput" type="email" placeholder="e.g. t.molefe@gmail.com" />
                   </div>
                 </div>
 
                 <div :class="$style.formGrid2">
                   <div :class="$style.fieldGroup">
-                    <label :class="$style.fieldLabel">Phone number</label>
+                    <label :class="$style.fieldLabel">Phone number *</label>
                     <input v-model="customer.mobile" :class="$style.textInput" type="tel" placeholder="e.g. +267 71 234 567" />
                   </div>
                   <div :class="$style.fieldGroup">
-                    <label :class="$style.fieldLabel">Organization</label>
+                    <label :class="$style.fieldLabel">Organization *</label>
                     <input v-model="customer.organization" :class="$style.textInput" type="text" placeholder="e.g. Innovative Holdings (Pty) Ltd" />
                   </div>
                 </div>
@@ -199,33 +199,33 @@
               <div :class="$style.formCardInner">
                 <div :class="$style.formGrid2">
                   <div :class="$style.fieldGroup">
-                    <label :class="$style.fieldLabel">Physical plot / Street address</label>
+                    <label :class="$style.fieldLabel">Physical plot / Street address *</label>
                     <input v-model="customer.physicalAddress" :class="$style.textInput" type="text" placeholder="e.g. Plot 4471, Mokgosi Close" />
                   </div>
                   <div :class="$style.fieldGroup">
-                    <label :class="$style.fieldLabel">City / Town</label>
+                    <label :class="$style.fieldLabel">City / Town *</label>
                     <input v-model="customer.city" :class="$style.textInput" type="text" placeholder="e.g. Gaborone" />
                   </div>
                 </div>
 
                 <div :class="$style.formGrid2">
                   <div :class="$style.fieldGroup">
-                    <label :class="$style.fieldLabel">Area / Ward / Block</label>
+                    <label :class="$style.fieldLabel">Area / Ward / Block *</label>
                     <input v-model="customer.area" :class="$style.textInput" type="text" placeholder="e.g. Block 8" />
                   </div>
                   <div :class="$style.fieldGroup">
-                    <label :class="$style.fieldLabel">Postal address</label>
+                    <label :class="$style.fieldLabel">Postal address *</label>
                     <input v-model="customer.postalAddress" :class="$style.textInput" type="text" placeholder="e.g. P O Box 20451, Gaborone" />
                   </div>
                 </div>
 
                 <div :class="$style.formGrid2">
                   <div :class="$style.fieldGroup">
-                    <label :class="$style.fieldLabel">Years at current location</label>
+                    <label :class="$style.fieldLabel">Years at current location *</label>
                     <input v-model="customer.yearsAtAddress" :class="$style.textInput" type="number" placeholder="e.g. 3" />
                   </div>
                   <div :class="$style.fieldGroup">
-                    <label :class="$style.fieldLabel">Preferred contact method</label>
+                    <label :class="$style.fieldLabel">Preferred contact method *</label>
                     <select v-model="preferredContact" :class="$style.selectInput">
                       <option value="Phone">Phone</option>
                       <option value="Email">Email</option>
@@ -245,33 +245,33 @@
               <div :class="$style.formCardInner">
                 <div :class="$style.formGrid2">
                   <div :class="$style.fieldGroup">
-                    <label :class="$style.fieldLabel">Target market</label>
+                    <label :class="$style.fieldLabel">Target market *</label>
                     <input v-model="targetMarket" :class="$style.textInput" type="text" placeholder="e.g. Smallholder farmers in Botswana" />
                   </div>
                   <div :class="$style.fieldGroup">
-                    <label :class="$style.fieldLabel">Competitive advantage</label>
+                    <label :class="$style.fieldLabel">Competitive advantage *</label>
                     <input v-model="competitiveAdvantage" :class="$style.textInput" type="text" placeholder="What makes your idea unique?" />
                   </div>
                 </div>
 
                 <div :class="$style.formGrid2">
                   <div :class="$style.fieldGroup">
-                    <label :class="$style.fieldLabel">Projected reach</label>
+                    <label :class="$style.fieldLabel">Projected reach *</label>
                     <input v-model="projectedReach" :class="$style.textInput" type="text" placeholder="e.g. 5,000 beneficiaries" />
                   </div>
                   <div :class="$style.fieldGroup">
-                    <label :class="$style.fieldLabel">Timeline to market</label>
+                    <label :class="$style.fieldLabel">Timeline to market *</label>
                     <input v-model="timelineToMarket" :class="$style.textInput" type="text" placeholder="e.g. 12 months" />
                   </div>
                 </div>
 
                 <div :class="$style.formGrid2">
                   <div :class="$style.fieldGroup">
-                    <label :class="$style.fieldLabel">Regulatory requirements</label>
+                    <label :class="$style.fieldLabel">Regulatory requirements *</label>
                     <input v-model="regulatoryRequirements" :class="$style.textInput" type="text" placeholder="Any permits, licenses or compliance needed?" />
                   </div>
                   <div :class="$style.fieldGroup">
-                    <label :class="$style.fieldLabel">IP protection</label>
+                    <label :class="$style.fieldLabel">IP protection *</label>
                     <select v-model="ipProtection" :class="$style.selectInput">
                       <option value="None">None</option>
                       <option value="Patent">Patent</option>
@@ -441,6 +441,7 @@
               </div>
             </div>
 
+            <p v-if="stepError" :class="$style.stepError" role="alert">{{ stepError }}</p>
             <p v-if="submitError" :class="$style.submitError" role="alert">{{ submitError }}</p>
 
             <!-- Bottom Actions -->
@@ -573,6 +574,32 @@ import { displayName, profile } from "../lib/auth";
 
 const steps = ["Idea overview", "Innovator details", "Contact & address", "Field / Industry", "Supporting documents", "Submission"];
 const currentStep = ref(1);
+const maxStepReached = ref(1);
+const stepError = ref("");
+
+function wordCount(text: string): number {
+  return text.trim().split(/\s+/).filter(Boolean).length;
+}
+
+const WORD_LIMITS: Record<string, number> = {
+  selectedIdea: 250,
+  expectedImpact: 500,
+  targetMarket: 500,
+  competitiveAdvantage: 500,
+  projectedReach: 250,
+  timelineToMarket: 250,
+  regulatoryRequirements: 500,
+  customerFirstName: 50,
+  customerLastName: 50,
+  customerOmang: 50,
+  customerEmail: 50,
+  customerMobile: 50,
+  customerOrganization: 250,
+  customerPhysicalAddress: 250,
+  customerCity: 50,
+  customerArea: 100,
+  customerPostalAddress: 250,
+};
 
 const STEP_CHARACTERS: ExpressionName[] = [
   "neutral",
@@ -810,24 +837,83 @@ function removeDocument(index: number) {
   uploadError.value = "";
 }
 
+function validateStep(step: number): string {
+  if (step === 1) {
+    if (!selectedIdea.value.trim()) return "Idea name is required.";
+    if (wordCount(selectedIdea.value) > WORD_LIMITS.selectedIdea)
+      return `Idea name must be ${WORD_LIMITS.selectedIdea} words or fewer.`;
+    if (!(requestedAmount.value > 0)) return "Funding requested is required.";
+    if (!expectedImpact.value.trim()) return "Expected impact is required.";
+    if (wordCount(expectedImpact.value) > WORD_LIMITS.expectedImpact)
+      return `Expected impact must be ${WORD_LIMITS.expectedImpact} words or fewer.`;
+  }
+  if (step === 2) {
+    if (!customer.value.firstName.trim()) return "First name is required.";
+    if (!customer.value.lastName.trim()) return "Last name is required.";
+    if (!customer.value.omang.trim()) return "Omang / National ID is required.";
+    if (!customer.value.email.trim()) return "Email address is required.";
+    if (!customer.value.mobile.trim()) return "Phone number is required.";
+    if (!customer.value.organization.trim()) return "Organization is required.";
+  }
+  if (step === 3) {
+    if (!customer.value.physicalAddress.trim()) return "Physical address is required.";
+    if (!customer.value.city.trim()) return "City / Town is required.";
+    if (!customer.value.area.trim()) return "Area / Ward / Block is required.";
+    if (!customer.value.postalAddress.trim()) return "Postal address is required.";
+  }
+  if (step === 4) {
+    if (!targetMarket.value.trim()) return "Target market is required.";
+    if (wordCount(targetMarket.value) > WORD_LIMITS.targetMarket)
+      return `Target market must be ${WORD_LIMITS.targetMarket} words or fewer.`;
+    if (!competitiveAdvantage.value.trim()) return "Competitive advantage is required.";
+    if (wordCount(competitiveAdvantage.value) > WORD_LIMITS.competitiveAdvantage)
+      return `Competitive advantage must be ${WORD_LIMITS.competitiveAdvantage} words or fewer.`;
+  }
+  if (step === 5) {
+    if (documents.value.length === 0) return "Upload at least one document to proceed.";
+  }
+  if (step === 6) {
+    if (!ideaAuthorization.value) return "You must confirm the authorization checkbox.";
+  }
+  return "";
+}
+
 function nextStep() {
+  stepError.value = "";
+  const err = validateStep(currentStep.value);
+  if (err) {
+    stepError.value = err;
+    return;
+  }
   if (currentStep.value < 6) {
     currentStep.value++;
+    if (currentStep.value > maxStepReached.value) maxStepReached.value = currentStep.value;
   }
 }
 
 function prevStep() {
+  stepError.value = "";
   if (currentStep.value > 1) {
     currentStep.value--;
   }
 }
 
 function goToStep(step: number) {
+  stepError.value = "";
+  // Prevent skipping ahead to steps not yet reached.
+  if (step > maxStepReached.value) return;
+  if (step < 1 || step > 6) return;
   currentStep.value = step;
 }
 
 async function submitIdeaRecord() {
   if (submitting.value) return;
+  stepError.value = "";
+  const err = validateStep(6);
+  if (err) {
+    stepError.value = err;
+    return;
+  }
   submitError.value = "";
   submitting.value = true;
 
@@ -869,6 +955,8 @@ async function submitIdeaRecord() {
 
 function resetForm() {
   currentStep.value = 1;
+  maxStepReached.value = 1;
+  stepError.value = "";
   ideaSubmitted.value = false;
   submitting.value = false;
   submitError.value = "";
@@ -1288,6 +1376,18 @@ function resetForm() {
   font-size: 12.5px;
   line-height: 1.5;
   color: #b42318;
+}
+
+.stepError {
+  margin: 12px 0 0;
+  padding: 10px 14px;
+  border: 1px solid #f59e0b;
+  border-radius: 10px;
+  background-color: #fffbeb;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: #92400e;
+  font-weight: 600;
 }
 
 .amountLabel {

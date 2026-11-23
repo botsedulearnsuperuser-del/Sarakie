@@ -63,6 +63,50 @@
         <div :class="$style.formTitleUnderline" />
         <p :class="$style.formSubtitle">Sign in to your CEDA Account</p>
 
+        <div :class="$style.socialGroup">
+          <button
+            :class="[$style.socialButton, $style.socialGoogle]"
+            type="button"
+            @click="socialSignIn('Google')"
+          >
+            <svg viewBox="0 0 48 48" aria-hidden="true">
+              <path fill="#FFC107" d="M43.611 20.083H42V20H24v8h11.303c-1.649 4.657-6.08 8-11.303 8-6.627 0-12-5.373-12-12s5.373-12 12-12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 12.955 4 4 12.955 4 24s8.955 20 20 20 20-8.955 20-20c0-2.641-.21-5.236-.611-7.743z" />
+              <path fill="#FF3D00" d="M6.306 14.691l6.571 4.819C14.655 15.108 18.961 12 24 12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 16.318 4 9.656 8.337 6.306 14.691z" />
+              <path fill="#4CAF50" d="M24 44c5.166 0 9.86-1.977 13.409-5.192l-6.19-5.238C29.211 35.091 26.715 36 24 36c-5.202 0-9.619-3.317-11.283-7.946l-6.522 5.025C9.505 39.556 16.227 44 24 44z" />
+              <path fill="#1976D2" d="M43.611 20.083H42V20H24v8h11.303c-.792 2.237-2.231 4.166-4.087 5.571l6.19 5.238C42.022 35.026 44 30.038 44 24c0-2.641-.21-5.236-.611-7.743z" />
+            </svg>
+            <span>Sign in with Google</span>
+          </button>
+
+          <button
+            :class="[$style.socialButton, $style.socialFacebook]"
+            type="button"
+            @click="socialSignIn('Facebook')"
+          >
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path d="M24 12.073C24 5.405 18.627 0 12 0S0 5.405 0 12.073C0 18.1 4.388 23.094 10.125 24v-8.437H7.078v-3.49h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.49h-2.796V24C19.612 23.094 24 18.1 24 12.073z" />
+            </svg>
+            <span>Sign in with Facebook</span>
+          </button>
+
+          <button
+            :class="[$style.socialButton, $style.socialApple]"
+            type="button"
+            @click="socialSignIn('Apple')"
+          >
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path d="M17.05 12.54c.02 2.6 2.28 3.47 2.31 3.48-.02.06-.36 1.23-1.19 2.43-.72 1.04-1.47 2.08-2.65 2.1-1.15.02-1.52-.68-2.84-.68-1.31 0-1.72.66-2.8.7-1.13.04-1.99-1.12-2.71-2.16-1.47-2.13-2.59-6.01-1.08-8.63.75-1.3 2.09-2.13 3.55-2.15 1.11-.02 2.15.75 2.83.75.68 0 1.94-.92 3.27-.79.56.02 2.12.2 3.13 1.68-.08.05-1.87 1.09-1.82 3.27M14.9 4.94c.6-.73 1-1.74.89-2.75-.86.03-1.9.57-2.52 1.29-.55.64-1.04 1.67-.91 2.66.96.07 1.94-.49 2.54-1.2" />
+            </svg>
+            <span>Sign in with Apple</span>
+          </button>
+        </div>
+
+        <div :class="$style.socialDivider">
+          <span />
+          <em>or</em>
+          <span />
+        </div>
+
         <form :class="$style.loginForm" @submit.prevent="handleLogin">
           <div :class="$style.inputGroup">
             <label :class="$style.inputLabel" for="identifier">
@@ -167,6 +211,12 @@ const identifier = ref("");
 const password = ref("");
 const error = ref("");
 const loading = ref(false);
+
+const socialSignIn = (provider: string) => {
+  error.value =
+    provider +
+    " sign-in is not set up yet. Please use your email address and password.";
+};
 
 const handleLogin = async () => {
   error.value = "";
@@ -360,7 +410,7 @@ const handleLogin = async () => {
   padding: clamp(20px, 5vh, 68px) 32px clamp(12px, 2.4vh, 40px);
   box-sizing: border-box;
   background-color: #fff;
-  overflow: hidden;
+  overflow-y: auto;
 }
 
 .formCard {
@@ -397,10 +447,92 @@ const handleLogin = async () => {
 }
 
 .formSubtitle {
-  margin: 0 0 clamp(26px, 4.3vh, 54px);
+  margin: 0 0 clamp(14px, 2.2vh, 24px);
   color: #2b1b00;
   font-size: min(28px, max(14px, 1.25vw), 2.4vh);
   font-weight: 500;
+}
+
+.socialGroup {
+  width: 100%;
+  max-width: 360px;
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  margin: 0 auto clamp(14px, 2.4vh, 26px);
+}
+
+.socialButton {
+  width: 100%;
+  height: clamp(40px, 4.6vh, 48px);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  border-radius: 10px;
+  border: 1px solid transparent;
+  font-family: inherit;
+  font-size: min(20px, max(13px, 1.05vw), 2vh);
+  font-weight: 600;
+  cursor: pointer;
+  transition: filter 0.18s ease, background-color 0.18s ease;
+}
+
+.socialButton svg {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
+.socialGoogle {
+  background-color: #ffffff;
+  border-color: #dadce0;
+  color: #1f1f1f;
+}
+
+.socialGoogle:hover {
+  background-color: #f7f7f7;
+}
+
+.socialFacebook {
+  background-color: #1877f2;
+  color: #ffffff;
+}
+
+.socialFacebook:hover {
+  filter: brightness(1.06);
+}
+
+.socialApple {
+  background-color: #000000;
+  color: #ffffff;
+}
+
+.socialApple:hover {
+  filter: brightness(1.35);
+}
+
+.socialDivider {
+  width: 100%;
+  max-width: 360px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0 auto clamp(12px, 2vh, 22px);
+}
+
+.socialDivider span {
+  flex: 1;
+  height: 1px;
+  background-color: #e3d9c8;
+}
+
+.socialDivider em {
+  font-style: normal;
+  font-size: 13px;
+  font-weight: 500;
+  color: #8f887c;
+  text-transform: lowercase;
 }
 
 .loginForm {

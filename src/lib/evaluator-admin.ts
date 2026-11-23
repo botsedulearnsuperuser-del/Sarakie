@@ -65,7 +65,7 @@ export async function loadEvaluatorDirectory(): Promise<EvaluatorDirectory> {
 async function callAdminEndpoint<T>(payload: Record<string, unknown>): Promise<T> {
   if (!supabase) throw new Error("Supabase is not configured.");
   const token = session.value?.access_token;
-  if (!token) throw new Error("Sign in as an administrator first.");
+  if (!token) throw new Error("Sign in as an administrator or adjudicator first.");
 
   const response = await fetch("/api/admin-evaluators", {
     method: "POST",

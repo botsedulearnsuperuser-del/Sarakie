@@ -15,7 +15,7 @@
             Track submissions, evaluations and approvals in one place. Start reviewing ideas
             today.
           </p>
-          <router-link :class="$style.cta" to="/signin">
+          <router-link :class="$style.cta" to="/login">
             Explore the Portal
             <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
               <path

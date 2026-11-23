@@ -71,7 +71,7 @@
             </svg>
           </button>
 
-          <router-link :class="$style.cta" to="/signin" @click="closeMenu">
+          <router-link :class="$style.cta" to="/login" @click="closeMenu">
             Get started
           </router-link>
         </div>
@@ -87,7 +87,7 @@
         >
           {{ link.label }}
         </router-link>
-        <router-link :class="$style.mobileCta" to="/signin" @click="closeMenu">
+        <router-link :class="$style.mobileCta" to="/login" @click="closeMenu">
           Get started
         </router-link>
       </div>

@@ -1,6 +1,6 @@
 <template>
   <div :class="$style.page">
-    <Main :active-page="'admin-evaluators'" role="admin" />
+    <Main :active-page="'admin-evaluators'" :role="viewerRole" />
 
     <main :class="$style.mainContent">
       <header :class="$style.header">
@@ -38,8 +38,8 @@
         <section :class="$style.card">
           <h2 :class="$style.cardTitle">Add an evaluator</h2>
           <p :class="$style.cardSub">
-            Only administrators can create evaluator accounts. Supabase sends the invitation email
-            to the address you enter.
+            Administrators and adjudicators can create evaluator accounts. Supabase sends the
+            invitation email to the address you enter.
           </p>
 
           <form :class="$style.form" @submit.prevent="submitInvite">
@@ -264,6 +264,9 @@
   const error = ref("");
   const notice = ref("");
 
+  const viewerRole = computed(() =>
+    currentRole.value === "adjudicator" ? "adjudicator" : "admin",
+  );
   const form = reactive({ fullName: "", email: "", phone: "", organization: "" });
   const confirmationToken = "{{ .ConfirmationURL }}";
   const fullNameToken = "{{ .Data.full_name }}";
@@ -397,7 +400,7 @@
 
   function guard() {
     if (!authReady.value) return;
-    if (currentRole.value !== "admin") {
+    if (currentRole.value !== "admin" && currentRole.value !== "adjudicator") {
       router.replace(dashboardForRole(currentRole.value));
       return;
     }

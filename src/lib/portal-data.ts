@@ -214,6 +214,105 @@ export async function loadFeedback(): Promise<FeedbackRow[]> {
   return (data ?? []) as unknown as FeedbackRow[];
 }
 
+/** A chat message between innovator and reviewer (evaluator/adjudicator/admin). */
+export interface ChatMessageRow {
+  id: string;
+  application_id: string;
+  author_id: string;
+  author_role: "innovator" | "evaluator" | "adjudicator" | "admin";
+  parent_id: string | null;
+  body: string;
+  status: "unread" | "read" | "answered";
+  created_at: string;
+  author_name: string | null;
+}
+
+export async function loadChatMessages(applicationId: string): Promise<ChatMessageRow[]> {
+  if (!supabase || !applicationId) return [];
+  const { data, error } = await supabase
+    .from("feedback_comments")
+    .select("id, application_id, author_id, author_role, parent_id, body, status, created_at, author:profiles!author_id(full_name)")
+    .eq("application_id", applicationId)
+    .order("created_at", { ascending: true });
+  if (error) {
+    console.warn("[portal] Could not load chat:", error.message);
+    return [];
+  }
+  return ((data ?? []) as Record<string, any>[]).map((row) => {
+    const author = Array.isArray(row.author) ? row.author[0] : row.author;
+    return {
+      id: row.id,
+      application_id: row.application_id,
+      author_id: row.author_id,
+      author_role: row.author_role,
+      parent_id: row.parent_id,
+      body: row.body,
+      status: row.status,
+      created_at: row.created_at,
+      author_name: author?.full_name ?? null,
+    };
+  });
+}
+
+export async function sendChatMessage(
+  applicationId: string,
+  body: string,
+  authorRole: "innovator" | "evaluator" | "adjudicator" | "admin",
+): Promise<{ ok: boolean; error?: string }> {
+  if (!supabase) return { ok: false, error: "Supabase is not configured." };
+  const { data: userData } = await supabase.auth.getUser();
+  const userId = userData.user?.id;
+  if (!userId) return { ok: false, error: "Sign in again to send a message." };
+  const text = body.trim();
+  if (!text) return { ok: false, error: "Message cannot be empty." };
+  const { error } = await supabase.from("feedback_comments").insert({
+    application_id: applicationId,
+    author_id: userId,
+    author_role: authorRole,
+    body: text,
+    status: "unread",
+    visible_to_innovator: true,
+  });
+  if (error) return { ok: false, error: error.message };
+  return { ok: true };
+}
+
+export async function requestApplicationChanges(
+  applicationId: string,
+  body: string,
+): Promise<{ ok: boolean; error?: string }> {
+  if (!supabase) return { ok: false, error: "Supabase is not configured." };
+  const { data: userData } = await supabase.auth.getUser();
+  const userId = userData.user?.id;
+  if (!userId) return { ok: false, error: "Sign in again." };
+  const text = body.trim();
+  if (!text) return { ok: false, error: "Describe the changes required." };
+  const { error: corrError } = await supabase.from("application_corrections").insert({
+    application_id: applicationId,
+    requested_by: userId,
+    body: text,
+  });
+  if (corrError) return { ok: false, error: corrError.message };
+  const { error: statusError } = await supabase
+    .from("applications")
+    .update({ status: "returned" })
+    .eq("id", applicationId);
+  if (statusError) return { ok: false, error: statusError.message };
+  return { ok: true };
+}
+
+export async function approveApplication(
+  applicationId: string,
+): Promise<{ ok: boolean; error?: string }> {
+  if (!supabase) return { ok: false, error: "Supabase is not configured." };
+  const { error } = await supabase
+    .from("applications")
+    .update({ status: "approved", decided_at: new Date().toISOString() })
+    .eq("id", applicationId);
+  if (error) return { ok: false, error: error.message };
+  return { ok: true };
+}
+
 /** Innovator reply to an evaluator comment. */
 export async function replyToFeedback(
   applicationId: string,
@@ -517,4 +616,223 @@ export async function countInnovators(): Promise<number> {
     .eq("role", "innovator");
   if (error) return 0;
   return count ?? 0;
+}
+
+/** A completed evaluator review, including the final summary for adjudication. */
+export interface ApplicationEvaluationRow {
+  id: string;
+  application_id: string;
+  evaluator_id: string;
+  evaluator_name: string | null;
+  scores: Record<string, number>;
+  weighted_score: number | null;
+  recommendation: "fund" | "revise" | "decline" | null;
+  comments: string | null;
+  submitted_at: string | null;
+}
+
+export interface AdjudicationReportRow extends ApplicationEvaluationRow {
+  application_title: string;
+  application_reference: string;
+  application_status: string;
+}
+
+function mapEvaluationRow(row: Record<string, any>): ApplicationEvaluationRow {
+  const evaluator = Array.isArray(row.evaluator) ? row.evaluator[0] : row.evaluator;
+  return {
+    id: row.id,
+    application_id: row.application_id,
+    evaluator_id: row.evaluator_id,
+    evaluator_name: evaluator?.full_name ?? null,
+    scores: (row.scores ?? {}) as Record<string, number>,
+    weighted_score: row.weighted_score == null ? null : Number(row.weighted_score),
+    recommendation: row.recommendation ?? null,
+    comments: row.comments ?? null,
+    submitted_at: row.submitted_at ?? null,
+  };
+}
+
+/** Submitted evaluation reports for one application. */
+export async function loadApplicationEvaluations(
+  applicationId: string,
+): Promise<ApplicationEvaluationRow[]> {
+  if (!supabase || !applicationId) return [];
+  const { data, error } = await supabase
+    .from("evaluations")
+    .select(
+      "id, application_id, evaluator_id, scores, weighted_score, recommendation, comments, submitted_at, evaluator:profiles!evaluator_id(full_name)",
+    )
+    .eq("application_id", applicationId)
+    .not("submitted_at", "is", null)
+    .order("submitted_at", { ascending: false });
+  if (error) {
+    console.warn("[portal] Could not load evaluation reports:", error.message);
+    return [];
+  }
+  return ((data ?? []) as Record<string, any>[]).map(mapEvaluationRow);
+}
+
+/** Every submitted report, for the adjudicator dashboard. */
+export async function loadAdjudicationReports(): Promise<AdjudicationReportRow[]> {
+  if (!supabase) return [];
+  const { data, error } = await supabase
+    .from("evaluations")
+    .select(
+      "id, application_id, evaluator_id, scores, weighted_score, recommendation, comments, submitted_at, evaluator:profiles!evaluator_id(full_name), application:applications(title, reference, status)",
+    )
+    .not("submitted_at", "is", null)
+    .order("submitted_at", { ascending: false })
+    .limit(50);
+  if (error) {
+    console.warn("[portal] Could not load adjudication reports:", error.message);
+    return [];
+  }
+  return ((data ?? []) as Record<string, any>[]).map((row) => {
+    const application = Array.isArray(row.application) ? row.application[0] : row.application;
+    return {
+      ...mapEvaluationRow(row),
+      application_title: application?.title ?? "Untitled application",
+      application_reference: application?.reference ?? "—",
+      application_status: application?.status ?? "submitted",
+    };
+  });
+}
+
+/**
+ * Save the evaluator's scored report. The assignment row is the anchor, so a
+ * reviewer can revise their report before adjudication without duplicating it.
+ */
+export async function submitEvaluation(input: {
+  applicationId: string;
+  scores: Record<string, number>;
+  weightedScore: number;
+  recommendation: "fund" | "revise" | "decline";
+  comments: string;
+}): Promise<{ ok: boolean; error?: string }> {
+  if (!supabase) return { ok: false, error: "Supabase is not configured." };
+  const { data: userData } = await supabase.auth.getUser();
+  const userId = userData.user?.id;
+  if (!userId) return { ok: false, error: "Sign in again to submit your report." };
+
+  const { data: assignment, error: assignmentError } = await supabase
+    .from("evaluation_assignments")
+    .select("id")
+    .eq("application_id", input.applicationId)
+    .eq("evaluator_id", userId)
+    .maybeSingle();
+  if (assignmentError) return { ok: false, error: assignmentError.message };
+  if (!assignment) {
+    return { ok: false, error: "This application is not assigned to you for evaluation." };
+  }
+
+  const { error } = await supabase.from("evaluations").upsert(
+    {
+      assignment_id: assignment.id,
+      application_id: input.applicationId,
+      evaluator_id: userId,
+      scores: input.scores,
+      weighted_score: Number(input.weightedScore.toFixed(2)),
+      recommendation: input.recommendation,
+      comments: input.comments.trim() || null,
+      submitted_at: new Date().toISOString(),
+    },
+    { onConflict: "assignment_id" },
+  );
+  if (error) return { ok: false, error: error.message };
+
+  // Mark the assignment complete for the queue; RLS allows the assigned reviewer.
+  await supabase
+    .from("evaluation_assignments")
+    .update({ status: "submitted" })
+    .eq("id", assignment.id);
+
+  // Put the report in front of every adjudicator without changing their queue.
+  const { data: adjudicators } = await supabase
+    .from("profiles")
+    .select("id")
+    .eq("role", "adjudicator");
+  if (adjudicators?.length) {
+    await supabase.from("notifications").insert(
+      adjudicators.map((adjudicator) => ({
+        user_id: adjudicator.id,
+        title: "New evaluator report",
+        body: "A scored report is ready for adjudication.",
+        link: `/application?id=${input.applicationId}`,
+      })),
+    );
+  }
+
+  void import("./audit").then(({ logAudit }) =>
+    logAudit({
+      action: "evaluation.submitted",
+      entityTable: "evaluations",
+      entityId: input.applicationId,
+      metadata: { weighted_score: input.weightedScore, recommendation: input.recommendation },
+    }),
+  );
+
+  return { ok: true };
+}
+
+/** Adjudicator decision: updates the application, leaves feedback and notifies the innovator. */
+export async function decideApplication(input: {
+  applicationId: string;
+  decision: "approved" | "rejected";
+  feedback: string;
+  authorRole: "adjudicator" | "admin";
+}): Promise<{ ok: boolean; error?: string }> {
+  if (!supabase) return { ok: false, error: "Supabase is not configured." };
+  const { data: userData } = await supabase.auth.getUser();
+  const userId = userData.user?.id;
+  if (!userId) return { ok: false, error: "Sign in again to record a decision." };
+
+  const { data: application, error: readError } = await supabase
+    .from("applications")
+    .select("innovator_id, title, reference")
+    .eq("id", input.applicationId)
+    .maybeSingle();
+  if (readError) return { ok: false, error: readError.message };
+  if (!application) return { ok: false, error: "Application not found." };
+
+  const note = input.feedback.trim();
+  const { error: updateError } = await supabase
+    .from("applications")
+    .update({
+      status: input.decision,
+      decision_note: note || null,
+      decided_at: new Date().toISOString(),
+    })
+    .eq("id", input.applicationId);
+  if (updateError) return { ok: false, error: updateError.message };
+
+  if (note) {
+    await supabase.from("feedback_comments").insert({
+      application_id: input.applicationId,
+      author_id: userId,
+      author_role: input.authorRole,
+      body: note,
+      status: "unread",
+      visible_to_innovator: true,
+    });
+  }
+
+  await supabase.from("notifications").insert({
+    user_id: application.innovator_id,
+    title: input.decision === "approved" ? "Application approved" : "Application declined",
+    body:
+      note ||
+      `${application.reference} has been ${input.decision === "approved" ? "approved" : "declined"}.`,
+    link: `/application?id=${input.applicationId}`,
+  });
+
+  void import("./audit").then(({ logAudit }) =>
+    logAudit({
+      action: `application.${input.decision}`,
+      entityTable: "applications",
+      entityId: input.applicationId,
+      metadata: { reference: application.reference },
+    }),
+  );
+
+  return { ok: true };
 }

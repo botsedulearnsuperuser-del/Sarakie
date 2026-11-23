@@ -825,7 +825,7 @@ async function confirmDeleteAccount() {
     });
     await signOutNow();
     closeDeleteModal();
-    router.push({ name: "AdminLogin" });
+    router.push({ name: "Login" });
     return;
   }
   closeDeleteModal();

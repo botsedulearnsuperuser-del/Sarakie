@@ -1,15 +1,21 @@
 <template>
   <div :class="[$style.page, isGaborone ? $style.isGaborone : '']" :style="pageBackground">
     <!-- Reusable Stationary Sidebar -->
-    <Main :active-page="isEvaluator ? 'my-applications' : 'dashboard'" :role="isEvaluator ? 'evaluator' : undefined" />
+    <Main
+      :active-page="isEvaluator ? 'my-applications' : 'dashboard'"
+      :role="isAdjudicator ? 'adjudicator' : isEvaluator ? 'evaluator' : undefined"
+    />
 
     <!-- Main Scrollable Content -->
     <main :class="$style.mainContent">
       <div v-if="!applicationReady" :class="$style.viewState">Loading application…</div>
       <div v-else-if="notFound" :class="$style.viewState">
         <p>This application could not be found, or you do not have access to it.</p>
-        <router-link :to="isEvaluator ? '/review-queue' : '/my-applications'" :class="$style.emptyLink">
-          {{ isEvaluator ? "Back to Review Queue" : "Back to My Applications" }}
+        <router-link
+          :to="isEvaluator ? '/review-queue' : isAdjudicator ? '/admin-dashboard' : '/my-applications'"
+          :class="$style.emptyLink"
+        >
+          {{ isEvaluator ? "Back to Review Queue" : isAdjudicator ? "Back to Adjudicator overview" : "Back to My Applications" }}
         </router-link>
       </div>
       <template v-else>
@@ -46,12 +52,15 @@
       <!-- Action & Navigation Bar -->
       <div :class="$style.actionBar">
         <div :class="$style.navRow">
-          <router-link :to="isEvaluator ? '/review-queue' : '/innovator-dashboard'" :class="$style.backLink">
+          <router-link
+            :to="isEvaluator ? '/review-queue' : isAdjudicator ? '/admin-dashboard' : '/innovator-dashboard'"
+            :class="$style.backLink"
+          >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
               <line x1="19" y1="12" x2="5" y2="12"></line>
               <polyline points="12 19 5 12 12 5"></polyline>
             </svg>
-            <span>{{ isEvaluator ? 'Back to Review Queue' : 'Back to Dashboard' }}</span>
+            <span>{{ isEvaluator ? 'Back to Review Queue' : isAdjudicator ? 'Back to Adjudicator overview' : 'Back to Dashboard' }}</span>
           </router-link>
           <span :class="$style.navDivider">/</span>
           <span :class="$style.navCurrent">{{ currentIdea.ideaId }}</span>
@@ -74,6 +83,13 @@
               <line x1="12" y1="15" x2="12" y2="3"></line>
             </svg>
             Download Summary
+          </button>
+
+          <button :class="$style.actionOutlineBtn" type="button" @click="openChat">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+            </svg>
+            Open chat
           </button>
         </div>
       </div>
@@ -128,6 +144,160 @@
             </div>
           </div>
         </div>
+
+        <!-- Evaluator report: scores + final summary for adjudication -->
+        <section v-if="isEvaluator" :class="$style.reviewCard">
+          <div :class="$style.reviewHead">
+            <div>
+              <h2 :class="$style.tableHeading">Evaluation report</h2>
+              <p :class="$style.tableSub">
+                Score the five published criteria, then submit your final summary. The adjudicator
+                receives this report together with the complete application and documents.
+              </p>
+            </div>
+            <span v-if="existingEvaluation?.submitted_at" :class="$style.reviewStatus">
+              Submitted
+            </span>
+          </div>
+
+          <div :class="$style.rubricGrid">
+            <div v-for="criterion in rubricCriteria" :key="criterion.key" :class="$style.rubricItem">
+              <div :class="$style.rubricLabelRow">
+                <span :class="$style.rubricName">{{ criterion.name }}</span>
+                <span :class="$style.rubricWeight">{{ criterion.weight }}%</span>
+              </div>
+              <p :class="$style.rubricHint">{{ criterion.hint }}</p>
+              <div :class="$style.scoreRow">
+                <input
+                  v-model.number="scores[criterion.key]"
+                  :class="$style.scoreRange"
+                  type="range"
+                  min="0"
+                  max="5"
+                  step="1"
+                  :disabled="reviewSaving"
+                />
+                <span :class="$style.scoreValue">{{ scores[criterion.key] ?? 0 }} / 5</span>
+              </div>
+            </div>
+          </div>
+
+          <div :class="$style.reviewSummaryRow">
+            <div :class="$style.reviewScoreBox">
+              <span>Weighted score</span>
+              <b>{{ weightedScore }} / 100</b>
+            </div>
+            <label :class="$style.reviewField">
+              <span>Recommendation</span>
+              <select v-model="recommendation" :class="$style.reviewSelect" :disabled="reviewSaving">
+                <option value="fund">Recommend funding</option>
+                <option value="revise">Revise and resubmit</option>
+                <option value="decline">Do not recommend</option>
+              </select>
+            </label>
+          </div>
+
+          <label :class="$style.reviewField">
+            <span>Final summary for the adjudicator</span>
+            <textarea
+              v-model="reviewComments"
+              :class="$style.reviewTextarea"
+              rows="4"
+              placeholder="Summarise the strengths, risks and your recommendation."
+            />
+          </label>
+
+          <p v-if="reviewError" :class="$style.reviewError" role="alert">{{ reviewError }}</p>
+          <p v-if="reviewNotice" :class="$style.reviewNotice" role="status">{{ reviewNotice }}</p>
+
+          <div :class="$style.reviewActions">
+            <button
+              :class="$style.actionSolidBtn"
+              type="button"
+              :disabled="reviewSaving"
+              @click="saveEvaluation"
+            >
+              {{ reviewSaving ? "Submitting…" : existingEvaluation?.submitted_at ? "Update report" : "Submit final report" }}
+            </button>
+            <span :class="$style.reviewActionsHint">
+              Your scores, summary and the full submission are shared with the adjudicator.
+            </span>
+          </div>
+        </section>
+
+        <!-- Adjudicator decision: reports, complete application, feedback -->
+        <section v-if="isAdjudicator" :class="$style.reviewCard">
+          <div :class="$style.reviewHead">
+            <div>
+              <h2 :class="$style.tableHeading">Adjudication</h2>
+              <p :class="$style.tableSub">
+                Review every evaluator report, the complete application and its documents, then
+                record a decision and leave feedback for the innovator.
+              </p>
+            </div>
+          </div>
+
+          <div v-if="applicationEvaluations.length === 0" :class="$style.reviewEmpty">
+            No evaluator report has been submitted for this application yet.
+          </div>
+          <div v-else :class="$style.reportList">
+            <div v-for="report in applicationEvaluations" :key="report.id" :class="$style.reportCard">
+              <div :class="$style.reportTop">
+                <div :class="$style.reportWho">
+                  <b>{{ report.evaluator_name || "Evaluator" }}</b>
+                  <span>{{ report.submitted_at ? "Submitted " + formatReportDate(report.submitted_at) : "Submitted" }}</span>
+                </div>
+                <div :class="$style.reportScoreBig">
+                  {{ report.weighted_score ?? "—" }}<small>/100</small>
+                </div>
+              </div>
+              <div :class="$style.reportRecommendation">
+                {{ recommendationLabel(report.recommendation) }}
+              </div>
+              <p v-if="report.comments" :class="$style.reportComment">{{ report.comments }}</p>
+              <div :class="$style.reportScores">
+                <span v-for="criterion in rubricCriteria" :key="criterion.key">
+                  {{ criterion.name }}: <b>{{ report.scores[criterion.key] ?? "—" }}/5</b>
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <label :class="$style.reviewField">
+            <span>Feedback to the innovator</span>
+            <textarea
+              v-model="decisionFeedback"
+              :class="$style.reviewTextarea"
+              rows="4"
+              placeholder="Explain the decision. This is sent to the innovator and saved on the application."
+            />
+          </label>
+
+          <p v-if="decisionError" :class="$style.reviewError" role="alert">{{ decisionError }}</p>
+          <p v-if="decisionNotice" :class="$style.reviewNotice" role="status">{{ decisionNotice }}</p>
+
+          <div :class="$style.reviewActions">
+            <button
+              :class="$style.decisionApprove"
+              type="button"
+              :disabled="decisionSaving"
+              @click="makeDecision('approved')"
+            >
+              Approve application
+            </button>
+            <button
+              :class="$style.decisionDecline"
+              type="button"
+              :disabled="decisionSaving"
+              @click="makeDecision('rejected')"
+            >
+              Decline application
+            </button>
+            <span :class="$style.reviewActionsHint">
+              The innovator is notified with this feedback as soon as the decision is recorded.
+            </span>
+          </div>
+        </section>
 
         <!-- Editable draft panel -->
         <div v-if="canEdit && (isDraft || editingCorrections)" id="edit-panel" :class="$style.editSection">
@@ -597,15 +767,24 @@
     window.addEventListener(THEME_EVENT, () => (isGaborone.value = isGaboroneTheme()));
   });
 
-import { onMounted, ref, computed, watch, nextTick } from "vue";
+import { onMounted, reactive, ref, computed, watch, nextTick } from "vue";
 import { THEME_EVENT, isGaboroneTheme } from "../components/themes";
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import { useCssModule } from "vue";
 import Main from "../components/Main.vue";
 import { supabase } from "../lib/supabase";
 import { authReady, currentRole, displayName, session } from "../lib/auth";
+import {
+  decideApplication,
+  loadApplicationEvaluations,
+  loadRubricCriteria,
+  submitEvaluation,
+  type ApplicationEvaluationRow,
+  type RubricCriterion,
+} from "../lib/portal-data";
 
 const route = useRoute();
+const router = useRouter();
 const style = useCssModule();
 const activeTab = ref<"application" | "documents" | "corrections">("application");
 
@@ -802,6 +981,7 @@ async function hydrateFromRoute() {
 
   activeTab.value = route.hash === "#corrections" ? "corrections" : "application";
   applicationReady.value = true;
+  void loadReviewData();
 }
 
 /** Column values for the row behind this page. */
@@ -842,6 +1022,138 @@ const canEdit = computed(
     Boolean(session.value?.user.id) &&
     currentIdea.value.ownerId === session.value?.user.id,
 );
+
+// ── Evaluator report + adjudicator decision ──
+const isAdjudicator = computed(
+  () => currentRole.value === "adjudicator" || currentRole.value === "admin",
+);
+
+const fallbackRubric: RubricCriterion[] = [
+  { key: "problem_market", name: "Problem and market need", weight: 25, hint: "A real, sizeable problem.", position: 1 },
+  { key: "solution_feasible", name: "Solution and feasibility", weight: 25, hint: "It works and can be built.", position: 2 },
+  { key: "team_capability", name: "Team and capability", weight: 20, hint: "Who will deliver it.", position: 3 },
+  { key: "financial", name: "Financial projections", weight: 20, hint: "The numbers add up.", position: 4 },
+  { key: "impact_youth", name: "Impact and youth ownership", weight: 10, hint: "Who benefits and who owns it.", position: 5 },
+];
+
+const rubricCriteria = ref<RubricCriterion[]>(fallbackRubric);
+const scores = reactive<Record<string, number>>({});
+const recommendation = ref<"fund" | "revise" | "decline">("fund");
+const reviewComments = ref("");
+const reviewSaving = ref(false);
+const reviewError = ref("");
+const reviewNotice = ref("");
+const applicationEvaluations = ref<ApplicationEvaluationRow[]>([]);
+const existingEvaluation = computed(() => applicationEvaluations.value[0] ?? null);
+
+const weightedScore = computed(() => {
+  const total = rubricCriteria.value.reduce(
+    (sum, criterion) => sum + ((scores[criterion.key] ?? 0) / 5) * criterion.weight,
+    0,
+  );
+  return Math.round(total);
+});
+
+const decisionFeedback = ref("");
+const decisionSaving = ref(false);
+const decisionError = ref("");
+const decisionNotice = ref("");
+
+function ensureScores() {
+  for (const criterion of rubricCriteria.value) {
+    if (scores[criterion.key] == null) scores[criterion.key] = 0;
+  }
+}
+
+async function loadReviewData() {
+  if (!dbId.value || (!isEvaluator.value && !isAdjudicator.value)) return;
+  const [criteria, reports] = await Promise.all([
+    loadRubricCriteria(),
+    loadApplicationEvaluations(dbId.value),
+  ]);
+  if (criteria.length) rubricCriteria.value = criteria;
+  ensureScores();
+  applicationEvaluations.value = reports;
+
+  if (isEvaluator.value) {
+    const own =
+      reports.find((report) => report.evaluator_id === session.value?.user.id) ?? reports[0];
+    if (own) {
+      for (const criterion of rubricCriteria.value) {
+        scores[criterion.key] = Number(own.scores[criterion.key] ?? 0);
+      }
+      recommendation.value = own.recommendation ?? "fund";
+      reviewComments.value = own.comments ?? "";
+    }
+  }
+}
+
+async function saveEvaluation() {
+  if (!isEvaluator.value || !dbId.value) return;
+  reviewError.value = "";
+  reviewNotice.value = "";
+  if (!reviewComments.value.trim()) {
+    reviewError.value = "Add a final summary before submitting your report.";
+    return;
+  }
+  reviewSaving.value = true;
+  const result = await submitEvaluation({
+    applicationId: dbId.value,
+    scores: { ...scores },
+    weightedScore: weightedScore.value,
+    recommendation: recommendation.value,
+    comments: reviewComments.value,
+  });
+  reviewSaving.value = false;
+  if (!result.ok) {
+    reviewError.value = result.error ?? "Could not submit the report.";
+    return;
+  }
+  reviewNotice.value = "Report submitted. The adjudicator can now review it.";
+  await loadReviewData();
+}
+
+async function makeDecision(decision: "approved" | "rejected") {
+  if (!isAdjudicator.value || !dbId.value) return;
+  decisionError.value = "";
+  decisionNotice.value = "";
+  if (!decisionFeedback.value.trim()) {
+    decisionError.value = "Add feedback for the innovator before recording a decision.";
+    return;
+  }
+  decisionSaving.value = true;
+  const result = await decideApplication({
+    applicationId: dbId.value,
+    decision,
+    feedback: decisionFeedback.value,
+    authorRole: currentRole.value === "admin" ? "admin" : "adjudicator",
+  });
+  decisionSaving.value = false;
+  if (!result.ok) {
+    decisionError.value = result.error ?? "Could not record the decision.";
+    return;
+  }
+  currentIdea.value.status = decision === "approved" ? "Approved" : "Declined";
+  decisionNotice.value =
+    decision === "approved"
+      ? "Application approved. The innovator has been notified."
+      : "Application declined. The innovator has been notified.";
+}
+
+function recommendationLabel(value: string | null) {
+  if (value === "fund") return "Recommend funding";
+  if (value === "revise") return "Revise and resubmit";
+  if (value === "decline") return "Do not recommend";
+  return "No recommendation";
+}
+
+function formatReportDate(iso: string) {
+  return new Date(iso).toLocaleDateString("en-GB", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
+}
 
 const printedOn = new Date().toLocaleDateString("en-GB", {
   day: "numeric",
@@ -1046,6 +1358,11 @@ function downloadSummary() {
 
 function mockPreviewDoc(docName: string) {
   alert(`Viewing document: ${docName} for ${currentIdea.value.title}`);
+}
+
+function openChat() {
+  if (!dbId.value) return;
+  router.push({ name: "ChatPage", query: { id: dbId.value } });
 }
 </script>
 
@@ -1982,9 +2299,282 @@ function mockPreviewDoc(docName: string) {
   }
 }
 
+/* ── Evaluator report & adjudication card ── */
+.reviewCard {
+  margin: 0 24px 24px;
+  padding: 24px 26px;
+  border-radius: 20px;
+  background-color: #fbf9f4;
+  border: 1px solid #ece5d8;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  box-sizing: border-box;
+}
+.reviewHead {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.reviewStatus {
+  display: inline-flex;
+  align-items: center;
+  height: 28px;
+  padding: 0 12px;
+  border-radius: 999px;
+  background-color: #e4f2e0;
+  color: #2c6b32;
+  font-size: 12px;
+  font-weight: 700;
+}
+.rubricGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+.rubricItem {
+  padding: 14px 16px;
+  border-radius: 14px;
+  background-color: #ffffff;
+  border: 1px solid #eee6d8;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.rubricLabelRow {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+}
+.rubricName {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--color-darkslategray-500);
+}
+.rubricWeight {
+  font-size: 12px;
+  font-weight: 700;
+  color: #9a7a2f;
+}
+.rubricHint {
+  margin: 0;
+  font-size: 12px;
+  color: #7d7466;
+}
+.scoreRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 6px;
+}
+.scoreRange {
+  flex: 1;
+  accent-color: #b98314;
+}
+.scoreValue {
+  min-width: 46px;
+  text-align: right;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #013525;
+}
+.reviewSummaryRow {
+  display: grid;
+  grid-template-columns: minmax(0, 0.7fr) minmax(0, 1.3fr);
+  gap: 12px;
+  align-items: stretch;
+}
+.reviewScoreBox {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 2px;
+  padding: 12px 16px;
+  border-radius: 14px;
+  background-color: #013525;
+  color: #d8e6dd;
+  font-size: 12px;
+}
+.reviewScoreBox b {
+  font-size: 22px;
+  color: #f2c94c;
+}
+.reviewField {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #4c473f;
+}
+.reviewSelect,
+.reviewTextarea {
+  width: 100%;
+  border-radius: 12px;
+  border: 1px solid #ddd3c2;
+  background-color: #ffffff;
+  padding: 10px 12px;
+  font-family: inherit;
+  font-size: 13.5px;
+  color: #1f1b16;
+  box-sizing: border-box;
+}
+.reviewTextarea {
+  resize: vertical;
+  line-height: 1.5;
+}
+.reviewSelect:focus,
+.reviewTextarea:focus {
+  outline: none;
+  border-color: #b98314;
+  box-shadow: 0 0 0 3px rgba(185, 131, 20, 0.15);
+}
+.reviewActions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.reviewActionsHint {
+  font-size: 12px;
+  color: #827868;
+  max-width: 440px;
+}
+.reviewError {
+  margin: 0;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background-color: #fdf0ed;
+  color: #b42318;
+  font-size: 13px;
+}
+.reviewNotice {
+  margin: 0;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background-color: #e8f5e4;
+  color: #226235;
+  font-size: 13px;
+  font-weight: 600;
+}
+.reviewEmpty {
+  padding: 14px 4px;
+  font-size: 13px;
+  color: #827868;
+}
+.reportList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.reportCard {
+  padding: 16px 18px;
+  border-radius: 14px;
+  background-color: #ffffff;
+  border: 1px solid #eee6d8;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.reportTop {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+.reportWho {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 13px;
+  color: #827868;
+}
+.reportWho b {
+  font-size: 14px;
+  color: #1f1b16;
+}
+.reportScoreBig {
+  font-size: 24px;
+  font-weight: 800;
+  color: #013525;
+  white-space: nowrap;
+}
+.reportScoreBig small {
+  font-size: 11px;
+  color: #827868;
+  font-weight: 600;
+}
+.reportRecommendation {
+  align-self: flex-start;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background-color: #f3efe7;
+  color: #6b5a2a;
+  font-size: 11.5px;
+  font-weight: 700;
+}
+.reportComment {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.55;
+  color: #4c473f;
+  white-space: pre-wrap;
+}
+.reportScores {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 14px;
+  padding-top: 8px;
+  border-top: 1px dashed #eee6d8;
+  font-size: 11.5px;
+  color: #827868;
+}
+.reportScores b {
+  color: #1f1b16;
+}
+.decisionApprove,
+.decisionDecline {
+  height: 44px;
+  padding: 0 18px;
+  border: none;
+  border-radius: 10px;
+  font-family: inherit;
+  font-size: 13.5px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.decisionApprove {
+  background-color: #14603f;
+  color: #ffffff;
+}
+.decisionDecline {
+  background-color: #9b2c21;
+  color: #ffffff;
+}
+.decisionApprove:disabled,
+.decisionDecline:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
 @media screen and (max-width: 750px) {
   .mainContent {
     padding: 20px 16px 32px;
+  }
+  .reviewCard {
+    margin: 0 12px 18px;
+    padding: 18px 16px;
+  }
+  .rubricGrid,
+  .reviewSummaryRow {
+    grid-template-columns: 1fr;
+  }
+  .reviewActions {
+    flex-direction: column;
+    align-items: stretch;
   }
 }
 

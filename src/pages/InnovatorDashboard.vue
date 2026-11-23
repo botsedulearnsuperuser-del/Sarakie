@@ -20,6 +20,7 @@
           </div>
         </div>
         <div :class="$style.div3">
+          <MessagesButton />
           <div :class="$style.iconWrap">
             <button
               :class="$style.iconBtn"
@@ -300,6 +301,7 @@
   import Li from "../components/Li.vue"
   import PointerHighlight from "../components/ui/pointer-highlight.vue"
   import NotificationsPanel from "../components/NotificationsPanel.vue"
+  import MessagesButton from "../components/MessagesButton.vue"
   import {
     CUSTOM_IMAGE_STORAGE_KEY,
     CUSTOM_THEME_ID,

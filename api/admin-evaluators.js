@@ -45,7 +45,7 @@ async function requireAdmin(req) {
 
   const header = String(req.headers?.authorization || "");
   const token = header.startsWith("Bearer ") ? header.slice(7) : "";
-  if (!token) return { error: "Sign in as an administrator first.", status: 401 };
+  if (!token) return { error: "Sign in as an administrator or adjudicator first.", status: 401 };
 
   const caller = createClient(SUPABASE_URL, PUBLISHABLE_KEY, {
     auth: { persistSession: false, autoRefreshToken: false },
@@ -63,8 +63,11 @@ async function requireAdmin(req) {
     .eq("id", userData.user.id)
     .maybeSingle();
 
-  if (!profile || profile.role !== "admin") {
-    return { error: "Only a CEDA administrator can manage evaluator accounts.", status: 403 };
+  if (!profile || (profile.role !== "admin" && profile.role !== "adjudicator")) {
+    return {
+      error: "Only a CEDA administrator or adjudicator can manage evaluator accounts.",
+      status: 403,
+    };
   }
 
   return {

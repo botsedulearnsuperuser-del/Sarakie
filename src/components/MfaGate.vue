@@ -180,7 +180,7 @@
     await signOutNow();
     busy.value = false;
     await refreshMfa();
-    router.push({ name: "AdminLogin" });
+    router.push({ name: "Login" });
   }
 </script>
 

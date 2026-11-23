@@ -114,7 +114,7 @@
             </button>
             <router-link
               :class="$style.login"
-              to="/admin-login"
+              to="/login"
               @click="closeMenu"
             >
               Login

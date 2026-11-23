@@ -20,6 +20,7 @@
           </div>
         </div>
         <div :class="$style.div3">
+          <MessagesButton />
           <div :class="$style.iconWrap">
             <button
               :class="$style.iconBtn"
@@ -275,6 +276,7 @@
   import ChatWithAgent from "../components/ChatWithAgent.vue"
   import PointerHighlight from "../components/ui/pointer-highlight.vue"
   import NotificationsPanel from "../components/NotificationsPanel.vue"
+  import MessagesButton from "../components/MessagesButton.vue"
   import Skeleton from "../components/ui/Skeleton.vue"
   import SkeletonText from "../components/ui/SkeletonText.vue"
   import {

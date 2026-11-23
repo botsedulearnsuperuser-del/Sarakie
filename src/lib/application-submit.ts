@@ -1,4 +1,5 @@
 import { supabase } from "./supabase";
+import { logAudit } from "./audit";
 
 /**
  * Creates the application in Supabase, uploads its documents and stores the
@@ -193,6 +194,13 @@ export async function submitApplication(
     await cleanUp();
     return { ok: false, error: `Could not submit the application: ${readableError(submitError.message)}` };
   }
+
+  void logAudit({
+    action: "application.submit",
+    entityTable: "applications",
+    entityId: application.id,
+    metadata: { reference: application.reference, title },
+  });
 
   return { ok: true, id: application.id, reference: application.reference };
 }

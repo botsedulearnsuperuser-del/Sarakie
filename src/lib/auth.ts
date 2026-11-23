@@ -3,7 +3,7 @@ import type { Session, User } from "@supabase/supabase-js";
 import { isSupabaseConfigured, supabase } from "./supabase";
 import { PASSWORD_REQUIREMENT_MESSAGE, passwordChecks } from "./password";
 
-export type AppRole = "innovator" | "evaluator" | "admin";
+export type AppRole = "innovator" | "evaluator" | "adjudicator" | "admin";
 
 export interface UserProfile {
   id: string;
@@ -21,7 +21,7 @@ export const profile = ref<UserProfile | null>(null);
 export const authReady = ref(false);
 export const authError = ref("");
 
-const VALID_ROLES: AppRole[] = ["innovator", "evaluator", "admin"];
+const VALID_ROLES: AppRole[] = ["innovator", "evaluator", "adjudicator", "admin"];
 
 function asRole(value: unknown): AppRole | null {
   return typeof value === "string" && (VALID_ROLES as string[]).includes(value)
@@ -67,7 +67,7 @@ export const displayName = computed(
 );
 
 export function dashboardForRole(role: AppRole): string {
-  if (role === "admin") return "/admin-dashboard";
+  if (role === "admin" || role === "adjudicator") return "/admin-dashboard";
   if (role === "evaluator") return "/evaluator-dashboard";
   return "/innovator-dashboard";
 }
@@ -110,6 +110,9 @@ export async function signInWithPassword(
 
   session.value = data.session ?? null;
   await loadProfile(data.user ?? null);
+  void import("./audit").then(({ logAudit }) =>
+    logAudit({ action: "auth.sign_in", entityTable: "profiles", entityId: data.user?.id ?? null }),
+  );
   return { ok: true, role: currentRole.value };
 }
 
@@ -177,6 +180,11 @@ export async function completePasswordReset(
 }
 
 export async function signOutNow(): Promise<void> {
+  if (session.value?.user) {
+    void import("./audit").then(({ logAudit }) =>
+      logAudit({ action: "auth.sign_out", entityTable: "profiles", entityId: session.value?.user?.id ?? null }),
+    );
+  }
   if (supabase) await supabase.auth.signOut();
   session.value = null;
   profile.value = null;

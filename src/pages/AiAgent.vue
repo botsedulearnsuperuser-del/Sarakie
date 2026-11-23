@@ -14,6 +14,7 @@
           </div>
         </div>
         <div :class="$style.div3">
+          <MessagesButton />
           <div :class="$style.iconWrap">
             <button
               :class="$style.iconBtn"
@@ -190,6 +191,7 @@
   import { useRouter } from "vue-router"
   import Main from "../components/Main.vue"
   import NotificationsPanel from "../components/NotificationsPanel.vue"
+  import MessagesButton from "../components/MessagesButton.vue"
   import ComposerPanel from "../components/ui/ComposerPanel.vue"
   import AIResponse from "../components/ui/AIResponse.vue"
   import WebSearchTrail, { type WebSearchStep } from "../components/ui/WebSearchTrail.vue"
@@ -1025,7 +1027,7 @@ import {
     min-width: 0;
   }
   .section2 {
-    border-radius: var(--br-26);
+    border-radius: var(--br-26) var(--br-26) var(--br-26) var(--br-26);
     background-color: var(--color-white);
     border: var(--border-2);
     box-sizing: border-box;
@@ -1036,7 +1038,7 @@ import {
     color: var(--color-darkslategray-500);
   }
   .sectionTitle {
-    margin: 0;
+    margin: 12px 0 0 0;
     font-size: 20.6px;
     font-weight: 800;
     letter-spacing: -0.06px;
