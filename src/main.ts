@@ -193,6 +193,13 @@ const routes: RouteRecordRaw[] = [
     component: AdminSignUp,
   },
   {
+    path: "/admin-sign-up",
+    name: "AdminSignUp",
+    component: AdminSignUp,
+    props: { accountRole: "admin" },
+    meta: { title: "Admin sign up — CEDA Innovation Portal" },
+  },
+  {
     path: "/forgot-password",
     name: "ForgotPassword",
     component: ForgotPassword,

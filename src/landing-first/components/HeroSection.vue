@@ -71,7 +71,7 @@ const goToDashboard = () => {
   z-index: 1;
   object-fit: cover;
   object-position: center top;
-  opacity: 0.85;
+  opacity: 0.85;\n  background-color: var(--color-maroon);
 }
 .content {
   position: relative;
@@ -154,6 +154,12 @@ const goToDashboard = () => {
   font-family: var(--font-inter);
   cursor: pointer;
 }
+.primaryBtn {
+  transition: background-color 0.2s ease;
+}
+.primaryBtn:hover {
+  background-color: #7d1b17;
+}
 .primaryBtn img {
   width: 24px;
   height: 24px;
@@ -192,7 +198,7 @@ const goToDashboard = () => {
   object-position: center bottom;
   display: block;
   margin-bottom: -36px;
-  mix-blend-mode: lighten;
+  background-color: var(--color-maroon);
 }
 .contentContainer {
   position: absolute;
@@ -201,6 +207,7 @@ const goToDashboard = () => {
   bottom: 0;
   width: 100%;
   height: clamp(72px, 10vw, 110px);
+  background-color: var(--color-maroon);
   object-fit: fill;
   pointer-events: none;
   z-index: 2;
@@ -234,7 +241,7 @@ const goToDashboard = () => {
   .patternLeft {
     position: relative;
     width: 100%;
-    height: 112px;
+    height: 160px;
     object-fit: cover;
     object-position: center;
     opacity: 0.9;
@@ -283,7 +290,7 @@ const goToDashboard = () => {
 }
 @media screen and (max-width: 450px) {
   .patternLeft {
-    height: 96px;
+    height: 120px;
   }
   .content {
     padding: 26px 20px 14px;

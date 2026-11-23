@@ -381,7 +381,8 @@ function viewDrafts() {
   .a {
     height: 40px;
     border-radius: var(--br-12);
-    border: 1px solid var(--color-gray-400);
+    border: 1px solid var(--color-goldenrod-200);
+    background-color: rgba(238, 194, 75, 0.18);
     box-sizing: border-box;
     display: flex;
     align-items: center;
@@ -390,6 +391,33 @@ function viewDrafts() {
     color: var(--color-white);
     cursor: pointer;
     white-space: nowrap;
+    animation: proposalBlink 1.6s ease-in-out infinite;
+  }
+  .a:hover,
+  .a:focus-visible {
+    background-color: var(--color-goldenrod-200);
+    color: var(--color-darkslategray-500);
+    outline: none;
+    animation: none;
+    box-shadow: 0 0 0 3px rgba(238, 194, 75, 0.45);
+  }
+  @keyframes proposalBlink {
+    0%,
+    100% {
+      background-color: rgba(238, 194, 75, 0.16);
+      border-color: var(--color-goldenrod-200);
+      box-shadow: 0 0 0 0 rgba(238, 194, 75, 0);
+    }
+    50% {
+      background-color: rgba(238, 194, 75, 0.45);
+      border-color: #ffdf8a;
+      box-shadow: 0 0 12px rgba(238, 194, 75, 0.55);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .a {
+      animation: none;
+    }
   }
 
   @media screen and (max-width: 1050px) {

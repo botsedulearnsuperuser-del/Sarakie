@@ -59,9 +59,17 @@
       <div :class="$style.formCard">
         <img :class="$style.cedaLogo" src="/ceda-logo.webp" alt="CEDA" />
 
-        <h2 :class="$style.formTitle">Create Account</h2>
+        <h2 :class="$style.formTitle">
+          {{ isAdminSignup ? "Create Admin Account" : "Create Account" }}
+        </h2>
         <div :class="$style.formTitleUnderline" />
-        <p :class="$style.formSubtitle">Register for your CEDA Account</p>
+        <p :class="$style.formSubtitle">
+          {{
+            isAdminSignup
+              ? "Register an administrator for the CEDA Portal"
+              : "Register for your CEDA Account"
+          }}
+        </p>
 
         <form
           v-if="!signUpComplete"
@@ -207,7 +215,7 @@
           <p :class="$style.successText">
             We sent a confirmation link to
             <strong>{{ submittedEmail }}</strong>. Open it to activate your CEDA
-            Innovation Portal account. The link is valid for 24 hours.
+            Innovation Portal account. The link is valid for 1 hour.
           </p>
 
           <router-link
@@ -250,6 +258,12 @@ import {
 } from "../lib/password";
 
 const router = useRouter();
+
+/* /sign-up creates innovators; /admin-sign-up reuses this page with the admin role. */
+const props = withDefaults(defineProps<{ accountRole?: "innovator" | "admin" }>(), {
+  accountRole: "innovator",
+});
+const isAdminSignup = computed(() => props.accountRole === "admin");
 
 const manImageSrc = encodeURI("/innovator-man.webp");
 const womanImageSrc = encodeURI("/hero-client.webp");
@@ -309,6 +323,7 @@ const handleSignUp = async () => {
     fullName: fullName.value,
     email: identifier.value,
     password: password.value,
+    role: props.accountRole,
   });
   loading.value = false;
 
@@ -324,7 +339,7 @@ const handleSignUp = async () => {
     return;
   }
 
-  router.push(dashboardForRole("innovator"));
+  router.push(dashboardForRole(props.accountRole));
 };
 
 async function resendEmail() {

@@ -121,6 +121,8 @@ export async function signUpWithPassword(input: {
   email: string;
   password: string;
   phone?: string;
+  /** Role stored on the new profile. Defaults to innovator. */
+  role?: AppRole;
 }): Promise<{ ok: boolean; error?: string; needsConfirmation?: boolean }> {
   if (!supabase) return { ok: false, error: "Supabase is not configured." };
 
@@ -132,7 +134,7 @@ export async function signUpWithPassword(input: {
       emailRedirectTo: `${window.location.origin}/login`,
       data: {
         full_name: input.fullName.trim(),
-        role: "innovator",
+        role: input.role ?? "innovator",
         phone: input.phone?.trim() || null,
       },
     },
