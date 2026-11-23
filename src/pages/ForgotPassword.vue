@@ -372,7 +372,7 @@ const handleReset = async () => {
 }
 
 .formSubtitle {
-  margin: 0 0 clamp(26px, 4.3vh, 54px);
+  margin: 0 0 clamp(32px, 5vh, 60px);
   color: #2b1b00;
   font-size: min(28px, max(14px, 1.25vw), 2.4vh);
   font-weight: 500;
@@ -390,7 +390,7 @@ const handleReset = async () => {
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-bottom: clamp(16px, 2.9vh, 28px);
+  margin-bottom: clamp(28px, 4.4vh, 44px);
 }
 
 .inputLabel {
@@ -466,7 +466,7 @@ const handleReset = async () => {
 }
 
 .resetMessage {
-  margin: 10px 0 0;
+  margin: 14px 0 0;
   color: #b3261e;
   font-size: 13px;
   line-height: 1.45;
@@ -496,7 +496,7 @@ const handleReset = async () => {
 }
 
 .signupPrompt {
-  margin: clamp(24px, 3.8vh, 46px) 0 clamp(28px, 4.6vh, 52px);
+  margin: clamp(34px, 5.2vh, 60px) 0 clamp(16px, 2.4vh, 26px);
   color: #2b1b00;
   font-size: min(24px, max(13.5px, 1.1vw), 2.2vh);
   font-weight: 500;
@@ -512,7 +512,7 @@ const handleReset = async () => {
 }
 
 .supportPrompt {
-  margin: 0 0 clamp(20px, 3.4vh, 40px);
+  margin: clamp(10px, 1.6vh, 18px) 0 clamp(30px, 4.6vh, 48px);
   color: #2b1b00;
   font-size: min(22px, max(13px, 1.05vw), 2.1vh);
   font-weight: 500;
@@ -530,7 +530,7 @@ const handleReset = async () => {
 }
 
 .legalNote {
-  margin: clamp(18px, 3vh, 40px) 0 0;
+  margin: clamp(30px, 4.8vh, 54px) 0 0;
   max-width: 92%;
   color: #7d6f66;
   font-size: min(17px, max(11.5px, 0.92vw), 1.85vh);

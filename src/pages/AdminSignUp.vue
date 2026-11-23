@@ -68,6 +68,7 @@
           :class="$style.loginForm"
           @submit.prevent="handleSignUp"
         >
+          <div :class="$style.fieldsGrid">
           <div :class="$style.inputGroup">
             <label :class="$style.inputLabel" for="fullName">Full Name</label>
             <input
@@ -138,6 +139,7 @@
               autocomplete="new-password"
               required
             />
+          </div>
           </div>
 
           <p
@@ -558,6 +560,27 @@ async function resendEmail() {
   display: flex;
   flex-direction: column;
   align-items: center;
+}
+
+.fieldsGrid {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: clamp(16px, 1.6vw, 24px);
+  row-gap: clamp(16px, 2.9vh, 28px);
+  align-items: start;
+  margin-bottom: clamp(16px, 2.9vh, 28px);
+}
+
+/* Inside the 2×2 grid the gap handles spacing, so the stacked margin is dropped. */
+.fieldsGrid .inputGroup {
+  margin-bottom: 0;
+}
+
+@media screen and (max-width: 560px) {
+  .fieldsGrid {
+    grid-template-columns: 1fr;
+  }
 }
 
 .inputGroup {

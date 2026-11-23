@@ -228,7 +228,6 @@
     { id: "dashboard", label: "Dashboard", page: "dashboard", route: "InnovatorDashboard", icon: ICONS.home },
     { id: "applications", label: "My Applications", page: "my-applications", route: "MyApplications", icon: ICONS.applications },
     { id: "feedback", label: "Feedback Center", page: "feedback-center", route: "FeedbackCenter", icon: ICONS.feedback },
-    { id: "chat", label: "Messages", page: "feedback-center", route: "ChatPage", icon: ICONS.chat },
     { id: "profile", label: "My Profile", page: "profile", route: "ProfileView", icon: ICONS.person },
     { id: "ai", label: "AI Agent", action: "ai", icon: ICONS.aiAgent },
   ];
@@ -239,7 +238,6 @@
     { id: "queue", label: "Review queue", page: "my-applications", route: "ReviewQueue", icon: ICONS.document },
     { id: "innovator-ideas", label: "Innovator ideas", page: "ideas", route: "IdeasView", icon: ICONS.innovatorIdeas },
     { id: "feedback", label: "Feedback Centre", page: "feedback-center", route: "FeedbackCenter", icon: ICONS.feedback },
-    { id: "chat", label: "Messages", page: "feedback-center", route: "ChatPage", icon: ICONS.chat },
     { id: "team", label: "Evaluation team", page: "team", route: "TeamView", icon: ICONS.person },
     { id: "profile", label: "Evaluator profile", page: "profile", route: "ProfileView", icon: ICONS.evaluatorProfile },
   ];
@@ -249,7 +247,6 @@
     { id: "evaluators", label: "Evaluator accounts", page: "admin-evaluators", route: "AdminEvaluators", icon: ICONS.users },
     { id: "applications", label: "All applications", page: "my-applications", route: "AllApplications", icon: ICONS.document },
     { id: "feedback", label: "Feedback Centre", page: "feedback-center", route: "FeedbackCenter", icon: ICONS.feedback },
-    { id: "chat", label: "Messages", page: "feedback-center", route: "ChatPage", icon: ICONS.chat },
     { id: "ideas", label: "Idea repository", page: "ideas", route: "IdeasView", icon: ICONS.chat },
     { id: "deadlines", label: "Deadlines", page: "deadlines", route: "DeadlinesView", icon: ICONS.calendar },
     { id: "team", label: "Team & roles", page: "team", route: "TeamView", icon: ICONS.person },

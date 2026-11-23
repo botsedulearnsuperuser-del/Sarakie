@@ -33,7 +33,8 @@
 <style module>
 .footer {
   width: 100%;
-  background-color: var(--color-darkslategray-600);
+  background-color: #2b1b00;
+  border-top: 4px solid #97231e;
   padding: 48px 40px 56px;
   box-sizing: border-box;
 }
@@ -66,14 +67,14 @@
 }
 .heading {
   margin: 0;
-  color: var(--color-white);
+  color: #f7c613;
   font-size: var(--fs-18);
   font-weight: 700;
   font-family: var(--font-inter);
 }
 .body {
   margin: 0;
-  color: var(--color-white);
+  color: #fff8dd;
   font-size: var(--fs-18);
   font-weight: 400;
   font-family: var(--font-inter);

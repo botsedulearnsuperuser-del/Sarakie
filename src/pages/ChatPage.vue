@@ -681,4 +681,18 @@ watch(
     padding-top: 64px;
   }
 }
+
+/* Gaborone theme: the page sits on a photo, so header and state text go white. */
+.isGaborone .dumelaMarion,
+.isGaborone .sunday4October,
+.isGaborone .viewState,
+.isGaborone .emptyLink {
+  color: #ffffff;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.45);
+}
+
+.isGaborone .emptyLink {
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
 </style>

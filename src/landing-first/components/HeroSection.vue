@@ -93,7 +93,7 @@ const goToDashboard = () => {
 }
 .rooted {
   margin: 0;
-  color: var(--color-goldenrod-300);
+  color: #eb6a30;
   font-size: var(--fs-18);
   font-weight: 600;
   letter-spacing: 0.06em;
@@ -102,7 +102,7 @@ const goToDashboard = () => {
 .underline {
   width: 70px;
   height: 4px;
-  background-color: var(--color-goldenrod-300);
+  background: linear-gradient(90deg, #8e1b2b 0%, #eb6a30 55%, #f2a81d 100%);
 }
 .headline {
   margin: 0;
@@ -121,11 +121,11 @@ const goToDashboard = () => {
   white-space: nowrap;
 }
 .future {
-  color: var(--color-goldenrod-300);
+  color: #ffffff;
 }
 .subcopy {
   margin: 6px 0 0;
-  color: var(--color-goldenrod-300);
+  color: #f2a81d;
   font-size: var(--fs-18);
   font-weight: 500;
   font-family: var(--font-inter);
@@ -143,12 +143,12 @@ const goToDashboard = () => {
   height: 47px;
   border: none;
   border-radius: var(--br-12);
-  background-color: var(--color-goldenrod-300);
+  background: linear-gradient(120deg, #8e1b2b 0%, #eb6a30 55%, #f2a81d 100%);
   display: inline-flex;
   align-items: center;
   gap: 10px;
   padding: 10px 16px;
-  color: var(--color-darkslategray-600);
+  color: #ffffff;
   font-size: var(--fs-18);
   font-weight: 600;
   font-family: var(--font-inter);
@@ -157,6 +157,7 @@ const goToDashboard = () => {
 .primaryBtn img {
   width: 24px;
   height: 24px;
+  filter: brightness(0) invert(1);
 }
 .agentLink {
   color: var(--color-white);
@@ -165,7 +166,11 @@ const goToDashboard = () => {
   text-decoration: underline;
   text-underline-offset: 6px;
   text-decoration-thickness: 2px;
-  text-decoration-color: var(--color-goldenrod-300);
+  text-decoration-color: #f2a81d;
+  transition: color 0.2s ease;
+}
+.agentLink:hover {
+  color: #f2a81d;
 }
 .heroMedia {
   position: relative;

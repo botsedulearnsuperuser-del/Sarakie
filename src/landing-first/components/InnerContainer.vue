@@ -28,6 +28,7 @@
   </div>
 </template>
 <script setup lang="ts">
+// Palette taken from the sign-in panel: gold card, deep brown type, maroon accent.
 const cards = [
   {
     title: "For Innovators",
@@ -68,7 +69,7 @@ const cards = [
 .headerLine {
   width: 170px;
   height: 3px;
-  background-color: #e1570b;
+  background-color: #97231e;
 }
 .title {
   margin: 0;
@@ -86,6 +87,10 @@ const cards = [
   max-width: 640px;
   line-height: 1.4;
 }
+.card:hover {
+  transform: translateY(-3px);
+  transition: transform 0.2s ease;
+}
 .cards {
   width: 100%;
   position: relative;
@@ -99,8 +104,8 @@ const cards = [
   position: relative;
   z-index: 1;
   isolation: isolate;
-  background: var(--color-white);
-  border: 3px solid #e1570b;
+  background: linear-gradient(160deg, #f7c613 0%, #efb90c 100%);
+  border: 3px solid #97231e;
   border-radius: 28px;
   padding: 36px 28px 40px;
   overflow: hidden;
@@ -118,7 +123,7 @@ const cards = [
 }
 .cardTitle {
   margin: 0;
-  color: #36150a;
+  color: #2b1b00;
   font-size: var(--fs-24);
   font-weight: 900;
   font-family: var(--font-inter);
@@ -126,7 +131,7 @@ const cards = [
 }
 .cardBody {
   margin: 0;
-  color: #36150a;
+  color: #2b1b00;
   font-size: var(--fs-18);
   font-family: var(--font-inter);
   line-height: 1.45;
@@ -135,22 +140,27 @@ const cards = [
   flex: 1;
 }
 .cardLink {
-  color: #36150a;
+  color: #97231e;
   font-size: var(--fs-18);
-  font-weight: 600;
+  font-weight: 700;
   font-family: var(--font-inter);
   text-decoration: underline;
   text-underline-offset: 5px;
   text-decoration-thickness: 2px;
-  text-decoration-color: #e1570b;
+  text-decoration-color: #97231e;
   z-index: 1;
+  transition: color 0.2s ease;
+}
+.card:hover .cardLink {
+  color: #5f120f;
 }
 .cardPattern {
   position: absolute;
   right: -70px;
   bottom: -60px;
   width: 200px;
-  opacity: 0.45;
+  opacity: 0.14;
+  mix-blend-mode: multiply;
   pointer-events: none;
   z-index: 0;
   object-fit: contain;

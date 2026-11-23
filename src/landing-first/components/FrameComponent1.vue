@@ -21,7 +21,7 @@
   width: 100%;
   position: relative;
   isolation: isolate;
-  background-color: var(--color-goldenrod-100);
+  background-color: #f7c613;
   overflow: hidden;
   min-height: 240px;
   display: flex;
@@ -58,7 +58,7 @@
 }
 .title {
   margin: 0;
-  color: var(--color-darkslategray-600);
+  color: #2b1b00;
   font-size: clamp(28px, 4vw, 42px);
   font-weight: 900;
   font-family: var(--font-inter);
@@ -67,15 +67,15 @@
 .line {
   width: 170px;
   height: 3px;
-  background-color: var(--color-darkslategray-600);
+  background-color: #97231e;
 }
 .button {
   display: inline-flex;
   align-items: center;
   gap: 10px;
   border-radius: var(--br-12);
-  background-color: var(--color-darkslategray-600);
-  color: var(--color-white);
+  background-color: #97231e;
+  color: #fff8dd;
   text-decoration: none;
   padding: 14px 18px;
   font-size: var(--fs-18);

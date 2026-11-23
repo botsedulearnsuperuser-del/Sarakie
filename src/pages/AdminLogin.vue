@@ -78,27 +78,6 @@
             <span>Sign in with Google</span>
           </button>
 
-          <button
-            :class="[$style.socialButton, $style.socialFacebook]"
-            type="button"
-            @click="socialSignIn('Facebook')"
-          >
-            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-              <path d="M24 12.073C24 5.405 18.627 0 12 0S0 5.405 0 12.073C0 18.1 4.388 23.094 10.125 24v-8.437H7.078v-3.49h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.49h-2.796V24C19.612 23.094 24 18.1 24 12.073z" />
-            </svg>
-            <span>Sign in with Facebook</span>
-          </button>
-
-          <button
-            :class="[$style.socialButton, $style.socialApple]"
-            type="button"
-            @click="socialSignIn('Apple')"
-          >
-            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-              <path d="M17.05 12.54c.02 2.6 2.28 3.47 2.31 3.48-.02.06-.36 1.23-1.19 2.43-.72 1.04-1.47 2.08-2.65 2.1-1.15.02-1.52-.68-2.84-.68-1.31 0-1.72.66-2.8.7-1.13.04-1.99-1.12-2.71-2.16-1.47-2.13-2.59-6.01-1.08-8.63.75-1.3 2.09-2.13 3.55-2.15 1.11-.02 2.15.75 2.83.75.68 0 1.94-.92 3.27-.79.56.02 2.12.2 3.13 1.68-.08.05-1.87 1.09-1.82 3.27M14.9 4.94c.6-.73 1-1.74.89-2.75-.86.03-1.9.57-2.52 1.29-.55.64-1.04 1.67-.91 2.66.96.07 1.94-.49 2.54-1.2" />
-            </svg>
-            <span>Sign in with Apple</span>
-          </button>
         </div>
 
         <div :class="$style.socialDivider">
@@ -173,12 +152,6 @@
             </router-link>
           </p>
 
-          <p :class="$style.supportPrompt">
-            Need Help ?
-            <a :class="$style.supportLink" href="#support" @click.prevent>
-              Talk to an Agent
-            </a>
-          </p>
 
           <p :class="$style.legalNote">
             By continuing to access this system, you confirm that you agree to
@@ -494,24 +467,6 @@ const handleLogin = async () => {
   background-color: #f7f7f7;
 }
 
-.socialFacebook {
-  background-color: #1877f2;
-  color: #ffffff;
-}
-
-.socialFacebook:hover {
-  filter: brightness(1.06);
-}
-
-.socialApple {
-  background-color: #000000;
-  color: #ffffff;
-}
-
-.socialApple:hover {
-  filter: brightness(1.35);
-}
-
 .socialDivider {
   width: 100%;
   max-width: 360px;
@@ -645,24 +600,6 @@ const handleLogin = async () => {
   border-bottom: 3px solid #f7c613;
   padding-bottom: 2px;
   margin-left: 4px;
-}
-
-.supportPrompt {
-  margin: 0 0 clamp(20px, 3.4vh, 40px);
-  color: #2b1b00;
-  font-size: min(22px, max(13px, 1.05vw), 2.1vh);
-  font-weight: 500;
-}
-
-.supportLink {
-  color: #2b1b00;
-  font-weight: 600;
-  text-decoration: none;
-  margin-left: 4px;
-}
-
-.supportLink:hover {
-  text-decoration: underline;
 }
 
 .legalNote {

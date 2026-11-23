@@ -32,7 +32,7 @@ export const ROUTE_ROLES: Record<string, AppRole[]> = {
   ReviewQueue: ["evaluator", "adjudicator"],
   FeedbackCenter: ["innovator", "evaluator", "adjudicator"],
   ProfileView: ["innovator", "evaluator", "adjudicator", "admin"],
-  TeamView: ["evaluator", "adjudicator", "admin"],
+  TeamView: ["innovator", "evaluator", "adjudicator", "admin"],
   IdeasView: ["innovator", "evaluator", "adjudicator", "admin"],
   DeadlinesView: ["innovator", "evaluator", "adjudicator", "admin"],
   ApplicationView: ["innovator", "evaluator", "adjudicator", "admin"],
