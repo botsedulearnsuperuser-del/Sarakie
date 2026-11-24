@@ -73,6 +73,7 @@ const goToDashboard = () => {
   object-fit: cover;
   object-position: center top;
   opacity: 0.85;
+  background-color: var(--color-maroon);
 }
 .content {
   position: relative;
